@@ -6,12 +6,14 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CategoryResource;
+use App\Http\Requests\Api\Category\CreateCategory;
 
 class CategoryController extends Controller
 {
     public function __construct()
     {
         $this->middleware(['auth'])->except(['index', 'show']);
+        $this->authorizeResource(Category::class);
     }
     /**
      * Display a listing of the resource.
@@ -27,16 +29,14 @@ class CategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  App\Http\Requests\Api\Category\CreateCategory  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CreateCategory $request)
     {
         $data = $request->only('category.name', 'category.slug', 'category.description', 'category.image');
         $data = $data['category'];
-
         $newCategory = Category::create($data);
-
         return new CategoryResource($newCategory);
     }
 
@@ -48,7 +48,7 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-        //
+        return new CategoryResource($category);
     }
 
     /**
@@ -60,7 +60,10 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        //
+        $data = $request->only('category.name', 'category.slug', 'category.description', 'category.image');
+        $data = $data['category'];
+        $category->update($data);
+        return new CategoryResource($category);
     }
 
     /**
@@ -71,6 +74,7 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //
+        $category->delete();
+        return response()->json(null, 204);
     }
 }

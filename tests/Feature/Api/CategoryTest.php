@@ -14,8 +14,6 @@ class CategoryTest extends TestCase
 {
     protected $admin;
 
-    use DatabaseTransactions;
-
     public function setUp(): void
     {
         parent::setUp();
@@ -50,13 +48,15 @@ class CategoryTest extends TestCase
         $categoryData = factory(Category::class)->make();
 
         $response = $this->actingAs($this->admin)->json('POST', '/api/categories', [
-            'name' => $categoryData->name,
-            'slug' => $categoryData->slug,
-            'description' => $categoryData->description,
-            'image' => $categoryData->image,
+            'category' => [
+                'name' => $categoryData->name,
+                'slug' => $categoryData->slug,
+                'description' => $categoryData->description,
+                'image' => $categoryData->image,
+            ],
         ]);
 
-        $response->assertStatus(200);
+        $response->assertStatus(201);
         $response->assertJsonFragment([
             'name' => $categoryData->name,
             'slug' => $categoryData->slug,
@@ -64,4 +64,35 @@ class CategoryTest extends TestCase
             'image' => $categoryData->image,
         ]);
     }
+
+    // Tao category, neu user khong phai admin -> 403
+    public function test_cant_create_category_if_user_is_not_admin()
+    {
+        $user = factory(User::class)->create();
+
+        $categoryData = factory(Category::class)->make();
+
+        $response = $this->actingAs($user)->json('POST', '/api/categories', [
+            'category' => [
+                'name' => $categoryData->name,
+                'slug' => $categoryData->slug,
+                'description' => $categoryData->description,
+                'image' => $categoryData->image,
+            ],
+        ]);
+
+        $response->assertStatus(403);
+    }
+    //----
+    // TODO: Xem 1 category, ton tai -> ok
+    // TODO: Xem 1 category, khong ton tai -> 404 not found
+    //----
+    // TODO: Sua 1 category, ton tai + user la admin -> ok
+    // TODO: Sua 1 category, ton tai + user k phai admin -> 403
+    // TODO: Sua 1 category, khong ton tai -> 404 not found
+    //----
+    // TODO: Xoa 1 category, ton tai + user la admin -> ok
+    // TODO: Xoa 1 category, ton tai + user k phai admin -> 403
+    // TODO: Xoa 1 category, khong ton tai -> 404 not found
+    //----
 }
