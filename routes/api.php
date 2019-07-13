@@ -19,4 +19,6 @@ Route::group(['namespace' => 'Api'], function () {
         Route::post('register', 'AuthController@register');
         Route::get('me', 'AuthController@me')->middleware('auth');
     });
+
+    Route::resource('categories', 'CategoryController')->except(['create', 'edit']);
 });

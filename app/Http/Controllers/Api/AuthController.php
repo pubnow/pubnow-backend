@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\LoginUser;
-use App\Http\Requests\Api\RegisterUser;
+use App\Http\Requests\Api\Auth\LoginUser;
+use App\Http\Requests\Api\Auth\RegisterUser;
 use App\Models\User;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;

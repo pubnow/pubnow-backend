@@ -1,13 +1,13 @@
 <?php
 
-namespace Tests\Feature\Api\Auth;
+namespace Tests\Feature\Api;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\User;
 
-class AuthApiTest extends TestCase
+class AuthTest extends TestCase
 {
     public function test_can_register_new_user()
     {

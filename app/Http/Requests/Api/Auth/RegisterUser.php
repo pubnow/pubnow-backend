@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Api;
+namespace App\Http\Requests\Api\Auth;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Api\ApiRequest;
 
-class LoginUser extends ApiRequest
+class RegisterUser extends ApiRequest
 {
     /**
      * Get data to be validated from the request.
@@ -24,8 +24,10 @@ class LoginUser extends ApiRequest
     public function rules()
     {
         return [
-            'username' => 'required',
-            'password' => 'required',
+            'username' => 'required|max:50|unique:users,username',
+            'email' => 'required|email|max:255|unique:users,email',
+            'password' => 'required|min:6',
+            'name' => 'required'
         ];
     }
 }
