@@ -62,4 +62,11 @@ class AuthApiTest extends TestCase
             'email' => $user->email,
         ]);
     }
+
+    public function test_cant_get_user_profile_if_user_not_login()
+    {
+        $response = $this->json('GET', '/api/auth/me');
+        $response->assertStatus(401);
+        $response->assertJsonStructure(['message']);
+    }
 }
