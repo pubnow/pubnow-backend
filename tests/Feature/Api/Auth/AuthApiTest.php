@@ -9,12 +9,47 @@ use App\Models\User;
 
 class AuthApiTest extends TestCase
 {
-    /**
-     * A basic feature test example.
-     *
-     * @return void
-     */
-    public function testCanGetCurrentUserProfd()
+    public function test_can_register_new_user()
+    {
+        $user = factory(User::class)->make();
+
+        $response = $this->json('POST', '/api/auth/register', [
+            'user' => [
+                'email' => $user->email,
+                'name' => $user->name,
+                'username' => $user->username,
+                'password' => 'password',
+            ],
+        ]);
+
+        $response->assertStatus(201);
+        $response->assertJsonFragment([
+            'email' => $user->email,
+            'name' => $user->name,
+            'username' => $user->username,
+        ]);
+    }
+
+    public function test_can_login()
+    {
+        $user = factory(User::class)->create();
+
+        $response = $this->json('POST', '/api/auth/login', [
+            'user' => [
+                'username' => $user->username,
+                'password' => 'password',
+            ],
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonFragment([
+            'email' => $user->email,
+            'name' => $user->name,
+            'username' => $user->username,
+        ]);
+    }
+
+    public function test_can_get_user_profile()
     {
         $user = factory(User::class)->create();
 
