@@ -17,4 +17,14 @@ class Category extends Model
     protected $fillable = [
         'name', 'slug', 'description', 'image',
     ];
+
+    /**
+     * Get the key name for route model binding.
+     *
+     * @return string
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 }
