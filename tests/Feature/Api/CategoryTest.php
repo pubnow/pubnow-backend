@@ -134,6 +134,12 @@ class CategoryTest extends TestCase
         ]);
 
         $response->assertOk();
+        $response->assertJsonFragment([
+            'name' => $updateCategoryData->name,
+            'slug' => $updateCategoryData->slug,
+            'description' => $updateCategoryData->description,
+            'image' => $updateCategoryData->image,
+        ]);
     }
     // Sua 1 category, ton tai + user k phai admin -> 403
     public function test_cannot_update_exists_category_with_member_logged_in() {

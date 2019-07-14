@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Api\Tag;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Api\ApiRequest;
 
-class UpdateTag extends FormRequest
+class UpdateTag extends ApiRequest
 {
     /**
      * Get data to be validated from the request.
@@ -24,7 +24,7 @@ class UpdateTag extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'max:60|unique:tags,name',
+            'name' => 'sometimes|max:60|unique:tags,name',
             'slug' => 'max:60|unique:tags,slug',
         ];
     }

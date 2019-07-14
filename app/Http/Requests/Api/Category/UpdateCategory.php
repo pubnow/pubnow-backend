@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Api\Category;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Api\ApiRequest;
 
-class UpdateCategory extends FormRequest
+class UpdateCategory extends ApiRequest
 {
     /**
      * Get data to be validated from the request.
@@ -23,7 +23,7 @@ class UpdateCategory extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'max:60|unique:categories,name',
+            'name' => 'sometimes|max:60|unique:categories,name',
             'slug' => 'max:60|unique:categories,slug',
         ];
     }
