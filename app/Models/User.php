@@ -84,4 +84,9 @@ class User extends Authenticatable implements JWTSubject
         }
         return $this->role->name === 'admin';
     }
+
+    public function articles()
+    {
+        return $this->hasMany(Article::class);
+    }
 }
