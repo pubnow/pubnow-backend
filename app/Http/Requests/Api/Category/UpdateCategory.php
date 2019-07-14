@@ -24,7 +24,7 @@ class UpdateCategory extends ApiRequest
     {
         return [
             'name' => 'sometimes|max:60|unique:categories,name',
-            'slug' => 'max:60|unique:categories,slug',
+            'slug' => 'sometimes|max:60|unique:categories,slug',
         ];
     }
 }

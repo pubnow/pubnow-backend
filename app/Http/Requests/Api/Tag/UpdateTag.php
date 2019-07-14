@@ -25,7 +25,7 @@ class UpdateTag extends ApiRequest
     {
         return [
             'name' => 'sometimes|max:60|unique:tags,name',
-            'slug' => 'max:60|unique:tags,slug',
+            'slug' => 'sometimes|max:60|unique:tags,slug',
         ];
     }
 }
