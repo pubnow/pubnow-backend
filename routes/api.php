@@ -14,11 +14,17 @@ use Illuminate\Http\Request;
 */
 
 Route::group(['namespace' => 'Api'], function () {
+
+    // Authentication
     Route::group(['prefix' => 'auth'], function () {
         Route::post('login', 'AuthController@login');
         Route::post('register', 'AuthController@register');
         Route::get('me', 'AuthController@me')->middleware('auth');
     });
 
+    // Category
     Route::resource('categories', 'CategoryController')->except(['create', 'edit']);
+
+    // Tag
+    Route::resource('tags', 'TagController')->except(['create', 'edit']);
 });
