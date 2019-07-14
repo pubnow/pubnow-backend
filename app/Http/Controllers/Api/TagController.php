@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\Api\Tag\UpdateTag;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -58,7 +59,7 @@ class TagController extends Controller
      * @param  \App\Models\Tag  $tag
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Tag $tag)
+    public function update(UpdateTag $request, Tag $tag)
     {
         $data = $request->only('tag.name', 'tag.slug', 'tag.description', 'tag.image');
         if (array_key_exists('category', $data)) {
