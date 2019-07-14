@@ -41,7 +41,7 @@ class TagTest extends TestCase
         });
     }
     // ------
-    // TODO: Tao tag, neu da login, -> ok
+    // Tao tag, neu da login, -> ok
     public function test_can_create_tag_if_logged_in()
     {
         $tag = factory(Tag::class)->make();
@@ -64,7 +64,7 @@ class TagTest extends TestCase
             'image' => $tag->image,
         ]);
     }
-    // TODO: Tag tag, chua login -> 403
+    // Tag tag, chua login -> 403
     public function test_cannot_create_tag_if_not_logged_in() {
         $tag = factory(Tag::class)->make();
 
@@ -79,7 +79,7 @@ class TagTest extends TestCase
 
         $response->assertStatus(401);
     }
-    // TODO: Tao tag, da login, nhung truyen thieu data required (name || slug) => 422
+    // Tao tag, da login, nhung truyen thieu data required (name || slug) => 422
     public function test_cannot_create_tag_if_logged_in_but_missing_name() {
         $tag = factory(Tag::class)->make();
 
@@ -94,7 +94,7 @@ class TagTest extends TestCase
         $response->assertStatus(422);
     }
     // ----
-    // TODO: Xem 1 tag, ton tai -> ok
+    // Xem 1 tag, ton tai -> ok
     public function test_can_get_an_exists_tag() {
         $tag = factory(Tag::class)->create();
 
@@ -108,7 +108,7 @@ class TagTest extends TestCase
             'image' => $tag->image,
         ]);
     }
-    // TODO: Xem 1 tag, khong ton tai -> 404 not found
+    // Xem 1 tag, khong ton tai -> 404 not found
     public function test_cannot_get_a_not_exists_tag() {
         $tag = factory(Tag::class)->make();
 
@@ -155,7 +155,7 @@ class TagTest extends TestCase
 
         $response->assertStatus(403);
     }
-    // TODO: Sua 1 tag, ton tai + user la admin, nhung data sai (name || slug bi trung) -> 422
+    // Sua 1 tag, ton tai + user la admin, nhung data sai (name || slug bi trung) -> 422
     public function test_cannot_update_a_exists_tag_with_admin_logged_in_but_dupplicate_name() {
         $tags = factory(Tag::class, 2)->create();
         $updateTag = factory(Tag::class)->make();
@@ -171,7 +171,7 @@ class TagTest extends TestCase
 
         $response->assertStatus(422);
     }
-    // TODO: Sua 1 tag, khong ton tai -> 404 not found
+    // Sua 1 tag, khong ton tai -> 404 not found
     public function test_cannot_update_a_not_exists_tag() {
         $tag = factory(Tag::class)->make();
 
@@ -187,7 +187,7 @@ class TagTest extends TestCase
         $response->assertStatus(404);
     }
     // ----
-    // TODO: Xoa 1 tag, ton tai + user la admin -> ok
+    // Xoa 1 tag, ton tai + user la admin -> ok
     public function test_can_delete_an_exists_tag_with_admin_logged_in() {
         $tag = factory(Tag::class)->create();
 
@@ -203,7 +203,7 @@ class TagTest extends TestCase
 
         $response->assertStatus(403);
     }
-    // TODO: Xoa 1 tag, khong ton tai -> 404 not found
+    // Xoa 1 tag, khong ton tai -> 404 not found
     public function test_cannot_delete_a_not_exists_tag() {
         $tag = factory(Tag::class)->make();
 
