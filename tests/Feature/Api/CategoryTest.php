@@ -104,8 +104,11 @@ class CategoryTest extends TestCase
         $response->assertStatus(404);
     }
     //----
+    // TODO: Tao category, da login, nhung truyen thieu data required (name || slug) => 422
+    //----
     // TODO: Sua 1 category, ton tai + user la admin -> ok
     // TODO: Sua 1 category, ton tai + user k phai admin -> 403
+    // TODO: Sua 1 category, ton tai + user la admin, nhung data sai (name || slug bi trung) -> 422
     // TODO: Sua 1 category, khong ton tai -> 404 not found
     //----
     // TODO: Xoa 1 category, ton tai + user la admin -> ok
