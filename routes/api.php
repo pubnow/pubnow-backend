@@ -29,4 +29,7 @@ Route::group(['namespace' => 'Api'], function () {
 
     // Tag
     Route::resource('tags', 'TagController')->except(['create', 'edit']);
+
+    // Article
+    Route::resource('articles', 'ArticleController')->except(['create', 'edit']);
 });
