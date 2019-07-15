@@ -62,10 +62,8 @@ class TagController extends Controller
      */
     public function update(UpdateTag $request, Tag $tag)
     {
-        $data = $request->only('tag.name', 'tag.slug', 'tag.description', 'tag.image');
-        if (array_key_exists('category', $data)) {
-            $data = $data['tag'];
-            $tag->update($data);
+        if ($request->has('tag')) {
+            $tag->update($request->get('tag'));
         }
         return new TagResource($tag);
     }

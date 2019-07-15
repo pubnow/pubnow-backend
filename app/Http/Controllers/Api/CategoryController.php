@@ -61,10 +61,8 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategory $request, Category $category)
     {
-        $data = $request->only('category.name', 'category.slug', 'category.description', 'category.image');
-        if (array_key_exists('category', $data)) {
-            $data = $data['category'];
-            $category->update($data);
+        if ($request->has('category')) {
+            $category->update($request->get('category'));
         }
         return new CategoryResource($category);
     }

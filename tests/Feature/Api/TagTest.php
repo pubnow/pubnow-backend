@@ -133,10 +133,10 @@ class TagTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonFragment([
-            'name' => $tag->name,
-            'slug' => $tag->slug,
-            'description' => $tag->description,
-            'image' => $tag->image,
+            'name' => $updateTag->name,
+            'slug' => $updateTag->slug,
+            'description' => $updateTag->description,
+            'image' => $updateTag->image,
         ]);
     }
     // TODO: Sua 1 tag, ton tai + user k phai admin -> 403

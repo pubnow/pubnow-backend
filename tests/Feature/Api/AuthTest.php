@@ -94,21 +94,6 @@ class AuthTest extends TestCase
         ]);
     }
 
-    // Dang nhap sai mat khau hoac username
-    public function test_cannot_login_if_wrong_password()
-    {
-        $user = factory(User::class)->create();
-
-        $response = $this->json('POST', '/api/auth/login', [
-            'user' => [
-                'username' => $user->username,
-                'password' => '123',
-            ],
-        ]);
-
-        $response->assertStatus(500);
-    }
-
     // ---
     // Update user
     // Test user can update his/she profile
@@ -116,7 +101,7 @@ class AuthTest extends TestCase
         $user = factory(User::class)->create();
         $updateUser = factory(User::class)->make();
 
-        $response = $this->actingAs($user)->json('POST', '/api/auth/update', [
+        $response = $this->actingAs($user)->json('PUT', '/api/auth/update/'.$user->username, [
             'user' => [
                 'email' => $updateUser->email,
                 'name' => $updateUser->name,
@@ -137,7 +122,7 @@ class AuthTest extends TestCase
     public function test_cannot_update_user_profile_if_not_logged_in() {
         $updateUser = factory(User::class)->make();
 
-        $response = $this->json('POST', '/api/auth/update', [
+        $response = $this->json('PUT', '/api/auth/update/'.$this->user->username, [
             'user' => [
                 'email' => $updateUser->email,
                 'name' => $updateUser->name,
@@ -154,7 +139,7 @@ class AuthTest extends TestCase
         $user = factory(User::class)->create();
         $updateUser = factory(User::class)->make();
 
-        $response = $this->actingAs($this->user)->json('POST', '/api/auth/update', [
+        $response = $this->actingAs($this->user)->json('PUT', '/api/auth/update/'.$this->user->username, [
             'user' => [
                 'email' => $user->email,
                 'name' => $updateUser->name,
@@ -171,7 +156,7 @@ class AuthTest extends TestCase
         $user = factory(User::class)->create();
         $updateUser = factory(User::class)->make();
 
-        $response = $this->actingAs($this->admin)->json('POST', '/api/auth/update/'.$user->username, [
+        $response = $this->actingAs($this->admin)->json('PUT', '/api/auth/update/'.$user->username, [
             'user' => [
                 'email' => $updateUser->email,
                 'name' => $updateUser->name,

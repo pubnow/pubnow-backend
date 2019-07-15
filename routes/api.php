@@ -20,8 +20,7 @@ Route::group(['namespace' => 'Api'], function () {
         Route::post('login', 'AuthController@login');
         Route::post('register', 'AuthController@register');
         Route::get('me', 'AuthController@me')->middleware('auth');
-        Route::post('update', 'AuthController@update')->middleware('auth');
-        Route::post('update/{user}', 'AuthController@adminUpdate')->middleware('auth');
+        Route::put('update/{user}', 'AuthController@update')->middleware('auth');
     });
 
     // Category
