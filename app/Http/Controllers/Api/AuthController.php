@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Auth\LoginUser;
 use App\Http\Requests\Api\Auth\RegisterUser;
+use App\Http\Requests\Api\Auth\UpdateUser;
 use App\Models\User;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
@@ -38,6 +39,25 @@ class AuthController extends Controller
             'name' => $request->input('user.name')
         ]);
 
+        return new UserResource($user);
+    }
+
+    public function update(UpdateUser $request) {
+        $user = $request->user();
+        $data = $request->only('user.username', 'user.email', 'user.password', 'user.name');
+        if (array_key_exists('user', $data)) {
+            $data = $data['user'];
+            $user->update($data);
+        }
+        return new UserResource($user);
+    }
+
+    public function adminUpdate(UpdateUser $request, User $user) {
+        $data = $request->only('user.username', 'user.email', 'user.password', 'user.name');
+        if (array_key_exists('user', $data)) {
+            $data = $data['user'];
+            $user->update($data);
+        }
         return new UserResource($user);
     }
 
