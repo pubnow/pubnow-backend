@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\Api\Tag\UpdateTag;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -13,6 +14,7 @@ class TagController extends Controller
     public function __construct()
     {
         $this->middleware(['auth'])->except(['index', 'show']);
+        $this->authorizeResource(Tag::class);
     }
     /**
      * Display a listing of the resource.
@@ -58,12 +60,10 @@ class TagController extends Controller
      * @param  \App\Models\Tag  $tag
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Tag $tag)
+    public function update(UpdateTag $request, Tag $tag)
     {
-        $data = $request->only('tag.name', 'tag.slug', 'tag.description', 'tag.image');
-        if (array_key_exists('category', $data)) {
-            $data = $data['tag'];
-            $tag->update($data);
+        if ($request->has('tag')) {
+            $tag->update($request->get('tag'));
         }
         return new TagResource($tag);
     }

@@ -104,15 +104,122 @@ class CategoryTest extends TestCase
         $response->assertStatus(404);
     }
     //----
-    // TODO: Tao category, da login, nhung truyen thieu data required (name || slug) => 422
+    // Tao category, da login, nhung truyen thieu data required (name || slug) => 422
+    public function test_logged_in_but_lack_of_data()
+    {
+        $categoryData = factory(Category::class)->make();
+
+        $response = $this->actingAs($this->admin)->json('POST', '/api/categories', [
+            'category' => [
+                'slug' => $categoryData->slug,
+                'description' => $categoryData->description,
+                'image' => $categoryData->image,
+            ],
+        ]);
+
+        $response->assertStatus(422);
+    }
     //----
-    // TODO: Sua 1 category, ton tai + user la admin -> ok
-    // TODO: Sua 1 category, ton tai + user k phai admin -> 403
-    // TODO: Sua 1 category, ton tai + user la admin, nhung data sai (name || slug bi trung) -> 422
-    // TODO: Sua 1 category, khong ton tai -> 404 not found
+    // Sua 1 category, ton tai + user la admin -> ok
+    public function test_can_update_exists_category_with_admin_logged_in()
+    {
+        $categoryData = factory(Category::class)->create();
+        $updateCategoryData = factory(Category::class)->make();
+
+        $response = $this->actingAs($this->admin)->json('PUT', '/api/categories/' . $categoryData->slug, [
+            'category' => [
+                'name' => $updateCategoryData->name,
+                'slug' => $updateCategoryData->slug,
+                'description' => $updateCategoryData->description,
+                'image' => $updateCategoryData->image,
+            ],
+        ]);
+
+        $response->assertOk();
+        $response->assertJsonFragment([
+            'name' => $updateCategoryData->name,
+            'slug' => $updateCategoryData->slug,
+            'description' => $updateCategoryData->description,
+            'image' => $updateCategoryData->image,
+        ]);
+    }
+    // Sua 1 category, ton tai + user k phai admin -> 403
+    public function test_cannot_update_exists_category_with_member_logged_in()
+    {
+        $categoryData = factory(Category::class)->create();
+        $updateCategoryData = factory(Category::class)->make();
+
+        $response = $this->actingAs($this->member)->json('PUT', '/api/categories/' . $categoryData->slug, [
+            'category' => [
+                'name' => $updateCategoryData->name,
+                'slug' => $updateCategoryData->slug,
+                'description' => $updateCategoryData->description,
+                'image' => $updateCategoryData->image,
+            ],
+        ]);
+
+        $response->assertStatus(403);
+    }
+    // Sua 1 category, ton tai + user la admin, nhung data sai (name || slug bi trung) -> 422
+    public function test_cannot_update_exists_category_with_admin_logged_in_but_dupplicate_name()
+    {
+        $categoryDatas = factory(Category::class, 2)->create();
+        $updateCategoryData = factory(Category::class)->make();
+
+        $response = $this->actingAs($this->admin)->json('PUT', '/api/categories/' . $categoryDatas[0]->slug, [
+            'category' => [
+                'name' => $categoryDatas[1]->name,
+                'slug' => $updateCategoryData->slug,
+                'description' => $updateCategoryData->description,
+                'image' => $updateCategoryData->image,
+            ],
+        ]);
+
+        $response->assertStatus(422);
+    }
+    // Sua 1 category, khong ton tai -> 404 not found
+    public function test_cannot_update_not_exists_category()
+    {
+        $categoryData = factory(Category::class)->make();
+
+        $response = $this->actingAs($this->member)->json('PUT', '/api/categories/' . $categoryData->slug, [
+            'category' => [
+                'name' => $categoryData->name,
+                'slug' => $categoryData->slug,
+                'description' => $categoryData->description,
+                'image' => $categoryData->image,
+            ],
+        ]);
+
+        $response->assertStatus(404);
+    }
     //----
-    // TODO: Xoa 1 category, ton tai + user la admin -> ok
-    // TODO: Xoa 1 category, ton tai + user k phai admin -> 403
-    // TODO: Xoa 1 category, khong ton tai -> 404 not found
+    // Xoa 1 category, ton tai + user la admin -> ok
+    public function test_delete_exists_category_with_admin_logged_in()
+    {
+        $categoryData = factory(Category::class)->create();
+
+        $response = $this->actingAs($this->admin)->json('DELETE', '/api/categories/' . $categoryData->slug);
+
+        $response->assertStatus(204);
+    }
+    // Xoa 1 category, ton tai + user k phai admin -> 403
+    public function test_cannot_delete_exists_category_with_member_logged_in()
+    {
+        $categoryData = factory(Category::class)->create();
+
+        $response = $this->actingAs($this->member)->json('DELETE', '/api/categories/' . $categoryData->slug);
+
+        $response->assertStatus(403);
+    }
+    // Xoa 1 category, khong ton tai -> 404 not found
+    public function test_cannot_delete_not_exists_category_with_admin_logged_in()
+    {
+        $categoryData = factory(Category::class)->make();
+
+        $response = $this->actingAs($this->admin)->json('DELETE', '/api/categories/' . $categoryData->slug);
+
+        $response->assertStatus(404);
+    }
     //----
 }

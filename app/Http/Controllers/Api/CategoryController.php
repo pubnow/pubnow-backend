@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\Api\Category\UpdateCategory;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -58,12 +59,10 @@ class CategoryController extends Controller
      * @param  \App\Models\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Category $category)
+    public function update(UpdateCategory $request, Category $category)
     {
-        $data = $request->only('category.name', 'category.slug', 'category.description', 'category.image');
-        if (array_key_exists('category', $data)) {
-            $data = $data['category'];
-            $category->update($data);
+        if ($request->has('category')) {
+            $category->update($request->get('category'));
         }
         return new CategoryResource($category);
     }
