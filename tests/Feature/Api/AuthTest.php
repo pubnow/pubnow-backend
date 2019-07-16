@@ -58,7 +58,6 @@ class AuthTest extends TestCase
 
     // Dang ki user moi, truyen du cac truong, user name da ton tai
     public function test_cannot_register_new_user_if_username_exists() {
-//        $user = factory(User::class)->create();
         $newUser = factory(User::class)->make();
 
         $response = $this->json('POST', '/api/auth/register', [
@@ -103,52 +102,17 @@ class AuthTest extends TestCase
 
         $response = $this->actingAs($user)->json('PUT', '/api/auth/update/'.$user->username, [
             'user' => [
-                'email' => $updateUser->email,
                 'name' => $updateUser->name,
-                'username' => $updateUser->username,
                 'password' => 'password',
             ],
         ]);
 
         $response->assertStatus(200);
         $response->assertJsonFragment([
-            'email' => $updateUser->email,
+            'email' => $user->email,
             'name' => $updateUser->name,
-            'username' => $updateUser->username,
+            'username' => $user->username,
         ]);
-    }
-
-    // Test update user if not logged in
-    public function test_cannot_update_user_profile_if_not_logged_in() {
-        $updateUser = factory(User::class)->make();
-
-        $response = $this->json('PUT', '/api/auth/update/'.$this->user->username, [
-            'user' => [
-                'email' => $updateUser->email,
-                'name' => $updateUser->name,
-                'username' => $updateUser->username,
-                'password' => 'password',
-            ],
-        ]);
-
-        $response->assertStatus(401);
-    }
-
-    // Test update user, da dang nhap, nhung email bi trung
-    public function test_cannot_update_user_profile_if_logged_in_but_email_exists() {
-        $user = factory(User::class)->create();
-        $updateUser = factory(User::class)->make();
-
-        $response = $this->actingAs($this->user)->json('PUT', '/api/auth/update/'.$this->user->username, [
-            'user' => [
-                'email' => $user->email,
-                'name' => $updateUser->name,
-                'username' => $updateUser->username,
-                'password' => 'password',
-            ],
-        ]);
-
-        $response->assertStatus(422);
     }
 
     // Test update user, dang nhap bang admin
@@ -158,21 +122,64 @@ class AuthTest extends TestCase
 
         $response = $this->actingAs($this->admin)->json('PUT', '/api/auth/update/'.$user->username, [
             'user' => [
-                'email' => $updateUser->email,
                 'name' => $updateUser->name,
-                'username' => $updateUser->username,
                 'password' => 'password'
             ],
         ]);
 
         $response->assertStatus(200);
         $response->assertJsonFragment([
-            'email' => $updateUser->email,
+            'email' => $user->email,
             'name' => $updateUser->name,
-            'username' => $updateUser->username,
+            'username' => $user->username,
         ]);
     }
 
+    // Test update user, dang nhap bang admin
+    public function test_cannot_update_other_user_profile() {
+        $user = factory(User::class)->create();
+        $updateUser = factory(User::class)->make();
+
+        $response = $this->actingAs($user)->json('PUT', '/api/auth/update/'.$this->user->username, [
+            'user' => [
+                'name' => $updateUser->name,
+                'password' => 'password'
+            ],
+        ]);
+
+        $response->assertStatus(403);
+    }
+
+    // Test cannot update user if update email or username
+    public function test_cannot_update_user_profile_if_logged_in_as_admin_but_update_email() {
+
+        $user = factory(User::class)->create();
+        $updateUser = factory(User::class)->make();
+
+        $response = $this->actingAs($this->admin)->json('PUT', '/api/auth/update/'.$user->username, [
+            'user' => [
+                'name' => $updateUser->name,
+                'email' => $updateUser->email,
+                'password' => 'password'
+            ],
+        ]);
+
+        $response->assertStatus(403);
+    }
+
+    // Test update user if not logged in
+    public function test_cannot_update_user_profile_if_not_logged_in() {
+        $updateUser = factory(User::class)->make();
+
+        $response = $this->json('PUT', '/api/auth/update/'.$this->user->username, [
+            'user' => [
+                'name' => $updateUser->name,
+                'password' => 'password',
+            ],
+        ]);
+
+        $response->assertStatus(401);
+    }
 
     // ---
     // Get user profile

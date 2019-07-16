@@ -64,6 +64,13 @@ class AuthController extends Controller
             }
         }
         if ($request->has('user')) {
+            if ($request->has('user.email') || $request->has('user.username')) {
+                return response()->json([
+                    'errors' => [
+                        'message' => 'cannot update username or email',
+                    ]
+                ], 403);
+            }
             $user->update($request->get('user'));
         }
         return new UserResource($user);
