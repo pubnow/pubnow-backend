@@ -19,17 +19,6 @@ class UserTest extends TestCase
         $this->admin = User::where(['username' => 'admin'])->first();
         $this->user = factory(User::class)->create();
     }
-    /**
-     * A basic feature test example.
-     *
-     * @return void
-     */
-    public function testExample()
-    {
-        $response = $this->get('/');
-
-        $response->assertStatus(200);
-    }
     // Get list of user
     public function test_can_get_list_users()
     {
@@ -107,7 +96,7 @@ class UserTest extends TestCase
         ]);
     }
 
-    // Test update user, dang nhap bang admin
+    // Test update user, dang nhap bang user khac khong phai admin
     public function test_cannot_update_other_user_profile() {
         $user = factory(User::class)->create();
         $updateUser = factory(User::class)->make();

@@ -24,7 +24,8 @@ class UpdateUser extends ApiRequest
     public function rules()
     {
         return [
-            'password' => 'sometimes|min:6'
+            'password' => 'sometimes|min:6',
+            'name'     => 'sometimes'
         ];
     }
 }

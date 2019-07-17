@@ -26,27 +26,6 @@ class UserController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
      * Display the specified resource.
      *
      * @param  int  $id
@@ -58,17 +37,6 @@ class UserController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -77,16 +45,6 @@ class UserController extends Controller
      */
     public function update(UpdateUser $request, User $user)
     {
-        $updater = $request->user();
-        if (!$updater->isAdmin()) {
-            if ($updater->id !== $user->id) {
-                return response()->json([
-                    'errors' => [
-                        'user' => 'is not admin or profile owner',
-                    ]
-                ], 403);
-            }
-        }
         if ($request->has('user')) {
             if ($request->has('user.email') || $request->has('user.username')) {
                 return response()->json([
@@ -100,14 +58,4 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(User $user)
-    {
-        //
-    }
 }
