@@ -39,7 +39,11 @@ class AuthController extends Controller
             'name' => $request->input('user.name')
         ]);
 
-        return new UserResource($user);
+        $token = auth()->login($user);
+
+        return (new UserResource(auth()->user()))->additional([
+            'token' => $token,
+        ]);
     }
 
     public function me(Request $request)
