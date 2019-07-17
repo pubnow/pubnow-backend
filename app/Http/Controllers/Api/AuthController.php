@@ -42,40 +42,6 @@ class AuthController extends Controller
         return new UserResource($user);
     }
 
-//    public function update(UpdateUser $request) {
-//        $user = $request->user();
-//        $data = $request->only('user.username', 'user.email', 'user.password', 'user.name');
-//        if (array_key_exists('user', $data)) {
-//            $data = $data['user'];
-//            $user->update($data);
-//        }
-//        return new UserResource($user);
-//    }
-
-    public function update(UpdateUser $request, User $user) {
-        $updater = $request->user();
-        if (!$updater->isAdmin()) {
-            if ($updater->id !== $user->id) {
-                return response()->json([
-                    'errors' => [
-                        'user' => 'is not admin or profile owner',
-                    ]
-                ], 403);
-            }
-        }
-        if ($request->has('user')) {
-            if ($request->has('user.email') || $request->has('user.username')) {
-                return response()->json([
-                    'errors' => [
-                        'message' => 'cannot update username or email',
-                    ]
-                ], 403);
-            }
-            $user->update($request->get('user'));
-        }
-        return new UserResource($user);
-    }
-
     public function me(Request $request)
     {
         $user = $request->user();
