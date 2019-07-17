@@ -45,23 +45,11 @@ class ArticleTest extends TestCase
                 'category' => $category->id,
             ]
         ]);
-//        dd($response);
 
         $response->assertStatus(201);
         $response->assertJsonFragment([
             'title' => $article->title,
             'content' => $article->content,
-//            'author' => [
-//                'name' => $this->user->name,
-//                'username' => $this->user->username,
-//                'email' => $this->user->email,
-//            ],
-//            'category' => [
-//                'name' => $category->name,
-//                'slug' => $category->slug,
-//                'description' => $category->description,
-//                'image' => $category->image,
-//            ]
         ]);
     }
     // TODO: Tag article, chua login -> 403

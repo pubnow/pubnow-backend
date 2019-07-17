@@ -47,6 +47,14 @@ class ArticleController extends Controller
             'slug' => str_slug($articleData['title']) . '-' . base_convert(time(), 10, 36),
         ]);
 
+        $inputTags = $request->input('article.tagList');
+        if ($inputTags && ! empty($inputTags)) {
+            $tags = array_map(function($name) {
+                return Tag::firstOrCreate(['name' => $name])->id;
+            }, $inputTags);
+            $article->tags()->attach($tags);
+        }
+
         return new ArticleResource($article);
     }
 
