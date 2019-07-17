@@ -39,20 +39,15 @@ class AuthController extends Controller
             'name' => $request->input('user.name')
         ]);
 
-        return new UserResource($user);
+        $token = auth()->login($user);
+
+        return (new UserResource(auth()->user()))->additional([
+            'token' => $token,
+        ]);
     }
 
-//    public function update(UpdateUser $request) {
-//        $user = $request->user();
-//        $data = $request->only('user.username', 'user.email', 'user.password', 'user.name');
-//        if (array_key_exists('user', $data)) {
-//            $data = $data['user'];
-//            $user->update($data);
-//        }
-//        return new UserResource($user);
-//    }
-
-    public function update(UpdateUser $request, User $user) {
+    public function update(UpdateUser $request, User $user)
+    {
         $updater = $request->user();
         if (!$updater->isAdmin()) {
             if ($updater->id !== $user->id) {
