@@ -67,6 +67,7 @@ class UserTest extends TestCase
                 'password' => 'password',
             ],
         ]);
+        dd($response);
 
         $response->assertStatus(200);
         $response->assertJsonFragment([

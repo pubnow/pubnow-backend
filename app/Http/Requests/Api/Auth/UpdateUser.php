@@ -25,7 +25,9 @@ class UpdateUser extends ApiRequest
     {
         return [
             'password' => 'sometimes|min:6',
-            'name'     => 'sometimes'
+            'name'     => 'sometimes',
+            'bio'      => 'sometimes',
+            'avatar'   => 'sometimes|file'
         ];
     }
 }

@@ -53,7 +53,12 @@ class UserController extends Controller
                     ]
                 ], 403);
             }
-            $user->update($request->get('user'));
+            $userData = $request->get('user');
+            if ($request->hasFile('user.avatar')) {
+                $path = $request->file('file')->store('public/images/avatar');
+                $userData['avatar'] = $path;
+            }
+            $user->update($userData);
         }
         return new UserResource($user);
     }
