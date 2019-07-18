@@ -90,7 +90,10 @@ class ArticleController extends Controller
         $inputTags = $request->input('tag_list');
         if ($inputTags && ! empty($inputTags)) {
             $tags = array_map(function($name) {
-                return Tag::firstOrCreate(['name' => $name])->id;
+                return Tag::firstOrCreate([
+                    'name' => $name,
+                    'slug' => str_slug($name) . '-' . base_convert(time(), 10, 36)
+                ])->id;
             }, $inputTags);
             $article->tags()->attach($tags);
         }
