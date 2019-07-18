@@ -36,12 +36,13 @@ class ArticleController extends Controller
     public function store(CreateArticle $request)
     {
         $user = $request->user();
+        $data = $request->only('title', 'content', 'category');
 
         $article = $user->articles()->create([
-            'title' => $request->input('title'),
-            'content' => $request->input('content'),
-            'category_id' => $request->input('category'),
-            'slug' => str_slug($request->input('title')) . '-' . base_convert(time(), 10, 36),
+            'title' => $data['title'],
+            'content' => $data['content'],
+            'category_id' => $data['category'],
+            'slug' => str_slug($data['title']) . '-' . base_convert(time(), 10, 36),
         ]);
 
         return new ArticleResource($article);
