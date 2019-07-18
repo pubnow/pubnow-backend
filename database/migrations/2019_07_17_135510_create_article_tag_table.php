@@ -14,7 +14,7 @@ class CreateArticleTagTable extends Migration
     public function up()
     {
         Schema::create('article_tag', function (Blueprint $table) {
-            $table->uuid('id');
+            $table->uuid('id')->default(DB::raw('gen_random_uuid()'))->primary('id');
 
             $table->uuid('article_id');
             $table->foreign('article_id')->references('id')->on('articles')

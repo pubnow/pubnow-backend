@@ -36,7 +36,9 @@ class TagController extends Controller
      */
     public function store(CreateTag $request)
     {
-        $newTag = Tag::create($request->all());
+        $data = $request->all();
+        $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
+        $newTag = Tag::create($data);
         return new TagResource($newTag);
     }
 

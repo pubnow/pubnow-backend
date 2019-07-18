@@ -37,7 +37,6 @@ class CategoryTest extends TestCase
         $categories->each(function ($category) use ($response) {
             $response->assertJsonFragment([
                 'name' => $category->name,
-                'slug' => $category->slug,
                 'description' => $category->description,
                 'image' => $category->image,
             ]);
@@ -51,7 +50,6 @@ class CategoryTest extends TestCase
 
         $response = $this->actingAs($this->admin)->json('POST', '/api/categories', [
             'name' => $categoryData->name,
-            'slug' => $categoryData->slug,
             'description' => $categoryData->description,
             'image' => $categoryData->image,
         ]);
@@ -59,7 +57,6 @@ class CategoryTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonFragment([
             'name' => $categoryData->name,
-            'slug' => $categoryData->slug,
             'description' => $categoryData->description,
             'image' => $categoryData->image,
         ]);
@@ -72,7 +69,6 @@ class CategoryTest extends TestCase
 
         $response = $this->actingAs($this->member)->json('POST', '/api/categories', [
             'name' => $categoryData->name,
-            'slug' => $categoryData->slug,
             'description' => $categoryData->description,
             'image' => $categoryData->image,
         ]);
@@ -100,13 +96,12 @@ class CategoryTest extends TestCase
         $response->assertStatus(404);
     }
     //----
-    // Tao category, da login, nhung truyen thieu data required (name || slug) => 422
+    // Tao category, da login, nhung truyen thieu data required (name) => 422
     public function test_logged_in_but_lack_of_data()
     {
         $categoryData = factory(Category::class)->make();
 
         $response = $this->actingAs($this->admin)->json('POST', '/api/categories', [
-            'slug' => $categoryData->slug,
             'description' => $categoryData->description,
             'image' => $categoryData->image,
         ]);
@@ -122,7 +117,6 @@ class CategoryTest extends TestCase
 
         $response = $this->actingAs($this->admin)->json('PUT', '/api/categories/' . $categoryData->slug, [
             'name' => $updateCategoryData->name,
-            'slug' => $updateCategoryData->slug,
             'description' => $updateCategoryData->description,
             'image' => $updateCategoryData->image,
         ]);
@@ -130,7 +124,6 @@ class CategoryTest extends TestCase
         $response->assertOk();
         $response->assertJsonFragment([
             'name' => $updateCategoryData->name,
-            'slug' => $updateCategoryData->slug,
             'description' => $updateCategoryData->description,
             'image' => $updateCategoryData->image,
         ]);
@@ -143,14 +136,13 @@ class CategoryTest extends TestCase
 
         $response = $this->actingAs($this->member)->json('PUT', '/api/categories/' . $categoryData->slug, [
             'name' => $updateCategoryData->name,
-            'slug' => $updateCategoryData->slug,
             'description' => $updateCategoryData->description,
             'image' => $updateCategoryData->image,
         ]);
 
         $response->assertStatus(403);
     }
-    // Sua 1 category, ton tai + user la admin, nhung data sai (name || slug bi trung) -> 422
+    // Sua 1 category, ton tai + user la admin, nhung data sai (name bi trung) -> 422
     public function test_cannot_update_exists_category_with_admin_logged_in_but_dupplicate_name()
     {
         $categoryDatas = factory(Category::class, 2)->create();
@@ -158,7 +150,6 @@ class CategoryTest extends TestCase
 
         $response = $this->actingAs($this->admin)->json('PUT', '/api/categories/' . $categoryDatas[0]->slug, [
             'name' => $categoryDatas[1]->name,
-            'slug' => $updateCategoryData->slug,
             'description' => $updateCategoryData->description,
             'image' => $updateCategoryData->image,
         ]);
@@ -172,7 +163,6 @@ class CategoryTest extends TestCase
 
         $response = $this->actingAs($this->member)->json('PUT', '/api/categories/' . $categoryData->slug, [
             'name' => $categoryData->name,
-            'slug' => $categoryData->slug,
             'description' => $categoryData->description,
             'image' => $categoryData->image,
         ]);

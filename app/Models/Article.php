@@ -53,6 +53,6 @@ class Article extends Model
     }
 
     public function tags() {
-        return $this->belongsToMany('App\Models\Tag', 'article_tag', 'tag_id', 'article_id');
+        return $this->belongsToMany('App\Models\Tag');
     }
 }

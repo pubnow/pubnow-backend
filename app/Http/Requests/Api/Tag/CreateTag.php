@@ -15,7 +15,6 @@ class CreateTag extends ApiRequest
     {
         return [
             'name' => 'required|max:60|unique:tags,name',
-            'slug' => 'required|max:60|unique:tags,slug',
         ];
     }
 }

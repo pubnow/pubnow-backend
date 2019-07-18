@@ -35,7 +35,10 @@ class CategoryController extends Controller
      */
     public function store(CreateCategory $request)
     {
-        $newCategory = Category::create($request->all());
+
+        $data = $request->all();
+        $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
+        $newCategory = Category::create($data);
         return new CategoryResource($newCategory);
     }
 

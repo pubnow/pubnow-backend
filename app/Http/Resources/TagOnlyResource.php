@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ArticleResource extends JsonResource
+class TagOnlyResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,12 +16,12 @@ class ArticleResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'name' => $this->name,
             'slug' => $this->slug,
-            'title' => $this->title,
-            'content' => $this->content,
-            'author' => new UserResource($this->author),
-            'category' => new CategoryOnlyResource($this->category),
-            'tags' => TagOnlyResource::collection($this->tags),
+            'description' => $this->description,
+            'image' => $this->image,
+            'createdAt' => $this->created_at,
+            'updatedAt' => $this->updated_at,
         ];
     }
 }
