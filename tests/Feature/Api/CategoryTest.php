@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -47,18 +48,18 @@ class CategoryTest extends TestCase
     public function test_can_create_category_if_user_is_admin()
     {
         $categoryData = factory(Category::class)->make();
+        $image = UploadedFile::fake()->create('category_image.png');
 
         $response = $this->actingAs($this->admin)->json('POST', '/api/categories', [
             'name' => $categoryData->name,
             'description' => $categoryData->description,
-            'image' => $categoryData->image,
+            'image' => $image,
         ]);
 
         $response->assertStatus(201);
         $response->assertJsonFragment([
             'name' => $categoryData->name,
             'description' => $categoryData->description,
-            'image' => $categoryData->image,
         ]);
     }
 
@@ -114,18 +115,18 @@ class CategoryTest extends TestCase
     {
         $categoryData = factory(Category::class)->create();
         $updateCategoryData = factory(Category::class)->make();
+        $image = UploadedFile::fake()->create('tag_image.png');
 
         $response = $this->actingAs($this->admin)->json('PUT', '/api/categories/' . $categoryData->slug, [
             'name' => $updateCategoryData->name,
             'description' => $updateCategoryData->description,
-            'image' => $updateCategoryData->image,
+            'image' => $image,
         ]);
 
         $response->assertOk();
         $response->assertJsonFragment([
             'name' => $updateCategoryData->name,
             'description' => $updateCategoryData->description,
-            'image' => $updateCategoryData->image,
         ]);
     }
     // Sua 1 category, ton tai + user k phai admin -> 403

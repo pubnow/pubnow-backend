@@ -67,14 +67,12 @@ class UserTest extends TestCase
         $updateUser = factory(User::class)->make();
 
         $avatar = UploadedFile::fake()->create('tuan_avatar.png');
-//        dd($avatar->getFileInfo());
 
         $response = $this->actingAs($user)->json('PUT', '/api/users/'.$user->username, [
             'name' => $updateUser->name,
             'password' => 'password',
             'avatar' => $avatar,
         ]);
-//        dd($response);
 
         $response->assertStatus(200);
         $response->assertJsonFragment([

@@ -15,6 +15,7 @@ class UpdateCategory extends ApiRequest
     {
         return [
             'name' => 'sometimes|max:60|unique:categories,name',
+            'image'   => 'sometimes|file',
         ];
     }
 }

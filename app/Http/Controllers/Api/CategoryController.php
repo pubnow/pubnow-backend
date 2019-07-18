@@ -38,6 +38,10 @@ class CategoryController extends Controller
 
         $data = $request->all();
         $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('public/images/tag');
+            $data['image'] = $path;
+        }
         $newCategory = Category::create($data);
         return new CategoryResource($newCategory);
     }
@@ -62,7 +66,12 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategory $request, Category $category)
     {
-        $category->update($request->all());
+        $data = $request->all();
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('public/images/tag');
+            $data['image'] = $path;
+        }
+        $category->update($data);
         return new CategoryResource($category);
     }
 

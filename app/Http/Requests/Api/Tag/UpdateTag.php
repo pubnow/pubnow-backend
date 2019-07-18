@@ -15,6 +15,7 @@ class UpdateTag extends ApiRequest
     {
         return [
             'name' => 'sometimes|max:60|unique:tags,name',
+            'image'   => 'sometimes|file',
         ];
     }
 }

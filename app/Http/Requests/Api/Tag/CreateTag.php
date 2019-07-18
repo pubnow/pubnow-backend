@@ -15,6 +15,7 @@ class CreateTag extends ApiRequest
     {
         return [
             'name' => 'required|max:60|unique:tags,name',
+            'image'   => 'sometimes|file',
         ];
     }
 }
