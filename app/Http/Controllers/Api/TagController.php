@@ -36,9 +36,7 @@ class TagController extends Controller
      */
     public function store(CreateTag $request)
     {
-        $data = $request->only('tag.name', 'tag.slug', 'tag.description', 'tag.image');
-        $data = $data['tag'];
-        $newTag = Tag::create($data);
+        $newTag = Tag::create($request->all());
         return new TagResource($newTag);
     }
 
@@ -62,9 +60,7 @@ class TagController extends Controller
      */
     public function update(UpdateTag $request, Tag $tag)
     {
-        if ($request->has('tag')) {
-            $tag->update($request->get('tag'));
-        }
+        $tag->update($request->all());
         return new TagResource($tag);
     }
 

@@ -25,12 +25,10 @@ class AuthTest extends TestCase
         $user = factory(User::class)->make();
 
         $response = $this->json('POST', '/api/auth/register', [
-            'user' => [
-                'email' => $user->email,
-                'name' => $user->name,
-                'username' => $user->username,
-                'password' => 'password',
-            ],
+            'email' => $user->email,
+            'name' => $user->name,
+            'username' => $user->username,
+            'password' => 'password',
         ]);
 
         $response->assertStatus(201);
@@ -46,11 +44,9 @@ class AuthTest extends TestCase
         $user = factory(User::class)->make();
 
         $response = $this->json('POST', '/api/auth/register', [
-            'user' => [
-                'name' => $user->name,
-                'username' => $user->username,
-                'password' => 'password',
-            ],
+            'name' => $user->name,
+            'username' => $user->username,
+            'password' => 'password',
         ]);
 
         $response->assertStatus(422);
@@ -61,12 +57,10 @@ class AuthTest extends TestCase
         $newUser = factory(User::class)->make();
 
         $response = $this->json('POST', '/api/auth/register', [
-            'user' => [
-                'email' => $newUser->email,
-                'name' => $newUser->name,
-                'username' => $this->user->username,
-                'password' => 'password',
-            ],
+            'email' => $newUser->email,
+            'name' => $newUser->name,
+            'username' => $this->user->username,
+            'password' => 'password',
         ]);
 
         $response->assertStatus(422);
@@ -79,10 +73,8 @@ class AuthTest extends TestCase
         $user = factory(User::class)->create();
 
         $response = $this->json('POST', '/api/auth/login', [
-            'user' => [
-                'username' => $user->username,
-                'password' => 'password',
-            ],
+            'username' => $user->username,
+            'password' => 'password',
         ]);
 
         $response->assertStatus(200);

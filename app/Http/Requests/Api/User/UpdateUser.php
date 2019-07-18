@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Http\Requests\Api\Auth;
+namespace App\Http\Requests\Api\User;
 
-use App\Http\Requests\Api\ApiRequest;
+use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateUser extends ApiRequest
+class UpdateUser extends FormRequest
 {
     /**
-     * Get data to be validated from the request.
+     * Determine if the user is authorized to make this request.
      *
-     * @return array
+     * @return bool
      */
-    protected function validationData()
+    public function authorize()
     {
-        return $this->get('user') ?: [];
+        return false;
     }
 
     /**
@@ -27,7 +27,7 @@ class UpdateUser extends ApiRequest
             'password' => 'sometimes|min:6',
             'name'     => 'sometimes',
             'bio'      => 'sometimes',
-            'avatar'   => 'sometimes|file'
+            'avatar'   => 'sometimes|file',
         ];
     }
 }

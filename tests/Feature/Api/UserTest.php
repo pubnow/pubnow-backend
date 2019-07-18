@@ -3,14 +3,18 @@
 namespace Tests\Feature\Api;
 
 use App\Models\User;
+use Faker\Factory;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class UserTest extends TestCase
 {
+    use WithFaker;
     protected $admin;
     protected $user;
+    protected $faker;
 
     public function setUp(): void
     {
@@ -18,6 +22,7 @@ class UserTest extends TestCase
         $this->artisan('db:seed');
         $this->admin = User::where(['username' => 'admin'])->first();
         $this->user = factory(User::class)->create();
+        $this->faker = new Factory();
     }
     // Get list of user
     public function test_can_get_list_users()
@@ -61,13 +66,15 @@ class UserTest extends TestCase
         $user = factory(User::class)->create();
         $updateUser = factory(User::class)->make();
 
+        $avatar = UploadedFile::fake()->create('tuan_avatar.png');
+//        dd($avatar->getFileInfo());
+
         $response = $this->actingAs($user)->json('PUT', '/api/users/'.$user->username, [
-            'user' => [
-                'name' => $updateUser->name,
-                'password' => 'password',
-            ],
+            'name' => $updateUser->name,
+            'password' => 'password',
+            'avatar' => $avatar,
         ]);
-        dd($response);
+//        dd($response);
 
         $response->assertStatus(200);
         $response->assertJsonFragment([
@@ -83,10 +90,8 @@ class UserTest extends TestCase
         $updateUser = factory(User::class)->make();
 
         $response = $this->actingAs($this->admin)->json('PUT', '/api/users/'.$user->username, [
-            'user' => [
-                'name' => $updateUser->name,
-                'password' => 'password'
-            ],
+            'name' => $updateUser->name,
+            'password' => 'password'
         ]);
 
         $response->assertStatus(200);
@@ -103,10 +108,8 @@ class UserTest extends TestCase
         $updateUser = factory(User::class)->make();
 
         $response = $this->actingAs($user)->json('PUT', '/api/users/'.$this->user->username, [
-            'user' => [
-                'name' => $updateUser->name,
-                'password' => 'password'
-            ],
+            'name' => $updateUser->name,
+            'password' => 'password'
         ]);
 
         $response->assertStatus(403);
@@ -119,11 +122,9 @@ class UserTest extends TestCase
         $updateUser = factory(User::class)->make();
 
         $response = $this->actingAs($this->admin)->json('PUT', '/api/users/'.$user->username, [
-            'user' => [
-                'name' => $updateUser->name,
-                'email' => $updateUser->email,
-                'password' => 'password'
-            ],
+            'name' => $updateUser->name,
+            'email' => $updateUser->email,
+            'password' => 'password'
         ]);
 
         $response->assertStatus(403);
@@ -134,10 +135,8 @@ class UserTest extends TestCase
         $updateUser = factory(User::class)->make();
 
         $response = $this->json('PUT', '/api/users/'.$this->user->username, [
-            'user' => [
-                'name' => $updateUser->name,
-                'password' => 'password',
-            ],
+            'name' => $updateUser->name,
+            'password' => 'password',
         ]);
 
         $response->assertStatus(401);

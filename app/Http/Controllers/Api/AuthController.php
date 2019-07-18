@@ -14,8 +14,7 @@ class AuthController extends Controller
 {
     public function login(LoginUser $request)
     {
-        $credentials = $request->only('user.username', 'user.password');
-        $credentials = $credentials['user'];
+        $credentials = $request->only('username', 'password');
 
         if (!$token = auth()->attempt($credentials)) {
             return response()->json([
@@ -32,12 +31,7 @@ class AuthController extends Controller
 
     public function register(RegisterUser $request)
     {
-        $user = User::create([
-            'username' => $request->input('user.username'),
-            'email' => $request->input('user.email'),
-            'password' => $request->input('user.password'),
-            'name' => $request->input('user.name')
-        ]);
+        $user = User::create($request->all());
 
         $token = auth()->login($user);
 

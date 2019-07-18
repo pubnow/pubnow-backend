@@ -47,12 +47,10 @@ class TagTest extends TestCase
         $tag = factory(Tag::class)->make();
 
         $response = $this->actingAs($this->member)->json('POST', '/api/tags', [
-            'tag' => [
-                'name' => $tag->name,
-                'slug' => $tag->slug,
-                'description' => $tag->description,
-                'image' => $tag->image,
-            ]
+            'name' => $tag->name,
+            'slug' => $tag->slug,
+            'description' => $tag->description,
+            'image' => $tag->image,
         ]);
 
         $response->assertStatus(201);
@@ -69,12 +67,10 @@ class TagTest extends TestCase
         $tag = factory(Tag::class)->make();
 
         $response = $this->json('POST', '/api/tags', [
-            'tag' => [
-                'name' => $tag->name,
-                'slug' => $tag->slug,
-                'description' => $tag->description,
-                'image' => $tag->image,
-            ]
+            'name' => $tag->name,
+            'slug' => $tag->slug,
+            'description' => $tag->description,
+            'image' => $tag->image,
         ]);
 
         $response->assertStatus(401);
@@ -84,11 +80,9 @@ class TagTest extends TestCase
         $tag = factory(Tag::class)->make();
 
         $response = $this->actingAs($this->member)->json('POST', '/api/tags', [
-            'tag' => [
-                'slug' => $tag->slug,
-                'description' => $tag->description,
-                'image' => $tag->image,
-            ]
+            'slug' => $tag->slug,
+            'description' => $tag->description,
+            'image' => $tag->image,
         ]);
 
         $response->assertStatus(422);
@@ -123,12 +117,10 @@ class TagTest extends TestCase
         $updateTag = factory(Tag::class)->make();
 
         $response = $this->actingAs($this->admin)->json('PUT', '/api/tags/'.$tag->slug, [
-            'tag' => [
-                'name' => $updateTag->name,
-                'slug' => $updateTag->slug,
-                'description' => $updateTag->description,
-                'image' => $updateTag->image,
-            ]
+            'name' => $updateTag->name,
+            'slug' => $updateTag->slug,
+            'description' => $updateTag->description,
+            'image' => $updateTag->image,
         ]);
 
         $response->assertOk();
@@ -145,12 +137,10 @@ class TagTest extends TestCase
         $updateTag = factory(Tag::class)->make();
 
         $response = $this->actingAs($this->member)->json('PUT', '/api/tags/'.$tag->slug, [
-            'tag' => [
-                'name' => $updateTag->name,
-                'slug' => $updateTag->slug,
-                'description' => $updateTag->description,
-                'image' => $updateTag->image,
-            ]
+            'name' => $updateTag->name,
+            'slug' => $updateTag->slug,
+            'description' => $updateTag->description,
+            'image' => $updateTag->image,
         ]);
 
         $response->assertStatus(403);
@@ -161,12 +151,10 @@ class TagTest extends TestCase
         $updateTag = factory(Tag::class)->make();
 
         $response = $this->actingAs($this->admin)->json('PUT', '/api/tags/'.$tags[0]->slug, [
-            'tag' => [
-                'name' => $tags[1]->name,
-                'slug' => $updateTag->slug,
-                'description' => $updateTag->description,
-                'image' => $updateTag->image,
-            ]
+            'name' => $tags[1]->name,
+            'slug' => $updateTag->slug,
+            'description' => $updateTag->description,
+            'image' => $updateTag->image,
         ]);
 
         $response->assertStatus(422);
@@ -176,12 +164,10 @@ class TagTest extends TestCase
         $tag = factory(Tag::class)->make();
 
         $response = $this->actingAs($this->admin)->json('PUT', '/api/tags/'.$tag->slug, [
-            'tag' => [
-                'name' => $tag->name,
-                'slug' => $tag->slug,
-                'description' => $tag->description,
-                'image' => $tag->image,
-            ]
+            'name' => $tag->name,
+            'slug' => $tag->slug,
+            'description' => $tag->description,
+            'image' => $tag->image,
         ]);
 
         $response->assertStatus(404);

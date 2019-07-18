@@ -35,16 +35,13 @@ class ArticleController extends Controller
      */
     public function store(CreateArticle $request)
     {
-        $articleData = $request->only('article.title', 'article.content', 'article.category');
-        $articleData = $articleData['article'];
-
         $user = $request->user();
 
         $article = $user->articles()->create([
-            'title' => $articleData['title'],
-            'content' => $articleData['content'],
-            'category_id' => $articleData['category'],
-            'slug' => str_slug($articleData['title']) . '-' . base_convert(time(), 10, 36),
+            'title' => $request->input('title'),
+            'content' => $request->input('content'),
+            'category_id' => $request->input('category'),
+            'slug' => str_slug($request->input('title')) . '-' . base_convert(time(), 10, 36),
         ]);
 
         return new ArticleResource($article);
@@ -70,9 +67,7 @@ class ArticleController extends Controller
      */
     public function update(UpdateArticle $request, Article $article)
     {
-        if ($request->has('article')) {
-            $article->update($request->get('article'));
-        }
+        $article->update($request->all());
 
         return new ArticleResource($article);
     }

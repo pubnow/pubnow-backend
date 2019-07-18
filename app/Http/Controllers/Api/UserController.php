@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\Api\Auth\UpdateUser;
+use App\Http\Requests\Api\User\UpdateUser;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -43,23 +43,21 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateUser $request, User $user)
+    public function update(Request $request, User $user)
     {
-        if ($request->has('user')) {
-            if ($request->has('user.email') || $request->has('user.username')) {
-                return response()->json([
-                    'errors' => [
-                        'message' => 'cannot update username or email',
-                    ]
-                ], 403);
-            }
-            $userData = $request->get('user');
-            if ($request->hasFile('user.avatar')) {
-                $path = $request->file('file')->store('public/images/avatar');
-                $userData['avatar'] = $path;
-            }
-            $user->update($userData);
+        if ($request->has('email') || $request->has('username')) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'cannot update username or email',
+                ]
+            ], 403);
         }
+        $data = $request->all();
+        if ($request->hasFile('avatar')) {
+            $path = $request->file('avatar')->store('public/images/avatar');
+            $data['avatar'] = $path;
+        }
+        $user->update($data);
         return new UserResource($user);
     }
 
