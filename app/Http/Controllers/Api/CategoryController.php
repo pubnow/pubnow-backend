@@ -35,9 +35,7 @@ class CategoryController extends Controller
      */
     public function store(CreateCategory $request)
     {
-        $data = $request->only('category.name', 'category.slug', 'category.description', 'category.image');
-        $data = $data['category'];
-        $newCategory = Category::create($data);
+        $newCategory = Category::create($request->all());
         return new CategoryResource($newCategory);
     }
 
@@ -61,9 +59,7 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategory $request, Category $category)
     {
-        if ($request->has('category')) {
-            $category->update($request->get('category'));
-        }
+        $category->update($request->all());
         return new CategoryResource($category);
     }
 

@@ -7,15 +7,6 @@ use App\Http\Requests\Api\ApiRequest;
 class UpdateCategory extends ApiRequest
 {
     /**
-     * Get data to be validated from the request.
-     *
-     * @return array
-     */
-    protected function validationData()
-    {
-        return $this->get('category') ?: [];
-    }
-    /**
      * Get the validation rules that apply to the request.
      *
      * @return array

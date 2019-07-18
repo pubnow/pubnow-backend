@@ -14,8 +14,7 @@ class AuthController extends Controller
 {
     public function login(LoginUser $request)
     {
-        $credentials = $request->only('user.username', 'user.password');
-        $credentials = $credentials['user'];
+        $credentials = $request->only('username', 'password');
 
         if (!$token = auth()->attempt($credentials)) {
             return response()->json([
@@ -32,36 +31,13 @@ class AuthController extends Controller
 
     public function register(RegisterUser $request)
     {
-        $user = User::create([
-            'username' => $request->input('user.username'),
-            'email' => $request->input('user.email'),
-            'password' => $request->input('user.password'),
-            'name' => $request->input('user.name')
-        ]);
+        $user = User::create($request->all());
 
         $token = auth()->login($user);
 
         return (new UserResource(auth()->user()))->additional([
             'token' => $token,
         ]);
-    }
-
-    public function update(UpdateUser $request, User $user)
-    {
-        $updater = $request->user();
-        if (!$updater->isAdmin()) {
-            if ($updater->id !== $user->id) {
-                return response()->json([
-                    'errors' => [
-                        'user' => 'is not admin or profile owner',
-                    ]
-                ], 403);
-            }
-        }
-        if ($request->has('user')) {
-            $user->update($request->get('user'));
-        }
-        return new UserResource($user);
     }
 
     public function me(Request $request)
