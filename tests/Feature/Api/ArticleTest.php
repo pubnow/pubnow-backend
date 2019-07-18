@@ -21,17 +21,6 @@ class ArticleTest extends TestCase
         $this->admin = User::where(['username' => 'admin'])->first();
         $this->user = factory(User::class)->create();
     }
-    /**
-     * A basic feature test example.
-     *
-     * @return void
-     */
-    public function testExample()
-    {
-        $response = $this->get('/');
-
-        $response->assertStatus(200);
-    }
 
     // ------
     // TODO: Tao article, neu da login, -> ok
@@ -39,11 +28,9 @@ class ArticleTest extends TestCase
         $category = factory(Category::class)->create();
         $article = factory(Article::class)->make();
         $response = $this->actingAs($this->user)->json('POST', '/api/articles', [
-            'article' => [
-                'title' => $article->title,
-                'content' => $article->content,
-                'category' => $category->id,
-            ]
+            'title' => $article->title,
+            'content' => $article->content,
+            'category' => $category->id,
         ]);
 
         $response->assertStatus(201);
@@ -57,31 +44,21 @@ class ArticleTest extends TestCase
         $category = factory(Category::class)->create();
         $article = factory(Article::class)->make();
         $response = $this->json('POST', '/api/articles', [
-            'article' => [
-                'title' => $article->title,
-                'content' => $article->content,
-                'category' => $category->id,
-            ]
+            'title' => $article->title,
+            'content' => $article->content,
+            'category' => $category->id,
         ]);
-//        dd($response);
 
         $response->assertStatus(401);
-//        $response->assertJsonFragment([
-//            'title' => $article->title,
-//            'content' => $article->content,
-//        ]);
     }
     // TODO: Tao article, da login, nhung truyen thieu data required (name || content || category) => 422
     public function test_cannot_create_article_if_logged_in_but_missing_title() {
         $category = factory(Category::class)->create();
         $article = factory(Article::class)->make();
         $response = $this->actingAs($this->user)->json('POST', '/api/articles', [
-            'article' => [
-                'content' => $article->content,
-                'category' => $category->id,
-            ]
+            'content' => $article->content,
+            'category' => $category->id,
         ]);
-//        dd($response);
 
         $response->assertStatus(422);
     }
@@ -90,12 +67,9 @@ class ArticleTest extends TestCase
         $category = factory(Category::class)->make();
         $article = factory(Article::class)->make();
         $response = $this->actingAs($this->user)->json('POST', '/api/articles', [
-            'article' => [
-                'content' => $article->content,
-                'category' => $category->id,
-            ]
+            'content' => $article->content,
+            'category' => $category->id,
         ]);
-//        dd($response);
 
         $response->assertStatus(422);
     }
@@ -113,17 +87,6 @@ class ArticleTest extends TestCase
         $response->assertJsonFragment([
             'title' => $article->title,
             'content' => $article->content,
-//            'author' => [
-//                'name' => $this->user->name,
-//                'username' => $this->user->username,
-//                'email' => $this->user->email,
-//            ],
-//            'category' => [
-//                'name' => $category->name,
-//                'slug' => $category->slug,
-//                'description' => $category->description,
-//                'image' => $category->image,
-//            ]
         ]);
     }
     // TODO: Xem 1 article, khong ton tai -> 404 not found
@@ -148,27 +111,14 @@ class ArticleTest extends TestCase
         ]);
         $updateArticle = factory(Article::class)->make();
         $response = $this->actingAs($this->admin)->json('PUT', '/api/articles/'.$article->slug, [
-            'article' => [
-                'title' => $updateArticle->title,
-                'content' => $updateArticle->content,
-            ]
+            'title' => $updateArticle->title,
+            'content' => $updateArticle->content,
         ]);
 
         $response->assertOk();
         $response->assertJsonFragment([
             'title' => $updateArticle->title,
             'content' => $updateArticle->content,
-//            'author' => [
-//                'name' => $this->user->name,
-//                'username' => $this->user->username,
-//                'email' => $this->user->email,
-//            ],
-//            'category' => [
-//                'name' => $category->name,
-//                'slug' => $category->slug,
-//                'description' => $category->description,
-//                'image' => $category->image,
-//            ]
         ]);
     }
     // TODO: Sua 1 article, ton tai + user la tac gia -> ok
@@ -181,27 +131,14 @@ class ArticleTest extends TestCase
         ]);
         $updateArticle = factory(Article::class)->make();
         $response = $this->actingAs($this->user)->json('PUT', '/api/articles/'.$article->slug, [
-            'article' => [
-                'title' => $updateArticle->title,
-                'content' => $updateArticle->content,
-            ]
+            'title' => $updateArticle->title,
+            'content' => $updateArticle->content,
         ]);
 
         $response->assertOk();
         $response->assertJsonFragment([
             'title' => $updateArticle->title,
             'content' => $updateArticle->content,
-//            'author' => [
-//                'name' => $this->user->name,
-//                'username' => $this->user->username,
-//                'email' => $this->user->email,
-//            ],
-//            'category' => [
-//                'name' => $category->name,
-//                'slug' => $category->slug,
-//                'description' => $category->description,
-//                'image' => $category->image,
-//            ]
         ]);
     }
     // TODO: Sua 1 article, ton tai + user khong phai tac gia -> 403
@@ -215,10 +152,8 @@ class ArticleTest extends TestCase
         ]);
         $updateArticle = factory(Article::class)->make();
         $response = $this->actingAs($updater)->json('PUT', '/api/articles/'.$article->slug, [
-            'article' => [
-                'title' => $updateArticle->title,
-                'content' => $updateArticle->content,
-            ]
+            'title' => $updateArticle->title,
+            'content' => $updateArticle->content,
         ]);
 
         $response->assertStatus(403);
@@ -233,9 +168,7 @@ class ArticleTest extends TestCase
         ]);
         $updateCategory = factory(Category::class)->make();
         $response = $this->actingAs($this->admin)->json('PUT', '/api/articles/'.$article->slug, [
-            'article' => [
-                'category' => $updateCategory->id
-            ]
+            'category' => $updateCategory->id
         ]);
 
         $response->assertStatus(422);
@@ -246,10 +179,8 @@ class ArticleTest extends TestCase
         $article = factory(Article::class)->make();
         $updateArticle = factory(Article::class)->make();
         $response = $this->actingAs($this->admin)->json('PUT', '/api/articles/'.$article->slug, [
-            'article' => [
-                'title' => $updateArticle->title,
-                'content' => $updateArticle->content,
-            ]
+            'title' => $updateArticle->title,
+            'content' => $updateArticle->content,
         ]);
 
         $response->assertStatus(404);

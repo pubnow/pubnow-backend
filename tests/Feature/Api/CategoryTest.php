@@ -50,12 +50,10 @@ class CategoryTest extends TestCase
         $categoryData = factory(Category::class)->make();
 
         $response = $this->actingAs($this->admin)->json('POST', '/api/categories', [
-            'category' => [
-                'name' => $categoryData->name,
-                'slug' => $categoryData->slug,
-                'description' => $categoryData->description,
-                'image' => $categoryData->image,
-            ],
+            'name' => $categoryData->name,
+            'slug' => $categoryData->slug,
+            'description' => $categoryData->description,
+            'image' => $categoryData->image,
         ]);
 
         $response->assertStatus(201);
@@ -73,12 +71,10 @@ class CategoryTest extends TestCase
         $categoryData = factory(Category::class)->make();
 
         $response = $this->actingAs($this->member)->json('POST', '/api/categories', [
-            'category' => [
-                'name' => $categoryData->name,
-                'slug' => $categoryData->slug,
-                'description' => $categoryData->description,
-                'image' => $categoryData->image,
-            ],
+            'name' => $categoryData->name,
+            'slug' => $categoryData->slug,
+            'description' => $categoryData->description,
+            'image' => $categoryData->image,
         ]);
 
         $response->assertStatus(403);
@@ -110,11 +106,9 @@ class CategoryTest extends TestCase
         $categoryData = factory(Category::class)->make();
 
         $response = $this->actingAs($this->admin)->json('POST', '/api/categories', [
-            'category' => [
-                'slug' => $categoryData->slug,
-                'description' => $categoryData->description,
-                'image' => $categoryData->image,
-            ],
+            'slug' => $categoryData->slug,
+            'description' => $categoryData->description,
+            'image' => $categoryData->image,
         ]);
 
         $response->assertStatus(422);
@@ -127,12 +121,10 @@ class CategoryTest extends TestCase
         $updateCategoryData = factory(Category::class)->make();
 
         $response = $this->actingAs($this->admin)->json('PUT', '/api/categories/' . $categoryData->slug, [
-            'category' => [
-                'name' => $updateCategoryData->name,
-                'slug' => $updateCategoryData->slug,
-                'description' => $updateCategoryData->description,
-                'image' => $updateCategoryData->image,
-            ],
+            'name' => $updateCategoryData->name,
+            'slug' => $updateCategoryData->slug,
+            'description' => $updateCategoryData->description,
+            'image' => $updateCategoryData->image,
         ]);
 
         $response->assertOk();
@@ -150,12 +142,10 @@ class CategoryTest extends TestCase
         $updateCategoryData = factory(Category::class)->make();
 
         $response = $this->actingAs($this->member)->json('PUT', '/api/categories/' . $categoryData->slug, [
-            'category' => [
-                'name' => $updateCategoryData->name,
-                'slug' => $updateCategoryData->slug,
-                'description' => $updateCategoryData->description,
-                'image' => $updateCategoryData->image,
-            ],
+            'name' => $updateCategoryData->name,
+            'slug' => $updateCategoryData->slug,
+            'description' => $updateCategoryData->description,
+            'image' => $updateCategoryData->image,
         ]);
 
         $response->assertStatus(403);
@@ -167,12 +157,10 @@ class CategoryTest extends TestCase
         $updateCategoryData = factory(Category::class)->make();
 
         $response = $this->actingAs($this->admin)->json('PUT', '/api/categories/' . $categoryDatas[0]->slug, [
-            'category' => [
-                'name' => $categoryDatas[1]->name,
-                'slug' => $updateCategoryData->slug,
-                'description' => $updateCategoryData->description,
-                'image' => $updateCategoryData->image,
-            ],
+            'name' => $categoryDatas[1]->name,
+            'slug' => $updateCategoryData->slug,
+            'description' => $updateCategoryData->description,
+            'image' => $updateCategoryData->image,
         ]);
 
         $response->assertStatus(422);
@@ -183,12 +171,10 @@ class CategoryTest extends TestCase
         $categoryData = factory(Category::class)->make();
 
         $response = $this->actingAs($this->member)->json('PUT', '/api/categories/' . $categoryData->slug, [
-            'category' => [
-                'name' => $categoryData->name,
-                'slug' => $categoryData->slug,
-                'description' => $categoryData->description,
-                'image' => $categoryData->image,
-            ],
+            'name' => $categoryData->name,
+            'slug' => $categoryData->slug,
+            'description' => $categoryData->description,
+            'image' => $categoryData->image,
         ]);
 
         $response->assertStatus(404);
