@@ -27,4 +27,9 @@ class Tag extends Model
     {
         return 'slug';
     }
+
+    public function articles() {
+        return $this->belongsToMany('App\Models\Article');
+    }
+    
 }

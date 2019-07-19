@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -45,21 +46,19 @@ class TagTest extends TestCase
     public function test_can_create_tag_if_logged_in()
     {
         $tag = factory(Tag::class)->make();
+        $image = UploadedFile::fake()->create('tag_image.png');
 
         $response = $this->actingAs($this->member)->json('POST', '/api/tags', [
             'name' => $tag->name,
-            'slug' => $tag->slug,
             'description' => $tag->description,
-            'image' => $tag->image,
+            'image' => $image,
         ]);
 
         $response->assertStatus(201);
 
         $response->assertJsonFragment([
             'name' => $tag->name,
-            'slug' => $tag->slug,
             'description' => $tag->description,
-            'image' => $tag->image,
         ]);
     }
     // Tag tag, chua login -> 403
@@ -68,21 +67,17 @@ class TagTest extends TestCase
 
         $response = $this->json('POST', '/api/tags', [
             'name' => $tag->name,
-            'slug' => $tag->slug,
             'description' => $tag->description,
-            'image' => $tag->image,
         ]);
 
         $response->assertStatus(401);
     }
-    // Tao tag, da login, nhung truyen thieu data required (name || slug) => 422
+    // Tao tag, da login, nhung truyen thieu data required (name) => 422
     public function test_cannot_create_tag_if_logged_in_but_missing_name() {
         $tag = factory(Tag::class)->make();
 
         $response = $this->actingAs($this->member)->json('POST', '/api/tags', [
-            'slug' => $tag->slug,
             'description' => $tag->description,
-            'image' => $tag->image,
         ]);
 
         $response->assertStatus(422);
@@ -115,20 +110,19 @@ class TagTest extends TestCase
     public function test_can_update_a_exists_tag_with_admin_logged_in() {
         $tag = factory(Tag::class)->create();
         $updateTag = factory(Tag::class)->make();
+        $image = UploadedFile::fake()->create('tag_image.png');
 
         $response = $this->actingAs($this->admin)->json('PUT', '/api/tags/'.$tag->slug, [
             'name' => $updateTag->name,
-            'slug' => $updateTag->slug,
             'description' => $updateTag->description,
-            'image' => $updateTag->image,
+            'image' => $image,
         ]);
 
         $response->assertOk();
         $response->assertJsonFragment([
             'name' => $updateTag->name,
-            'slug' => $updateTag->slug,
+            'slug' => $tag->slug,
             'description' => $updateTag->description,
-            'image' => $updateTag->image,
         ]);
     }
     // TODO: Sua 1 tag, ton tai + user k phai admin -> 403
@@ -138,23 +132,19 @@ class TagTest extends TestCase
 
         $response = $this->actingAs($this->member)->json('PUT', '/api/tags/'.$tag->slug, [
             'name' => $updateTag->name,
-            'slug' => $updateTag->slug,
             'description' => $updateTag->description,
-            'image' => $updateTag->image,
         ]);
 
         $response->assertStatus(403);
     }
-    // Sua 1 tag, ton tai + user la admin, nhung data sai (name || slug bi trung) -> 422
+    // Sua 1 tag, ton tai + user la admin, nhung data sai (name bi trung) -> 422
     public function test_cannot_update_a_exists_tag_with_admin_logged_in_but_dupplicate_name() {
         $tags = factory(Tag::class, 2)->create();
         $updateTag = factory(Tag::class)->make();
 
         $response = $this->actingAs($this->admin)->json('PUT', '/api/tags/'.$tags[0]->slug, [
             'name' => $tags[1]->name,
-            'slug' => $updateTag->slug,
             'description' => $updateTag->description,
-            'image' => $updateTag->image,
         ]);
 
         $response->assertStatus(422);
@@ -165,9 +155,7 @@ class TagTest extends TestCase
 
         $response = $this->actingAs($this->admin)->json('PUT', '/api/tags/'.$tag->slug, [
             'name' => $tag->name,
-            'slug' => $tag->slug,
             'description' => $tag->description,
-            'image' => $tag->image,
         ]);
 
         $response->assertStatus(404);

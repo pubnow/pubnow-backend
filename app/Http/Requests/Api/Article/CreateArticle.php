@@ -16,7 +16,8 @@ class CreateArticle extends ApiRequest
         return [
             'title' => 'required|min:10',
             'content' => 'required|string',
-            'category' => 'required|uuid|exists:categories,id'
+            'category' => 'required|uuid|exists:categories,id',
+            'tag_list' => 'sometimes|array'
         ];
     }
 }

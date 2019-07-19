@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\Article\UpdateArticle;
 use App\Models\Article;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticleResource;
@@ -46,6 +47,18 @@ class ArticleController extends Controller
             'slug' => str_slug($data['title']) . '-' . base_convert(time(), 10, 36),
         ]);
 
+
+        $inputTags = $request->input('tag_list');
+        if ($inputTags && ! empty($inputTags)) {
+            $tags = array_map(function($name) {
+                return Tag::firstOrCreate([
+                    'name' => $name,
+                    'slug' => str_slug($name) . '-' . base_convert(time(), 10, 36)
+                ])->id;
+            }, $inputTags);
+            $article->tags()->attach($tags);
+        }
+
         return new ArticleResource($article);
     }
 
@@ -72,7 +85,22 @@ class ArticleController extends Controller
      */
     public function update(UpdateArticle $request, Article $article)
     {
-        $article->update($request->all());
+        $data = $request->only('title', 'content', 'category');
+
+        $article->update($data);
+
+        $article->tags()->detach();
+
+        $inputTags = $request->input('tag_list');
+        if ($inputTags && ! empty($inputTags)) {
+            $tags = array_map(function($name) {
+                return Tag::firstOrCreate([
+                    'name' => $name,
+                    'slug' => str_slug($name) . '-' . base_convert(time(), 10, 36)
+                ])->id;
+            }, $inputTags);
+            $article->tags()->attach($tags);
+        }
 
         return new ArticleResource($article);
     }
