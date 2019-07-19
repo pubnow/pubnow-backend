@@ -22,6 +22,8 @@ class ArticleResource extends JsonResource
             'author' => new UserResource($this->author),
             'category' => new CategoryOnlyResource($this->category),
             'tags' => TagOnlyResource::collection($this->tags),
+            'comments' => CommentResource::collection($this->comments()->where('parent_id', null)->get()),
+            'claps' => $this->claps()->sum('count'),
         ];
     }
 }

@@ -24,7 +24,9 @@ class CreateComment extends FormRequest
     public function rules()
     {
         return [
-
+            'article_id' => 'required|uuid|exists:articles,id',
+            'parent_id' => 'sometimes|uuid|exists:comments,id',
+            'content' => 'required'
         ];
     }
 }

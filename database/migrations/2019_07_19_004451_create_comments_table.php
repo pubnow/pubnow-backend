@@ -30,7 +30,7 @@ class CreateCommentsTable extends Migration
         });
 
         Schema::table('comments', function (Blueprint $table) {
-            $table->uuid('parent_id');
+            $table->uuid('parent_id')->nullable();
             $table->foreign('parent_id')->references('id')->on('comments')
                 ->onUpdate('cascade')->onDelete('cascade');
         });
