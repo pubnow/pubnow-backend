@@ -10,5 +10,6 @@ $factory->define(Article::class, function (Faker $faker) {
         'title' => $faker->sentence,
         'slug' => $faker->unique()->slug,
         'content' => $faker->paragraph,
+        'seen_count' => 0,
     ];
 });

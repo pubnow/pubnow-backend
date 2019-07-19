@@ -23,7 +23,7 @@ Route::group(['namespace' => 'Api'], function () {
     });
 
     // User
-    Route::resource('users', 'UserController')->except(['create', 'edit', 'store', 'delete']);
+    Route::resource('users', 'UserController')->except(['create', 'edit', 'delete']);
 
     // Category
     Route::resource('categories', 'CategoryController')->except(['create', 'edit']);
@@ -33,9 +33,13 @@ Route::group(['namespace' => 'Api'], function () {
 
     // Article
     Route::resource('articles', 'ArticleController')->except(['create', 'edit']);
+    Route::get('popular-articles', 'ArticleController@popular');
 
     // Search
     Route::group(['prefix' => 'search'], function () {
         Route::get('article', 'SearchController@query');
     });
+
+    // Clap
+    Route::resource('claps', 'ClapController')->except(['index', 'create', 'edit', 'update'])->middleware('auth');
 });

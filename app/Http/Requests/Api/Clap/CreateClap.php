@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Api\User;
+namespace App\Http\Requests\Api\Clap;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateUser extends FormRequest
+class CreateClap extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class UpdateUser extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,11 +24,7 @@ class UpdateUser extends FormRequest
     public function rules()
     {
         return [
-            'password' => 'sometimes|min:6',
-            'name'     => 'sometimes',
-            'bio'      => 'sometimes',
-            'avatar'   => 'sometimes|file',
-            'role_id'     => 'sometimes',
+            'article_id' => 'required|uuid|exists:articles,id'
         ];
     }
 }

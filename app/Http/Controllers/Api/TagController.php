@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TagResource;
 use App\Http\Requests\Api\Tag\CreateTag;
+use Illuminate\Support\Facades\Storage;
 
 class TagController extends Controller
 {
@@ -36,7 +37,14 @@ class TagController extends Controller
      */
     public function store(CreateTag $request)
     {
-        $newTag = Tag::create($request->all());
+        $data = $request->all();
+        $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('public/images/tag');
+            $path = Storage::url($path);
+            $data['image'] = $path;
+        }
+        $newTag = Tag::create($data);
         return new TagResource($newTag);
     }
 
@@ -60,7 +68,13 @@ class TagController extends Controller
      */
     public function update(UpdateTag $request, Tag $tag)
     {
-        $tag->update($request->all());
+        $data = $request->all();
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('public/images/tag');
+            $path = Storage::url($path);
+            $data['image'] = $path;
+        }
+        $tag->update($data);
         return new TagResource($tag);
     }
 
