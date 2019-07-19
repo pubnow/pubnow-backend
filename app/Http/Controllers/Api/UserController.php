@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\User\UpdateUser;
 use App\Http\Requests\Api\User\CreateUser;
+use App\Http\Resources\ArticleResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -14,7 +15,7 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show']);
+        $this->middleware(['auth'])->except(['index', 'show', 'articles']);
         $this->authorizeResource(User::class);
     }
     /**
@@ -86,6 +87,11 @@ class UserController extends Controller
         }
         $user->update($data);
         return new UserResource($user);
+    }
+
+    public function articles(Request $request, User $user) {
+        $articles = $user->articles()->paginate(10);
+        return ArticleResource::collection($articles);
     }
 
 }

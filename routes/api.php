@@ -24,6 +24,7 @@ Route::group(['namespace' => 'Api'], function () {
 
     // User
     Route::resource('users', 'UserController')->except(['create', 'edit', 'delete']);
+    Route::get('user-articles/{user}', 'UserController@articles');
 
     // Category
     Route::resource('categories', 'CategoryController')->except(['create', 'edit']);
