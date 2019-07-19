@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticleResource;
 use App\Http\Requests\Api\Article\CreateArticle;
+use Illuminate\Support\Facades\DB;
 
 class ArticleController extends Controller
 {
@@ -119,6 +120,13 @@ class ArticleController extends Controller
 
     public function popular() {
         $articles = Article::orderBy('seen_count', 'desc')->take(5)->get();
+        return ArticleResource::collection($articles);
+    }
+
+    public function featured() {
+        $articles = Article::with('claps')->with('comments')->get()->sortBy(function ($article) {
+            return $article->claps->sum('count') + $article->comments->count();
+        })->reverse();
         return ArticleResource::collection($articles);
     }
 }

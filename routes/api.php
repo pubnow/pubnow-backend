@@ -34,6 +34,7 @@ Route::group(['namespace' => 'Api'], function () {
     // Article
     Route::resource('articles', 'ArticleController')->except(['create', 'edit']);
     Route::get('popular-articles', 'ArticleController@popular');
+    Route::get('featured-articles', 'ArticleController@featured');
 
     // Search
     Route::group(['prefix' => 'search'], function () {
