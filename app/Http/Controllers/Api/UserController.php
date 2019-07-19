@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\Api\User\UserClap;
 use App\Http\Requests\Api\User\UpdateUser;
-use App\Http\Resources\ClapResource;
 use App\Http\Requests\Api\User\CreateUser;
 use App\Http\Resources\UserResource;
-use App\Models\Clap;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -89,24 +86,6 @@ class UserController extends Controller
         }
         $user->update($data);
         return new UserResource($user);
-    }
-
-    public function clap(UserClap $request) {
-        $user = $request->user();
-        $clap = Clap::firstOrNew([
-            'user_id' => $user->id,
-            'article_id' => $request->get('article_id'),
-        ]);
-//        dd($clap->count);
-        if ($clap->count !== null) {
-            $clap->update([
-                'count' => $clap->count + 1,
-            ]);
-        } else {
-            $clap->count = 0;
-            $clap->save();
-        }
-        return new ClapResource($clap);
     }
 
 }

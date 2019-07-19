@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Api\User;
+namespace App\Http\Requests\Api\Clap;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UserClap extends FormRequest
+class CreateClap extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

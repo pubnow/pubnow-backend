@@ -15,6 +15,7 @@ class ClapResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'id' => $this->id,
             'user' => $this->user_id,
             'article' => $this->article_id,
             'count' => $this->count,
