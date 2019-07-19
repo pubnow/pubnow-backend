@@ -24,7 +24,7 @@ class ArticleController extends Controller
      */
     public function index()
     {
-        $articles = Article::all();
+        $articles = Article::orderBy('created_at', 'desc')->paginate(10);
         return ArticleResource::collection($articles);
     }
 
@@ -43,6 +43,7 @@ class ArticleController extends Controller
             'title' => $data['title'],
             'content' => $data['content'],
             'category_id' => $data['category'],
+            'seen_count' => 0,
             'slug' => str_slug($data['title']) . '-' . base_convert(time(), 10, 36),
         ]);
 
@@ -69,6 +70,9 @@ class ArticleController extends Controller
      */
     public function show(Article $article)
     {
+        $article->update([
+            'seen_count' => $article->seen_count + 1
+        ]);
         return new ArticleResource($article);
     }
 
@@ -111,5 +115,10 @@ class ArticleController extends Controller
     {
         $article->delete();
         return response()->json(null, 204);
+    }
+
+    public function popular() {
+        $articles = Article::orderBy('seen_count', 'desc')->take(5)->get();
+        return ArticleResource::collection($articles);
     }
 }

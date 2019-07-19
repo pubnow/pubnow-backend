@@ -33,9 +33,13 @@ Route::group(['namespace' => 'Api'], function () {
 
     // Article
     Route::resource('articles', 'ArticleController')->except(['create', 'edit']);
+    Route::get('popular-articles', 'ArticleController@popular');
 
     // Search
     Route::group(['prefix' => 'search'], function () {
         Route::get('article', 'SearchController@query');
     });
+
+    // Clap
+    Route::resource('claps', 'ClapController')->except(['index', 'create', 'edit', 'update'])->middleware('auth');
 });
