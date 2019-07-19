@@ -81,7 +81,6 @@ class UserController extends Controller
         if ($request->hasFile('avatar')) {
             $path = $request->file('avatar')->store('public/images/avatar');
             $path = Storage::url($path);
-            dd($path);
             $data['avatar'] = $path;
         }
         $user->update($data);
