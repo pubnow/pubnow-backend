@@ -36,6 +36,9 @@ Route::group(['namespace' => 'Api'], function () {
     Route::get('popular-articles', 'ArticleController@popular');
     Route::get('featured-articles', 'ArticleController@featured');
 
+    // Role
+    Route::resource('roles', 'RoleController')->only(['index', 'show']);
+
     // Search
     Route::group(['prefix' => 'search'], function () {
         Route::get('article', 'SearchController@query');
