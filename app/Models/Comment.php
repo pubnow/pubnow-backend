@@ -14,8 +14,15 @@ class Comment extends Model
      * @var array
      */
     protected $fillable = [
-        'content', 'article_id', 'parent_id', 'user_id', 'up_point', 'down_point'
+        'content', 'article_id', 'parent_id', 'user_id'
     ];
+    public static function boot() {
+        parent::boot();
+
+        static::deleting(function($comment) { // before delete() method call this
+            $comment->childs()->delete();
+        });
+    }
 
     public function user() {
         return $this->belongsTo('App\Models\User');

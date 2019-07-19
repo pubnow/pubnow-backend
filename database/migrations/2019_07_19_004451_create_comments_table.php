@@ -25,8 +25,6 @@ class CreateCommentsTable extends Migration
                 ->onUpdate('cascade')->onDelete('cascade');
 
             $table->text('content');
-            $table->integer('up_point');
-            $table->integer('down_point');
 
             $table->timestamps();
         });
