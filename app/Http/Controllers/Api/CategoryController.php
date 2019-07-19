@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CategoryResource;
 use App\Http\Requests\Api\Category\CreateCategory;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
@@ -35,11 +36,11 @@ class CategoryController extends Controller
      */
     public function store(CreateCategory $request)
     {
-
         $data = $request->all();
         $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('public/images/tag');
+            $path = Storage::url($path);
             $data['image'] = $path;
         }
         $newCategory = Category::create($data);
@@ -69,6 +70,7 @@ class CategoryController extends Controller
         $data = $request->all();
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('public/images/tag');
+            $path = Storage::url($path);
             $data['image'] = $path;
         }
         $category->update($data);

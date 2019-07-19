@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\Api\User\UpdateUser;
+use App\Http\Requests\Api\User\CreateUser;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -37,6 +38,23 @@ class UserController extends Controller
     }
 
     /**
+     * Store a newly created resource in storage.
+     *
+     * @param  App\Http\Requests\Api\User\CreateUser  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(CreateUser $request) {
+        $data = $request->all();
+        if ($request->hasFile('avatar')) {
+            $path = $request->file('avatar')->store('public/images/avatar');
+            $path = Storage::url($path);
+            $data['avatar'] = $path;
+        }
+        $user = User::create($data);
+        return new UserResource($user);
+    }
+
+    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -53,8 +71,17 @@ class UserController extends Controller
             ], 403);
         }
         $data = $request->all();
+        if ($request->has('role_id') && !$request->user()->isAdmin()) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'user cannot update own role',
+                ]
+            ], 403);
+        }
         if ($request->hasFile('avatar')) {
             $path = $request->file('avatar')->store('public/images/avatar');
+            $path = Storage::url($path);
+            dd($path);
             $data['avatar'] = $path;
         }
         $user->update($data);
