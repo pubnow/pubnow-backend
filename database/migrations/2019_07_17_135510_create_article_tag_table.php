@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateArticlesTable extends Migration
+class CreateArticleTagTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,18 +13,15 @@ class CreateArticlesTable extends Migration
      */
     public function up()
     {
-        Schema::create('articles', function (Blueprint $table) {
+        Schema::create('article_tag', function (Blueprint $table) {
             $table->uuid('id')->default(DB::raw('gen_random_uuid()'))->primary('id');
-            $table->string('title');
-            $table->text('content');
-            $table->string('slug')->unique();
 
-            $table->uuid('user_id');
-            $table->foreign('user_id')->references('id')->on('users')
+            $table->uuid('article_id');
+            $table->foreign('article_id')->references('id')->on('articles')
                 ->onUpdate('cascade')->onDelete('cascade');
 
-            $table->uuid('category_id');
-            $table->foreign('category_id')->references('id')->on('categories')
+            $table->uuid('tag_id');
+            $table->foreign('tag_id')->references('id')->on('tags')
                 ->onUpdate('cascade')->onDelete('cascade');
 
             $table->timestamps();
@@ -38,6 +35,6 @@ class CreateArticlesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('articles');
+        Schema::dropIfExists('article_tag');
     }
 }

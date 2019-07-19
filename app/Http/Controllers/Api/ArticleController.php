@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\Article\UpdateArticle;
 use App\Models\Article;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticleResource;
@@ -23,7 +24,7 @@ class ArticleController extends Controller
      */
     public function index()
     {
-        $articles = Article::all();
+        $articles = Article::orderBy('created_at', 'desc')->paginate(10);
         return ArticleResource::collection($articles);
     }
 
@@ -42,8 +43,21 @@ class ArticleController extends Controller
             'title' => $data['title'],
             'content' => $data['content'],
             'category_id' => $data['category'],
+            'seen_count' => 0,
             'slug' => str_slug($data['title']) . '-' . base_convert(time(), 10, 36),
         ]);
+
+
+        $inputTags = $request->input('tag_list');
+        if ($inputTags && ! empty($inputTags)) {
+            $tags = array_map(function($name) {
+                return Tag::firstOrCreate([
+                    'name' => $name,
+                    'slug' => str_slug($name) . '-' . base_convert(time(), 10, 36)
+                ])->id;
+            }, $inputTags);
+            $article->tags()->attach($tags);
+        }
 
         return new ArticleResource($article);
     }
@@ -56,6 +70,9 @@ class ArticleController extends Controller
      */
     public function show(Article $article)
     {
+        $article->update([
+            'seen_count' => $article->seen_count + 1
+        ]);
         return new ArticleResource($article);
     }
 
@@ -68,7 +85,22 @@ class ArticleController extends Controller
      */
     public function update(UpdateArticle $request, Article $article)
     {
-        $article->update($request->all());
+        $data = $request->only('title', 'content', 'category');
+
+        $article->update($data);
+
+        $article->tags()->detach();
+
+        $inputTags = $request->input('tag_list');
+        if ($inputTags && ! empty($inputTags)) {
+            $tags = array_map(function($name) {
+                return Tag::firstOrCreate([
+                    'name' => $name,
+                    'slug' => str_slug($name) . '-' . base_convert(time(), 10, 36)
+                ])->id;
+            }, $inputTags);
+            $article->tags()->attach($tags);
+        }
 
         return new ArticleResource($article);
     }
@@ -83,5 +115,10 @@ class ArticleController extends Controller
     {
         $article->delete();
         return response()->json(null, 204);
+    }
+
+    public function popular() {
+        $articles = Article::orderBy('seen_count', 'desc')->take(5)->get();
+        return ArticleResource::collection($articles);
     }
 }
