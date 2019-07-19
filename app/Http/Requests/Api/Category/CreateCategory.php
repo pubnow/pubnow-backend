@@ -15,7 +15,7 @@ class CreateCategory extends ApiRequest
     {
         return [
             'name' => 'required|max:60|unique:categories,name',
-            'slug' => 'required|max:60|unique:categories,slug',
+            'image'   => 'sometimes|file',
         ];
     }
 }

@@ -23,7 +23,7 @@ Route::group(['namespace' => 'Api'], function () {
     });
 
     // User
-    Route::resource('users', 'UserController')->except(['create', 'edit', 'store', 'delete']);
+    Route::resource('users', 'UserController')->except(['create', 'edit', 'delete']);
 
     // Category
     Route::resource('categories', 'CategoryController')->except(['create', 'edit']);

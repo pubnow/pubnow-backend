@@ -20,7 +20,8 @@ class ArticleResource extends JsonResource
             'title' => $this->title,
             'content' => $this->content,
             'author' => new UserResource($this->author),
-            'category' => new CategoryResource($this->category),
+            'category' => new CategoryOnlyResource($this->category),
+            'tags' => TagOnlyResource::collection($this->tags),
         ];
     }
 }
