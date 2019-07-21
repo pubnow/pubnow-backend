@@ -45,4 +45,7 @@ Route::group(['namespace' => 'Api'], function () {
 
     // Clap
     Route::resource('claps', 'ClapController')->except(['index', 'create', 'edit', 'update'])->middleware('auth');
+
+    // Role
+    Route::resource('roles', 'RoleController')->except(['create', 'edit']);
 });
