@@ -19,11 +19,13 @@ class ArticleResource extends JsonResource
             'slug' => $this->slug,
             'title' => $this->title,
             'content' => $this->content,
-            'excerpt' => $this->excerpt,
-            'thumbnail' => $this->thumbnail,
+            'excerpt' => excerpt($this->content, 200),
+            'thumbnail' => thumbnail($this->content),
             'author' => new UserResource($this->author),
             'category' => new CategoryOnlyResource($this->category),
             'tags' => TagOnlyResource::collection($this->tags),
+            'createdAt' => $this->created_at,
+            'updatedAt' => $this->updated_at,
         ];
     }
 }

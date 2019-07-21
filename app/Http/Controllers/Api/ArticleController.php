@@ -42,7 +42,7 @@ class ArticleController extends Controller
         $article = $user->articles()->create([
             'title' => $data['title'],
             'content' => $data['content'],
-            'excerpt' => excerpt($data['content'], 250),
+            'excerpt' => excerpt($data['content'], 200),
             'thumbnail' => thumbnail($data['content']),
             'category_id' => $data['category'],
             'seen_count' => 0,
