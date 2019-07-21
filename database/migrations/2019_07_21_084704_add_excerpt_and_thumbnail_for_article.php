@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class UpdateArticleTableAddFieldSeenCount extends Migration
+class AddExcerptAndThumbnailForArticle extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,8 @@ class UpdateArticleTableAddFieldSeenCount extends Migration
     public function up()
     {
         Schema::table('articles', function (Blueprint $table) {
-            $table->bigInteger('seen_count')->default(0);
+            $table->text('excerpt')->nullable();
+            $table->string('thumbnail')->nullable();
         });
     }
 
@@ -26,7 +27,7 @@ class UpdateArticleTableAddFieldSeenCount extends Migration
     public function down()
     {
         Schema::table('articles', function (Blueprint $table) {
-            $table->dropColumn('seen_count');
+            $table->dropColumn(['excerpt', 'thumbnail']);
         });
     }
 }

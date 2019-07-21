@@ -19,6 +19,8 @@ class ArticleResource extends JsonResource
             'slug' => $this->slug,
             'title' => $this->title,
             'content' => $this->content,
+            'excerpt' => $this->excerpt,
+            'thumbnail' => $this->thumbnail,
             'author' => new UserResource($this->author),
             'category' => new CategoryOnlyResource($this->category),
             'tags' => TagOnlyResource::collection($this->tags),
