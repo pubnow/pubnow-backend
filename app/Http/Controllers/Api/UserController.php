@@ -45,7 +45,8 @@ class UserController extends Controller
      * @param  App\Http\Requests\Api\User\CreateUser  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CreateUser $request) {
+    public function store(CreateUser $request)
+    {
         $data = $request->all();
         if ($request->hasFile('avatar')) {
             $path = $request->file('avatar')->store('public/images/avatar');
