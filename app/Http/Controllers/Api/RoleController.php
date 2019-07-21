@@ -13,6 +13,7 @@ class RoleController extends Controller
     public function __construct()
     {
         $this->middleware(["auth"]);
+        $this->authorizeResource(Role::class);
     }
     public function index()
     {
@@ -23,10 +24,6 @@ class RoleController extends Controller
         }
         $roles = Role::all();
         return RoleResource::collection($roles);
-    }
-
-    public function show(Role $role) {
-        return new RoleResource($role);
     }
 
     public function store(CreateRole $request) {
