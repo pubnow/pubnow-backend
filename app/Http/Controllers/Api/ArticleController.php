@@ -42,13 +42,14 @@ class ArticleController extends Controller
         $article = $user->articles()->create([
             'title' => $data['title'],
             'content' => $data['content'],
+            'excerpt' => excerpt($data['content'], 250),
+            'thumbnail' => thumbnail($data['content']),
             'category_id' => $data['category'],
             'seen_count' => 0,
             'slug' => str_slug($data['title']) . '-' . base_convert(time(), 10, 36),
         ]);
 
-
-        $inputTags = $request->input('tag_list');
+        $inputTags = $request->input('tags');
         if ($inputTags && !empty($inputTags)) {
             $tags = array_map(function ($name) {
                 return Tag::firstOrCreate([
