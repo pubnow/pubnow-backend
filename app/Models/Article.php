@@ -17,7 +17,8 @@ class Article extends Model
      * @var array
      */
     protected $fillable = [
-        'title', 'content', 'slug', 'user_id', 'category_id', 'seen_count'
+        'title', 'content', 'slug', 'user_id',
+        'category_id', 'seen_count', 'excerpt', 'thumbnail',
     ];
 
     /**
@@ -52,7 +53,8 @@ class Article extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function tags() {
+    public function tags()
+    {
         return $this->belongsToMany('App\Models\Tag');
     }
 }
