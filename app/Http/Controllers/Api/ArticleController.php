@@ -49,8 +49,8 @@ class ArticleController extends Controller
 
 
         $inputTags = $request->input('tag_list');
-        if ($inputTags && ! empty($inputTags)) {
-            $tags = array_map(function($name) {
+        if ($inputTags && !empty($inputTags)) {
+            $tags = array_map(function ($name) {
                 return Tag::firstOrCreate([
                     'name' => $name,
                     'slug' => str_slug($name) . '-' . base_convert(time(), 10, 36)
@@ -92,8 +92,8 @@ class ArticleController extends Controller
         $article->tags()->detach();
 
         $inputTags = $request->input('tag_list');
-        if ($inputTags && ! empty($inputTags)) {
-            $tags = array_map(function($name) {
+        if ($inputTags && !empty($inputTags)) {
+            $tags = array_map(function ($name) {
                 return Tag::firstOrCreate([
                     'name' => $name,
                     'slug' => str_slug($name) . '-' . base_convert(time(), 10, 36)
@@ -117,7 +117,8 @@ class ArticleController extends Controller
         return response()->json(null, 204);
     }
 
-    public function popular() {
+    public function popular()
+    {
         $articles = Article::orderBy('seen_count', 'desc')->take(5)->get();
         return ArticleResource::collection($articles);
     }

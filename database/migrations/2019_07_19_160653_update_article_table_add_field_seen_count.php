@@ -14,7 +14,7 @@ class UpdateArticleTableAddFieldSeenCount extends Migration
     public function up()
     {
         Schema::table('articles', function (Blueprint $table) {
-            $table->bigInteger('seen_count');
+            $table->bigInteger('seen_count')->default(0);
         });
     }
 
