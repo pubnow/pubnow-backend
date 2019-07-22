@@ -9,13 +9,12 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticleResource;
 use App\Http\Requests\Api\Article\CreateArticle;
-use Illuminate\Support\Facades\DB;
 
 class ArticleController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show']);
+        $this->middleware(['auth'])->except(['index', 'show', 'popular']);
         $this->authorizeResource(Article::class);
     }
     /**
@@ -96,10 +95,14 @@ class ArticleController extends Controller
         $inputTags = $request->input('tag_list');
         if ($inputTags && !empty($inputTags)) {
             $tags = array_map(function ($name) {
-                return Tag::firstOrCreate([
+                $tag = Tag::firstOrNew([
                     'name' => $name,
-                    'slug' => str_slug($name) . '-' . base_convert(time(), 10, 36)
-                ])->id;
+                ]);
+                if (!$tag->slug) {
+                    $tag->slug =  str_slug($name) . '-' . base_convert(time(), 10, 36);
+                    $tag->save();
+                }
+                return $tag->id;
             }, $inputTags);
             $article->tags()->attach($tags);
         }

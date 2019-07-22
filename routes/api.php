@@ -23,8 +23,8 @@ Route::group(['namespace' => 'Api'], function () {
     });
 
     // User
+    Route::get('users/{user}/articles', 'UserController@articles');
     Route::resource('users', 'UserController')->except(['create', 'edit', 'delete']);
-    Route::get('user-articles/{user}', 'UserController@articles');
 
     // Category
     Route::resource('categories', 'CategoryController')->except(['create', 'edit']);
@@ -33,9 +33,9 @@ Route::group(['namespace' => 'Api'], function () {
     Route::resource('tags', 'TagController')->except(['create', 'edit']);
 
     // Article
+    Route::get('articles/popular', 'ArticleController@popular');
+    Route::get('articles/featured', 'ArticleController@featured');
     Route::resource('articles', 'ArticleController')->except(['create', 'edit']);
-    Route::get('popular-articles', 'ArticleController@popular');
-    Route::get('featured-articles', 'ArticleController@featured');
 
     // Role
     Route::resource('roles', 'RoleController')->only(['index', 'show']);
