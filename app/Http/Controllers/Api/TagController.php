@@ -24,7 +24,7 @@ class TagController extends Controller
      */
     public function index()
     {
-        $tags = Tag::all();
+        $tags = Tag::orderBy('created_at', 'desc')->withCount('articles')->paginate(10);
         return TagResource::collection($tags);
     }
 
