@@ -50,10 +50,14 @@ class ArticleController extends Controller
         $inputTags = $request->input('tags');
         if ($inputTags && !empty($inputTags)) {
             $tags = array_map(function ($name) {
-                return Tag::firstOrCreate([
+                $tag = Tag::firstOrNew([
                     'name' => $name,
-                    'slug' => str_slug($name) . '-' . base_convert(time(), 10, 36)
-                ])->id;
+                ]);
+                if (!$tag->slug) {
+                    $tag->slug =  str_slug($name) . '-' . base_convert(time(), 10, 36);
+                    $tag->save();
+                }
+                return $tag->id;
             }, $inputTags);
             $article->tags()->attach($tags);
         }
@@ -90,7 +94,7 @@ class ArticleController extends Controller
 
         $article->tags()->detach();
 
-        $inputTags = $request->input('tag_list');
+        $inputTags = $request->input('tags');
         if ($inputTags && !empty($inputTags)) {
             $tags = array_map(function ($name) {
                 $tag = Tag::firstOrNew([
