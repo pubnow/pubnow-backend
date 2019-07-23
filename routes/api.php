@@ -48,4 +48,8 @@ Route::group(['namespace' => 'Api'], function () {
 
     // Role
     Route::resource('roles', 'RoleController')->except(['create', 'edit']);
+
+    // Organization
+    Route::post('organizations/{organization}/active', 'OrganizationController@active')->middleware('auth');
+    Route::resource('organizations', 'OrganizationController')->except(['create', 'edit']);
 });
