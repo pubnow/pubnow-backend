@@ -44,7 +44,7 @@ Route::group(['namespace' => 'Api'], function () {
 
     // Search
     Route::group(['prefix' => 'search'], function () {
-        Route::get('article', 'SearchController@query');
+        Route::get('article', 'SearchController@article');
     });
 
     // Clap
