@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class OrganizationResource extends JsonResource
+class InviteRequestResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,11 +16,9 @@ class OrganizationResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'owner' => new UserResource($this->user),
-            'description' => $this->description,
-            'avatar' => $this->avatar,
-            'logo' => $this->logo,
+            'organization' => new OrganizationResource($this->organization),
+            'user' => new UserResource($this->user),
+            'status' => $this->status,
         ];
     }
 }

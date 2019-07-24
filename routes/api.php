@@ -52,4 +52,7 @@ Route::group(['namespace' => 'Api'], function () {
     // Organization
     Route::post('organizations/{organization}/active', 'OrganizationController@active')->middleware('auth');
     Route::resource('organizations', 'OrganizationController')->except(['create', 'edit']);
+
+    // InviteRequest
+    Route::resource('invite-requests', 'InviteRequestController')->except(['create', 'edit']);
 });
