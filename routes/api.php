@@ -27,9 +27,11 @@ Route::group(['namespace' => 'Api'], function () {
     Route::resource('users', 'UserController')->except(['create', 'edit', 'delete']);
 
     // Category
+    Route::get('categories/{user}/articles', 'CategoryController@articles');
     Route::resource('categories', 'CategoryController')->except(['create', 'edit']);
 
     // Tag
+    Route::get('tags/{user}/articles', 'TagController@articles');
     Route::resource('tags', 'TagController')->except(['create', 'edit']);
 
     // Article
