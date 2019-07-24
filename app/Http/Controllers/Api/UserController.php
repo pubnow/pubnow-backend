@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\User\UpdateUser;
 use App\Http\Requests\Api\User\CreateUser;
+use App\Http\Resources\ArticleResource;
 use App\Http\Resources\UserResource;
 use App\Models\Organization;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -15,7 +17,7 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show', 'getFollowUsers']);
+        $this->middleware(['auth'])->except(['index', 'show', 'getFollowUsers', 'articles']);
         $this->authorizeResource(User::class);
     }
     /**
@@ -53,6 +55,8 @@ class UserController extends Controller
             $path = Storage::url($path);
             $data['avatar'] = $path;
         }
+        $role = Role::where(['name' => 'member'])->first();
+        $data['role_id'] = $role->id;
         $user = User::create($data);
         return new UserResource($user);
     }
@@ -130,5 +134,9 @@ class UserController extends Controller
     // Get users who be followed by this user
     public function getUsersFollowed(User $user) {
         return UserResource::collection($user->usersFollowed());
+    }
+    public function articles(Request $request, User $user) {
+        $articles = $user->articles()->paginate(10);
+        return ArticleResource::collection($articles);
     }
 }

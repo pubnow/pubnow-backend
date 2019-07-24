@@ -27,20 +27,24 @@ Route::group(['namespace' => 'Api'], function () {
     Route::post('users/{user}/unfollow-organization', 'UserController@unfollowOrganization');
     Route::post('users/{user}/follow-user', 'UserController@followUser');
     Route::post('users/{user}/unfollow-user', 'UserController@unfollowUser');
+    Route::get('users/{user}/articles', 'UserController@articles');
     Route::resource('users', 'UserController')->except(['create', 'edit', 'delete']);
 
     // Category
+    Route::get('categories/{user}/articles', 'CategoryController@articles');
     Route::resource('categories', 'CategoryController')->except(['create', 'edit']);
 
     // Tag
+    Route::get('tags/{user}/articles', 'TagController@articles');
     Route::resource('tags', 'TagController')->except(['create', 'edit']);
 
     // Article
+    Route::get('articles/popular', 'ArticleController@popular');
+    Route::get('articles/featured', 'ArticleController@featured');
     Route::resource('articles', 'ArticleController')->except(['create', 'edit']);
-    Route::get('popular-articles', 'ArticleController@popular');
 
     // Role
-    Route::resource('roles', 'RoleController')->only(['index', 'show']);
+    Route::resource('roles', 'RoleController')->except(['show', 'create', 'edit']);
 
     // Search
     Route::group(['prefix' => 'search'], function () {
@@ -48,10 +52,7 @@ Route::group(['namespace' => 'Api'], function () {
     });
 
     // Clap
-    Route::resource('claps', 'ClapController')->except(['index', 'create', 'edit', 'update'])->middleware('auth');
-
-    // Role
-    Route::resource('roles', 'RoleController')->except(['create', 'edit']);
+    Route::resource('claps', 'ClapController')->except(['index', 'show', 'create', 'edit', 'update'])->middleware('auth');
 
     // Organization
     Route::post('organizations/{organization}/active', 'OrganizationController@active')->middleware('auth');
@@ -59,4 +60,6 @@ Route::group(['namespace' => 'Api'], function () {
 
     // InviteRequest
     Route::resource('invite-requests', 'InviteRequestController')->except(['create', 'edit']);
+    // Comment
+    Route::resource('comments', 'CommentController')->except(['index', 'show', 'create', 'edit']);
 });
