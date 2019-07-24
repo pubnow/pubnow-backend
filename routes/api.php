@@ -38,8 +38,8 @@ Route::group(['namespace' => 'Api'], function () {
         Route::get('{user}/organizations-followed', 'UserController@getOrganizationsFollowed');
 
         Route::get('{user}/articles', 'UserController@articles');
-        Route::resource('users', 'UserController')->except(['create', 'edit', 'delete']);
     });
+    Route::resource('users', 'UserController')->except(['create', 'edit']);
 
     // Category
     Route::get('categories/{category}/articles', 'CategoryController@articles');
