@@ -25,9 +25,7 @@ class TagTest extends TestCase
     public function test_can_get_list_tags()
     {
         $tags = factory(Tag::class, 5)->create();
-
         $response = $this->json('GET', '/api/tags');
-
         $response->assertStatus(200);
 
         $response->assertJsonCount(count($tags), 'data');
@@ -62,7 +60,8 @@ class TagTest extends TestCase
         ]);
     }
     // Tag tag, chua login -> 403
-    public function test_cannot_create_tag_if_not_logged_in() {
+    public function test_cannot_create_tag_if_not_logged_in()
+    {
         $tag = factory(Tag::class)->make();
 
         $response = $this->json('POST', '/api/tags', [
@@ -73,7 +72,8 @@ class TagTest extends TestCase
         $response->assertStatus(401);
     }
     // Tao tag, da login, nhung truyen thieu data required (name) => 422
-    public function test_cannot_create_tag_if_logged_in_but_missing_name() {
+    public function test_cannot_create_tag_if_logged_in_but_missing_name()
+    {
         $tag = factory(Tag::class)->make();
 
         $response = $this->actingAs($this->member)->json('POST', '/api/tags', [
@@ -84,10 +84,11 @@ class TagTest extends TestCase
     }
     // ----
     // Xem 1 tag, ton tai -> ok
-    public function test_can_get_an_exists_tag() {
+    public function test_can_get_an_exists_tag()
+    {
         $tag = factory(Tag::class)->create();
 
-        $response = $this->json('GET', '/api/tags/'.$tag->slug);
+        $response = $this->json('GET', '/api/tags/' . $tag->slug);
 
         $response->assertOk();
         $response->assertJsonFragment([
@@ -98,21 +99,23 @@ class TagTest extends TestCase
         ]);
     }
     // Xem 1 tag, khong ton tai -> 404 not found
-    public function test_cannot_get_a_not_exists_tag() {
+    public function test_cannot_get_a_not_exists_tag()
+    {
         $tag = factory(Tag::class)->make();
 
-        $response = $this->json('GET', '/api/tags/'.$tag->slug);
+        $response = $this->json('GET', '/api/tags/' . $tag->slug);
 
         $response->assertStatus(404);
     }
     // ----
     // TODO: Sua 1 tag, ton tai + user la admin -> ok
-    public function test_can_update_a_exists_tag_with_admin_logged_in() {
+    public function test_can_update_a_exists_tag_with_admin_logged_in()
+    {
         $tag = factory(Tag::class)->create();
         $updateTag = factory(Tag::class)->make();
         $image = UploadedFile::fake()->create('tag_image.png');
 
-        $response = $this->actingAs($this->admin)->json('PUT', '/api/tags/'.$tag->slug, [
+        $response = $this->actingAs($this->admin)->json('PUT', '/api/tags/' . $tag->slug, [
             'name' => $updateTag->name,
             'description' => $updateTag->description,
             'image' => $image,
@@ -126,11 +129,12 @@ class TagTest extends TestCase
         ]);
     }
     // TODO: Sua 1 tag, ton tai + user k phai admin -> 403
-    public function test_cannot_update_a_exists_tag_with_member_logged_in() {
+    public function test_cannot_update_a_exists_tag_with_member_logged_in()
+    {
         $tag = factory(Tag::class)->create();
         $updateTag = factory(Tag::class)->make();
 
-        $response = $this->actingAs($this->member)->json('PUT', '/api/tags/'.$tag->slug, [
+        $response = $this->actingAs($this->member)->json('PUT', '/api/tags/' . $tag->slug, [
             'name' => $updateTag->name,
             'description' => $updateTag->description,
         ]);
@@ -138,11 +142,12 @@ class TagTest extends TestCase
         $response->assertStatus(403);
     }
     // Sua 1 tag, ton tai + user la admin, nhung data sai (name bi trung) -> 422
-    public function test_cannot_update_a_exists_tag_with_admin_logged_in_but_dupplicate_name() {
+    public function test_cannot_update_a_exists_tag_with_admin_logged_in_but_dupplicate_name()
+    {
         $tags = factory(Tag::class, 2)->create();
         $updateTag = factory(Tag::class)->make();
 
-        $response = $this->actingAs($this->admin)->json('PUT', '/api/tags/'.$tags[0]->slug, [
+        $response = $this->actingAs($this->admin)->json('PUT', '/api/tags/' . $tags[0]->slug, [
             'name' => $tags[1]->name,
             'description' => $updateTag->description,
         ]);
@@ -150,10 +155,11 @@ class TagTest extends TestCase
         $response->assertStatus(422);
     }
     // Sua 1 tag, khong ton tai -> 404 not found
-    public function test_cannot_update_a_not_exists_tag() {
+    public function test_cannot_update_a_not_exists_tag()
+    {
         $tag = factory(Tag::class)->make();
 
-        $response = $this->actingAs($this->admin)->json('PUT', '/api/tags/'.$tag->slug, [
+        $response = $this->actingAs($this->admin)->json('PUT', '/api/tags/' . $tag->slug, [
             'name' => $tag->name,
             'description' => $tag->description,
         ]);
@@ -162,26 +168,29 @@ class TagTest extends TestCase
     }
     // ----
     // Xoa 1 tag, ton tai + user la admin -> ok
-    public function test_can_delete_an_exists_tag_with_admin_logged_in() {
+    public function test_can_delete_an_exists_tag_with_admin_logged_in()
+    {
         $tag = factory(Tag::class)->create();
 
-        $response = $this->actingAs($this->admin)->json('DELETE', '/api/tags/'.$tag->slug);
+        $response = $this->actingAs($this->admin)->json('DELETE', '/api/tags/' . $tag->slug);
 
         $response->assertStatus(204);
     }
     // TODO: Xoa 1 tag, ton tai + user k phai admin -> 403
-    public function test_cannot_delete_an_exists_tag_with_member_logged_in() {
+    public function test_cannot_delete_an_exists_tag_with_member_logged_in()
+    {
         $tag = factory(Tag::class)->create();
 
-        $response = $this->actingAs($this->member)->json('DELETE', '/api/tags/'.$tag->slug);
+        $response = $this->actingAs($this->member)->json('DELETE', '/api/tags/' . $tag->slug);
 
         $response->assertStatus(403);
     }
     // Xoa 1 tag, khong ton tai -> 404 not found
-    public function test_cannot_delete_a_not_exists_tag() {
+    public function test_cannot_delete_a_not_exists_tag()
+    {
         $tag = factory(Tag::class)->make();
 
-        $response = $this->actingAs($this->admin)->json('DELETE', '/api/tags/'.$tag->slug);
+        $response = $this->actingAs($this->admin)->json('DELETE', '/api/tags/' . $tag->slug);
 
         $response->assertStatus(404);
     }
