@@ -38,7 +38,7 @@ Route::group(['namespace' => 'Api'], function () {
     Route::resource('articles', 'ArticleController')->except(['create', 'edit']);
 
     // Role
-    Route::resource('roles', 'RoleController')->only(['index', 'show']);
+    Route::resource('roles', 'RoleController')->except(['show', 'create', 'edit']);
 
     // Search
     Route::group(['prefix' => 'search'], function () {
