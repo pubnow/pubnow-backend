@@ -24,6 +24,8 @@ class CreateUserFollowOrganizationsTable extends Migration
             $table->foreign('organization_id')->references('id')->on('organizations')
                 ->onUpdate('cascade')->onDelete('cascade');
 
+            $table->unique(['user_id', 'organization_id']);
+
             $table->timestamps();
         });
     }

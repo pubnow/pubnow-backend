@@ -23,12 +23,23 @@ Route::group(['namespace' => 'Api'], function () {
     });
 
     // User
-    Route::post('users/{user}/follow-organization', 'UserController@followOrganization');
-    Route::post('users/{user}/unfollow-organization', 'UserController@unfollowOrganization');
-    Route::post('users/{user}/follow-user', 'UserController@followUser');
-    Route::post('users/{user}/unfollow-user', 'UserController@unfollowUser');
-    Route::get('users/{user}/articles', 'UserController@articles');
-    Route::resource('users', 'UserController')->except(['create', 'edit', 'delete']);
+    Route::group(['prefix' => 'users'], function () {
+        // follow and unfollow organization
+        Route::post('{organization}/follow-organization', 'UserController@followOrganization');
+        Route::post('{organization}/unfollow-organization', 'UserController@unfollowOrganization');
+
+        // follow and unfollow user
+        Route::post('{user}/follow-user', 'UserController@followUser');
+        Route::post('{user}/unfollow-user', 'UserController@unfollowUser');
+
+
+        Route::get('{user}/users-followed', 'UserController@getUsersFollowed');
+        Route::get('{user}/followers', 'UserController@getFollowers');
+        Route::get('{user}/organizations-followed', 'UserController@getOrganizationsFollowed');
+
+        Route::get('{user}/articles', 'UserController@articles');
+        Route::resource('users', 'UserController')->except(['create', 'edit', 'delete']);
+    });
 
     // Category
     Route::get('categories/{user}/articles', 'CategoryController@articles');
@@ -55,11 +66,13 @@ Route::group(['namespace' => 'Api'], function () {
     Route::resource('claps', 'ClapController')->except(['index', 'show', 'create', 'edit', 'update'])->middleware('auth');
 
     // Organization
-    Route::post('organizations/{organization}/active', 'OrganizationController@active')->middleware('auth');
+    Route::post('organizations/{organization}/active', 'OrganizationController@active');
+    Route::get('organizations/{organization}/followers', 'OrganizationController@getFollowers');
     Route::resource('organizations', 'OrganizationController')->except(['create', 'edit']);
 
     // InviteRequest
     Route::resource('invite-requests', 'InviteRequestController')->except(['create', 'edit']);
+
     // Comment
     Route::resource('comments', 'CommentController')->except(['index', 'show', 'create', 'edit']);
 });

@@ -19,7 +19,6 @@ class OrganizationResource extends JsonResource
             'name' => $this->name,
             'owner' => new UserResource($this->user),
             'description' => $this->description,
-            'avatar' => $this->avatar,
             'logo' => $this->logo,
         ];
     }

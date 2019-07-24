@@ -25,6 +25,8 @@ class CreateInviteRequestsTable extends Migration
             $table->foreign('user_id')->references('id')->on('users')
                 ->onUpdate('cascade')->onDelete('cascade');
 
+            $table->unique(['organization_id', 'user_id']);
+
             $table->string('status');
 
             $table->timestamps();

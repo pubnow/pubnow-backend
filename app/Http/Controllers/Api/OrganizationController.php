@@ -14,7 +14,7 @@ class OrganizationController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show']);
+        $this->middleware(['auth'])->except(['index', 'show', 'getFollowers']);
         $this->authorizeResource(Organization::class);
     }
     /**
@@ -43,7 +43,6 @@ class OrganizationController extends Controller
             ], 403);
         }
         $user = $request->user();
-//        dd($user);
         $data = $request->all();
         $data['owner'] = $user->id;
 
@@ -134,5 +133,10 @@ class OrganizationController extends Controller
             'active' => 1,
         ]);
         return new OrganizationResource($organization);
+    }
+
+    // Get users who followed this user
+    public function getFollowers(Organization $organization) {
+        return UserResource::collection($organization->followers);
     }
 }

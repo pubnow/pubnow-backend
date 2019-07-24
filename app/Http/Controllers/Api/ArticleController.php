@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\Article\UpdateArticle;
+use App\Http\Resources\ArticleOnlyResource;
 use App\Models\Article;
 use App\Models\Tag;
 use Illuminate\Http\Request;
@@ -25,7 +26,7 @@ class ArticleController extends Controller
     public function index()
     {
         $articles = Article::orderBy('created_at', 'desc')->paginate(10);
-        return ArticleResource::collection($articles);
+        return ArticleOnlyResource::collection($articles);
     }
 
     /**
@@ -127,13 +128,13 @@ class ArticleController extends Controller
     public function popular()
     {
         $articles = Article::orderBy('seen_count', 'desc')->take(5)->get();
-        return ArticleResource::collection($articles);
+        return ArticleOnlyResource::collection($articles);
     }
 
     public function featured() {
         $articles = Article::with('claps')->with('comments')->get()->sortBy(function ($article) {
             return $article->claps->sum('count') + $article->comments->count();
         })->reverse();
-        return ArticleResource::collection($articles);
+        return ArticleOnlyResource::collection($articles);
     }
 }

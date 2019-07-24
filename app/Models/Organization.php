@@ -22,7 +22,7 @@ class Organization extends Model
         return $this->belongsTo(User::class, 'owner', 'id');
     }
 
-    public function follower() {
+    public function followers() {
         return $this->belongsToMany(User::class, 'user_follow_organizations');
     }
 
