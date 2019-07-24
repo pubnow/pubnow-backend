@@ -91,14 +91,4 @@ class ArticlePolicy
     {
         return $user->isAdmin() || ($user->id === $article->user_id);
     }
-
-    public function popular(?User $user)
-    {
-        return true;
-    }
-
-    public function featured(?User $user)
-    {
-        return true;
-    }
 }

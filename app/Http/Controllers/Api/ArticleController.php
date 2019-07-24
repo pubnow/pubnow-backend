@@ -14,7 +14,7 @@ class ArticleController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show', 'popular']);
+        $this->middleware(['auth'])->except(['index', 'show', 'popular', 'featured']);
         $this->authorizeResource(Article::class);
     }
     /**
