@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\Tag\UpdateTag;
+use App\Http\Resources\ArticleResource;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -14,7 +15,7 @@ class TagController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show']);
+        $this->middleware(['auth'])->except(['index', 'show', 'articles']);
         $this->authorizeResource(Tag::class);
     }
     /**
@@ -24,7 +25,7 @@ class TagController extends Controller
      */
     public function index()
     {
-        $tags = Tag::all();
+        $tags = Tag::orderBy('created_at', 'desc')->withCount('articles')->paginate(10);
         return TagResource::collection($tags);
     }
 
@@ -88,5 +89,10 @@ class TagController extends Controller
     {
         $tag->delete();
         return response()->json(null, 204);
+    }
+
+    public function articles(Tag $tag) {
+        $articles = $tag->articles()->paginate(10);
+        return ArticleResource::collection($articles);
     }
 }

@@ -55,6 +55,16 @@ class Article extends Model
 
     public function tags()
     {
-        return $this->belongsToMany('App\Models\Tag');
+        return $this->belongsToMany(Tag::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function claps()
+    {
+        return $this->hasMany(Clap::class);
     }
 }

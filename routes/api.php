@@ -23,29 +23,36 @@ Route::group(['namespace' => 'Api'], function () {
     });
 
     // User
+    Route::get('users/{user}/articles', 'UserController@articles');
     Route::resource('users', 'UserController')->except(['create', 'edit', 'delete']);
 
     // Category
+    Route::get('categories/{user}/articles', 'CategoryController@articles');
     Route::resource('categories', 'CategoryController')->except(['create', 'edit']);
 
     // Tag
+    Route::get('tags/{user}/articles', 'TagController@articles');
     Route::resource('tags', 'TagController')->except(['create', 'edit']);
 
     // Article
+    Route::get('articles/popular', 'ArticleController@popular');
+    Route::get('articles/featured', 'ArticleController@featured');
     Route::resource('articles', 'ArticleController')->except(['create', 'edit']);
-    Route::get('popular-articles', 'ArticleController@popular');
 
     // Role
-    Route::resource('roles', 'RoleController')->only(['index', 'show']);
+    Route::resource('roles', 'RoleController')->except(['show', 'create', 'edit']);
 
     // Search
     Route::group(['prefix' => 'search'], function () {
-        Route::get('article', 'SearchController@query');
+        Route::get('article', 'SearchController@article');
     });
-
-    // Clap
-    Route::resource('claps', 'ClapController')->except(['index', 'create', 'edit', 'update'])->middleware('auth');
 
     // Bookmark
     Route::resource('bookmarks', 'BookmarkController')->middleware('auth');
+
+
+    Route::resource('claps', 'ClapController')->except(['index', 'show', 'create', 'edit', 'update'])->middleware('auth');
+
+    // Comment
+    Route::resource('comments', 'CommentController')->except(['index', 'show', 'create', 'edit']);
 });

@@ -20,10 +20,13 @@ class ArticleResource extends JsonResource
             'title' => $this->title,
             'content' => $this->content,
             'excerpt' => excerpt($this->content, 200),
+            'seen_count' => $this->seen_count,
             'thumbnail' => thumbnail($this->content),
             'author' => new UserResource($this->author),
             'category' => new CategoryOnlyResource($this->category),
             'tags' => TagOnlyResource::collection($this->tags),
+            'comments' => CommentResource::collection($this->comments()->where('parent_id', null)->get()),
+            'claps' => $this->claps()->sum('count'),
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
         ];
