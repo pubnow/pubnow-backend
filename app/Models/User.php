@@ -77,6 +77,20 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsTo('App\Models\Role');
     }
 
+    public function organizationsFollowed() {
+        return $this->belongsToMany(Organization::class, 'user_follow_organizations');
+    }
+
+    // Users who followed this user
+    public function followUsers() {
+        return $this->belongsToMany(User::class, 'user_follow_users', 'user_id', 'followed');
+    }
+
+    // Users who this user followed
+    public function usersFollowed() {
+        return $this->belongsToMany(User::class, 'user_follow_users', 'followed', 'user_id');
+    }
+
     public function isAdmin()
     {
         if (!$this->role) {

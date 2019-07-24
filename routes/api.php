@@ -23,6 +23,10 @@ Route::group(['namespace' => 'Api'], function () {
     });
 
     // User
+    Route::post('users/{user}/follow-organization', 'UserController@followOrganization');
+    Route::post('users/{user}/unfollow-organization', 'UserController@unfollowOrganization');
+    Route::post('users/{user}/follow-user', 'UserController@followUser');
+    Route::post('users/{user}/unfollow-user', 'UserController@unfollowUser');
     Route::resource('users', 'UserController')->except(['create', 'edit', 'delete']);
 
     // Category

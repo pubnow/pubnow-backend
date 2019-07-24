@@ -22,4 +22,8 @@ class Organization extends Model
         return $this->belongsTo(User::class, 'owner', 'id');
     }
 
+    public function follower() {
+        return $this->belongsToMany(User::class, 'user_follow_organizations');
+    }
+
 }

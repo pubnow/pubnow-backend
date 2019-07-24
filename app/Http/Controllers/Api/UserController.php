@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\Api\User\UpdateUser;
 use App\Http\Requests\Api\User\CreateUser;
 use App\Http\Resources\UserResource;
+use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -14,7 +15,7 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show']);
+        $this->middleware(['auth'])->except(['index', 'show', 'getFollowUsers']);
         $this->authorizeResource(User::class);
     }
     /**
@@ -87,5 +88,47 @@ class UserController extends Controller
         }
         $user->update($data);
         return new UserResource($user);
+    }
+
+    public function followOrganization(Request $request, Organization $organization) {
+        $user = $request->user();
+        $user->organizationsFollowed()->attach($organization);
+        response()->json([
+            'message' => 'Follow organization successfully',
+        ], 200);
+    }
+
+    public function unfollowOrganization(Request $request, Organization $organization) {
+        $user = $request->user();
+        $user->organizationsFollowed()->detach($organization);
+        response()->json([
+            'message' => 'Unfollow organization successfully',
+        ], 200);
+    }
+
+    public function followUser(Request $request, User $followed) {
+        $user = $request->user();
+        $user->usersFollowed()->attach($followed);
+        response()->json([
+            'message' => 'Follow user successfully',
+        ], 200);
+    }
+
+    public function unfollowUser(Request $request, User $followed) {
+        $user = $request->user();
+        $user->usersFollowed()->detach($followed);
+        response()->json([
+            'message' => 'Unfollow user successfully',
+        ], 200);
+    }
+
+    // Get users who followed this user
+    public function getFollowUsers(User $user) {
+        return UserResource::collection($user->followUsers());
+    }
+
+    // Get users who be followed by this user
+    public function getUsersFollowed(User $user) {
+        return UserResource::collection($user->usersFollowed());
     }
 }
