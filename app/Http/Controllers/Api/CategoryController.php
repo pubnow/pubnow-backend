@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\Category\UpdateCategory;
+use App\Http\Resources\ArticleResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -14,7 +15,7 @@ class CategoryController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show']);
+        $this->middleware(['auth'])->except(['index', 'show', 'articles']);
         $this->authorizeResource(Category::class);
     }
     /**
@@ -87,5 +88,10 @@ class CategoryController extends Controller
     {
         $category->delete();
         return response()->json(null, 204);
+    }
+
+    public function articles(Category $category) {
+        $articles = $category->articles()->paginate(10);
+        return ArticleResource::collection($articles);
     }
 }
