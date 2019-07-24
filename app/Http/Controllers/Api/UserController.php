@@ -101,13 +101,13 @@ class UserController extends Controller
     public function followOrganization(Request $request, Organization $organization) {
         $user = $request->user();
         $user->organizationsFollowed()->attach($organization);
-        return new UserWithFollowedUsersResource($user);
+        return new UserWithFollowedOrganizationsResource($user);
     }
 
     public function unfollowOrganization(Request $request, Organization $organization) {
         $user = $request->user();
         $user->organizationsFollowed()->detach($organization);
-        return new UserWithFollowedUsersResource($user);
+        return new UserWithFollowedOrganizationsResource($user);
     }
 
     public function followUser(Request $request, User $user) {
