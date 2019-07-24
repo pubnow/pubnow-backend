@@ -35,9 +35,11 @@ class CommentController extends Controller
      */
     public function update(Request $request, Comment $comment)
     {
-        $comment->update([
-            'content' => $request->get('content'),
-        ]);
+        if ($request->has('content')) {
+            $comment->update([
+                'content' => $request->get('content'),
+            ]);
+        }
         return new CommentResource($comment);
     }
 

@@ -232,5 +232,9 @@ class ArticleTest extends TestCase
 
         $response->assertStatus(404);
     }
-    // ----
+
+    // --- popular, featured articles
+    //TODO: lay list popular articles, guest -> 200
+    //TODO: lay list featured articles, guest -> 200
+
 }
