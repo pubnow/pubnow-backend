@@ -58,8 +58,6 @@ class UserController extends Controller
             $path = Storage::url($path);
             $data['avatar'] = $path;
         }
-        $role = Role::where(['name' => 'member'])->first();
-        $data['role_id'] = $role->id;
         $user = User::create($data);
         return new UserResource($user);
     }
