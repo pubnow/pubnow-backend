@@ -6,7 +6,11 @@ use App\Http\Requests\Api\User\UpdateUser;
 use App\Http\Requests\Api\User\CreateUser;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\UserWithFollowingCategoriesResource;
+use App\Http\Resources\UserWithFollowingTagsResource;
+use App\Models\Category;
 use App\Models\Role;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -93,9 +97,66 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
+    public function destroy(User $user) {
+        $user->delete();
+        return response()->json(null, 204);
+    }
+
     public function articles(Request $request, User $user) {
         $articles = $user->articles()->paginate(10);
         return ArticleResource::collection($articles);
+    }
+
+    public function followTag(Request $request, Tag $tag) {
+        $user = $request->user();
+        if ($user->followingTags()->exists($tag)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Already follow this tag'
+                ]
+            ]);
+        }
+        $user->followingTags()->attach($tag);
+        return new UserWithFollowingTagsResource($user);
+    }
+
+    public function unfollowTag(Request $request, Tag $tag) {
+        $user = $request->user();
+        if (!$user->followingTags()->exists($tag)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Has not followed this tag yet'
+                ]
+            ]);
+        }
+        $user->followingTags()->detach($tag);
+        return new UserWithFollowingTagsResource($user);
+    }
+
+    public function followCategory(Request $request, Category $category) {
+        $user = $request->user();
+        if ($user->followingCategories()->exists($category)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Already follow this category'
+                ]
+            ]);
+        }
+        $user->followingCategories()->attach($category);
+        return new UserWithFollowingCategoriesResource($user);
+    }
+
+    public function unfollowCategory(Request $request, Category $category) {
+        $user = $request->user();
+        if (!$user->followingCategories()->exists($category)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Has not followed this category yet'
+                ]
+            ]);
+        }
+        $user->followingCategories()->detach($category);
+        return new UserWithFollowingCategoriesResource($user);
     }
 
 }
