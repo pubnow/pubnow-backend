@@ -9,9 +9,9 @@ use App\Http\Resources\ArticleResource;
 
 class SearchController extends Controller
 {
-    public function query(Request $request)
+    public function article(Request $request)
     {
-        $articles = Article::search($request->search)->get();
+        $articles = Article::search($request->keyword)->get();
         return ArticleResource::collection($articles);
     }
 }
