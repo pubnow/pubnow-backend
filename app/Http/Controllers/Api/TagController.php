@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\Tag\UpdateTag;
 use App\Http\Resources\ArticleResource;
+use App\Http\Resources\UserWithFollowingTagsResource;
 use App\Models\Tag;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TagResource;
@@ -94,5 +96,32 @@ class TagController extends Controller
     public function articles(Tag $tag) {
         $articles = $tag->articles()->paginate(10);
         return ArticleResource::collection($articles);
+    }
+
+    public function follow(Request $request, Tag $tag) {
+
+        $user = $request->user();
+        if ($user->followingTags()->find($tag->id)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Already follow this tag'
+                ]
+            ]);
+        }
+        $user->followingTags()->attach($tag);
+        return new UserWithFollowingTagsResource($user);
+    }
+
+    public function unfollow(Request $request, Tag $tag) {
+        $user = $request->user();
+        if (!$user->followingTags()->find($tag->id)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Has not followed this tag yet'
+                ]
+            ]);
+        }
+        $user->followingTags()->detach($tag);
+        return new UserWithFollowingTagsResource($user);
     }
 }

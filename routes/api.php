@@ -23,18 +23,18 @@ Route::group(['namespace' => 'Api'], function () {
     });
 
     // User
-    Route::post('users/{tag}/follow-tag', 'UserController@followTag');
-    Route::post('users/{tag}/unfollow-tag', 'UserController@unfollowTag');
-    Route::post('users/{category}/follow-category', 'UserController@followCategory');
-    Route::post('users/{category}/unfollow-category', 'UserController@unfollowCategory');
     Route::get('users/{user}/articles', 'UserController@articles');
     Route::resource('users', 'UserController')->except(['create', 'edit']);
 
     // Category
+    Route::post('categories/{category}/follow', 'CategoryController@follow');
+    Route::post('categories/{category}/unfollow', 'CategoryController@unfollow');
     Route::get('categories/{user}/articles', 'CategoryController@articles');
     Route::resource('categories', 'CategoryController')->except(['create', 'edit']);
 
     // Tag
+    Route::post('tags/{tag}/follow', 'TagController@follow');
+    Route::post('tags/{tag}/unfollow', 'TagController@unfollow');
     Route::get('tags/{user}/articles', 'TagController@articles');
     Route::resource('tags', 'TagController')->except(['create', 'edit']);
 

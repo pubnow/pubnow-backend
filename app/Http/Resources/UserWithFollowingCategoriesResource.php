@@ -23,7 +23,7 @@ class UserWithFollowingCategoriesResource extends JsonResource
             'bio' => $this->bio,
             'avatar' => $this->avatar,
             'role' => new RoleResource($this->role),
-            'followingTag' => CategoryOnlyResource::collection($this->followingCategories)
+            'followingCategory' => CategoryOnlyResource::collection($this->followingCategories)
         ];
     }
 }

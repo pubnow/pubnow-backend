@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\Category\UpdateCategory;
 use App\Http\Resources\ArticleResource;
+use App\Http\Resources\UserWithFollowingCategoriesResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -93,5 +94,31 @@ class CategoryController extends Controller
     public function articles(Category $category) {
         $articles = $category->articles()->paginate(10);
         return ArticleResource::collection($articles);
+    }
+
+    public function follow(Request $request, Category $category) {
+        $user = $request->user();
+        if ($user->followingCategories()->find($category->id)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Already follow this category'
+                ]
+            ]);
+        }
+        $user->followingCategories()->attach($category);
+        return new UserWithFollowingCategoriesResource($user);
+    }
+
+    public function unfollow(Request $request, Category $category) {
+        $user = $request->user();
+        if (!$user->followingCategories()->find($category->id)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Has not followed this category yet'
+                ]
+            ]);
+        }
+        $user->followingCategories()->detach($category);
+        return new UserWithFollowingCategoriesResource($user);
     }
 }

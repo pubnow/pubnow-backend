@@ -19,6 +19,7 @@ class User extends Authenticatable implements JWTSubject
         static::deleting(function($user) { // before delete() method call this
             $user->followingTags()->detach();
             $user->followingCategories()->detach();
+            $user->comments()->delete();
             $user->articles()->delete();
         });
     }
@@ -98,6 +99,10 @@ class User extends Authenticatable implements JWTSubject
     public function articles()
     {
         return $this->hasMany(Article::class);
+    }
+
+    public function comments() {
+        return $this->hasMany(Comment::class);
     }
 
     public function followingTags() {
