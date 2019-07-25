@@ -30,9 +30,9 @@ Route::group(['namespace' => 'Api'], function () {
         Route::delete('follow', 'UserController@unfollow');
 
 
-        Route::get('{user}/users-followed', 'UserController@getUsersFollowed');
-        Route::get('{user}/followers', 'UserController@getFollowers');
-        Route::get('{user}/organizations-followed', 'UserController@getOrganizationsFollowed');
+        Route::get('{user}/following-users', 'UserController@followingUsers');
+        Route::get('{user}/followers', 'UserController@followers');
+        Route::get('{user}/following-organizations', 'UserController@followingOrganizations');
 
         Route::get('{user}/articles', 'UserController@articles');
     });

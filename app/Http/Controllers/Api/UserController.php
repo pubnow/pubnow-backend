@@ -22,7 +22,7 @@ class UserController extends Controller
     public function __construct()
     {
         $this->middleware(['auth'])
-            ->except(['index', 'show', 'getFollowUsers', 'getFollowers', 'getOrganizationsFollowed', 'articles']);
+            ->except(['index', 'show', 'followingUsers', 'followers', 'followingOrganizations', 'articles']);
         $this->authorizeResource(User::class);
     }
     /**
@@ -115,7 +115,6 @@ class UserController extends Controller
     public function unfollow(FollowUser $request, User $user) {
         $user_id = $request->get('user_id');
         $follower = $request->user();
-//        dd($user_id, $follower);
         if (!$follower->followingUsers()->find($user_id)) {
             return response()->json([
                 'errors' => [
@@ -129,18 +128,18 @@ class UserController extends Controller
     }
 
     // Get users who followed this user
-    public function getFollowers(User $user) {
+    public function followers(User $user) {
         return UserResource::collection($user->followers);
     }
 
     // Get users who be followed by this user
-    public function getUsersFollowed(User $user) {
-        return UserResource::collection($user->usersFollowed);
+    public function followingUsers(User $user) {
+        return UserResource::collection($user->followingUsers);
     }
 
     // Get organizations who be followed by this user
-    public function getOrganizationsFollowed(User $user) {
-        return OrganizationResource::collection($user->organizationsFollowed);
+    public function followingOrganizations(User $user) {
+        return OrganizationResource::collection($user->followingOrganizations);
     }
 
     public function articles(Request $request, User $user) {
