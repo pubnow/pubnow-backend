@@ -91,4 +91,8 @@ class OrganizationPolicy
     {
         return $user->isAdmin() || ($user->id === $organization->owner);
     }
+
+    public function active(User $user, Organization $organization) {
+        return $user->isAdmin();
+    }
 }

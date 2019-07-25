@@ -21,13 +21,9 @@ class InviteRequestController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(InviteRequest $inviteRequest)
     {
-        if (!auth()->user()->isAdmin()) {
-            return response()->json([
-                'message' => 'This action is unauthorized.',
-            ], 403);
-        }
+        $this->authorize('index', $inviteRequest);
         $requests = InviteRequest::all();
         return InviteRequestResource::collection($requests);
     }
@@ -47,7 +43,7 @@ class InviteRequestController extends Controller
                 'errors' => [
                     'message' => 'Not organization owner'
                 ]
-            ], 403);
+            ], 422);
         }
         $inviteRequest = Organization::firstOrNew($data);
         if ($inviteRequest->status === 'accepted' || $inviteRequest->status === 'pending') {

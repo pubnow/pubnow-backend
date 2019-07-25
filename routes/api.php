@@ -24,13 +24,10 @@ Route::group(['namespace' => 'Api'], function () {
 
     // User
     Route::group(['prefix' => 'users'], function () {
-        // follow and unfollow organization
-        Route::post('{organization}/follow-organization', 'UserController@followOrganization');
-        Route::post('{organization}/unfollow-organization', 'UserController@unfollowOrganization');
 
         // follow and unfollow user
-        Route::post('{user}/follow-user', 'UserController@followUser');
-        Route::post('{user}/unfollow-user', 'UserController@unfollowUser');
+        Route::post('follow', 'UserController@follow');
+        Route::delete('follow', 'UserController@unfollow');
 
 
         Route::get('{user}/users-followed', 'UserController@getUsersFollowed');
@@ -66,6 +63,9 @@ Route::group(['namespace' => 'Api'], function () {
     Route::resource('claps', 'ClapController')->except(['index', 'show', 'create', 'edit', 'update'])->middleware('auth');
 
     // Organization
+    // follow and unfollow organization
+    Route::post('organizations/follow', 'OrganizationController@follow');
+    Route::delete('organizations/follow', 'OrganizationController@unfollow');
     Route::post('organizations/{organization}/active', 'OrganizationController@active');
     Route::get('organizations/{organization}/followers', 'OrganizationController@getFollowers');
     Route::resource('organizations', 'OrganizationController')->except(['create', 'edit']);

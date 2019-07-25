@@ -9,6 +9,10 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 class InviteRequestPolicy
 {
     use HandlesAuthorization;
+
+    public function index(User $user) {
+        return $user->isAdmin();
+    }
     
     /**
      * Determine whether the user can view any join group requests.

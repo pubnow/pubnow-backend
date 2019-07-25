@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\Api\User\FollowUser;
 use App\Http\Requests\Api\User\UpdateUser;
 use App\Http\Requests\Api\User\CreateUser;
 use App\Http\Resources\ArticleResource;
@@ -96,27 +97,34 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
-    public function followOrganization(Request $request, Organization $organization) {
-        $user = $request->user();
-        $user->organizationsFollowed()->attach($organization);
-        return new UserWithFollowedOrganizationsResource($user);
-    }
-
-    public function unfollowOrganization(Request $request, Organization $organization) {
-        $user = $request->user();
-        $user->organizationsFollowed()->detach($organization);
-        return new UserWithFollowedOrganizationsResource($user);
-    }
-
-    public function followUser(Request $request, User $user) {
+    public function follow(FollowUser $request) {
+        $user_id = $request->get('user_id');
         $follower = $request->user();
-        $follower->usersFollowed()->attach($user);
+        if ($follower->followingUsers()->find($user_id)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Already followed this user',
+                ]
+            ], 422);
+        }
+        $user = User::find($user_id);
+        $follower->followingUsers()->attach($user);
         return new UserWithFollowedUsersResource($follower);
     }
 
-    public function unfollowUser(Request $request, User $user) {
+    public function unfollow(FollowUser $request, User $user) {
+        $user_id = $request->get('user_id');
         $follower = $request->user();
-        $follower->usersFollowed()->detach($user);
+//        dd($user_id, $follower);
+        if (!$follower->followingUsers()->find($user_id)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Has not followed this user yet',
+                ]
+            ], 422);
+        }
+        $user = User::find($user_id);
+        $follower->followingUsers()->detach($user);
         return new UserWithFollowedUsersResource($follower);
     }
 

@@ -77,7 +77,7 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsTo('App\Models\Role');
     }
 
-    public function organizationsFollowed() {
+    public function followingOrganizations() {
         return $this->belongsToMany(Organization::class, 'user_follow_organizations');
     }
 
@@ -87,7 +87,7 @@ class User extends Authenticatable implements JWTSubject
     }
 
     // Users who this user followed
-    public function usersFollowed() {
+    public function followingUsers() {
         return $this->belongsToMany(User::class, 'user_follow_users', 'followed', 'user_id');
     }
 

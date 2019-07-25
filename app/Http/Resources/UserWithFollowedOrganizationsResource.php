@@ -23,7 +23,7 @@ class UserWithFollowedOrganizationsResource extends JsonResource
             'bio' => $this->bio,
             'avatar' => $this->avatar,
             'role' => new RoleResource($this->role),
-            'followedOrganizations' => OrganizationResource::collection($this->organizationsFollowed)
+            'followedOrganizations' => OrganizationResource::collection($this->followingOrganizations)
         ];
     }
 }

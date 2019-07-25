@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\Organization\CreateOrganization;
+use App\Http\Requests\Api\Organization\FollowOrganization;
 use App\Http\Requests\Api\Organization\UpdateOrganization;
 use App\Http\Resources\OrganizationResource;
+use App\Http\Resources\UserWithFollowedOrganizationsResource;
 use App\Models\Organization;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -35,15 +37,8 @@ class OrganizationController extends Controller
      */
     public function store(CreateOrganization $request)
     {
-        if ($request->has('active')) {
-            return response()->json([
-                'errors' => [
-                    'message' => 'Data is invalid: cannot create with field active',
-                ]
-            ], 403);
-        }
         $user = $request->user();
-        $data = $request->all();
+        $data = $request->except('active');
         $data['owner'] = $user->id;
 
         if ($request->hasFile('avatar')) {
@@ -85,20 +80,6 @@ class OrganizationController extends Controller
     {
         $data = $request->all();
 
-        if ($request->has('active')) {
-            return response()->json([
-                'errors' => [
-                    'message' => 'Cannot update organization active status',
-                ]
-            ], 403);
-        }
-
-        if ($request->hasFile('avatar')) {
-            $path = $request->file('avatar')->store('public/images/avatar');
-            $path = Storage::url($path);
-            $data['avatar'] = $path;
-        }
-
         if ($request->hasFile('logo')) {
             $path = $request->file('logo')->store('public/images/logo');
             $path = Storage::url($path);
@@ -121,14 +102,7 @@ class OrganizationController extends Controller
     }
 
     public function active(Request $request, Organization $organization) {
-
-        if (!$request->user()->isAdmin()) {
-            return response()->json([
-                'errors' => [
-                    'message' => 'Only admin can active organization',
-                ]
-            ], 403);
-        }
+        $this->authorize('active', $organization);
         $organization->update([
             'active' => 1,
         ]);
@@ -138,5 +112,35 @@ class OrganizationController extends Controller
     // Get users who followed this user
     public function getFollowers(Organization $organization) {
         return UserResource::collection($organization->followers);
+    }
+
+    public function follow(FollowOrganization $request) {
+        $organization_id = $request->get('organization_id');
+        $user = $request->user();
+        if ($user->followingOrganizations()->find($organization_id)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Already followed this organization',
+                ]
+            ], 422);
+        }
+        $organization = Organization::find($organization_id);
+        $user->followingOrganizations()->attach($organization);
+        return new UserWithFollowedOrganizationsResource($user);
+    }
+
+    public function unfollow(FollowOrganization $request) {
+        $organization_id = $request->get('organization_id');
+        $user = $request->user();
+        if (!$user->followingOrganizations()->find($organization_id)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Has not followed this organization yet',
+                ]
+            ], 422);
+        }
+        $organization = Organization::find($organization_id);
+        $user->followingOrganizations()->detach($organization);
+        return new UserWithFollowedOrganizationsResource($user);
     }
 }
