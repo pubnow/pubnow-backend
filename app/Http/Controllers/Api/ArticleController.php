@@ -38,15 +38,15 @@ class ArticleController extends Controller
     {
         $user = $request->user();
         $data = $request->only('title', 'content', 'category');
-
         $article = $user->articles()->create([
             'title' => $data['title'],
             'content' => $data['content'],
             'category_id' => $data['category'],
             'seen_count' => 0,
             'slug' => str_slug($data['title']) . '-' . base_convert(time(), 10, 36),
+            'draft' => $request->draft,
+            'private' => $request->private
         ]);
-
         $inputTags = $request->input('tags');
         if ($inputTags && !empty($inputTags)) {
             $tags = array_map(function ($name) {
@@ -57,7 +57,6 @@ class ArticleController extends Controller
             }, $inputTags);
             $article->tags()->attach($tags);
         }
-
         return new ArticleResource($article);
     }
 

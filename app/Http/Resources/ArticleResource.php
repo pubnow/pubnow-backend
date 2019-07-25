@@ -26,6 +26,8 @@ class ArticleResource extends JsonResource
             'tags' => TagOnlyResource::collection($this->tags),
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
+            'draft' => $this->draft,
+            'private' => $this->private,
         ];
     }
 }
