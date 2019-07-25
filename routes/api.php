@@ -28,13 +28,13 @@ Route::group(['namespace' => 'Api'], function () {
 
     // Category
     Route::post('categories/{category}/follow', 'CategoryController@follow');
-    Route::post('categories/{category}/unfollow', 'CategoryController@unfollow');
+    Route::delete('categories/{category}/follow', 'CategoryController@unfollow');
     Route::get('categories/{user}/articles', 'CategoryController@articles');
     Route::resource('categories', 'CategoryController')->except(['create', 'edit']);
 
     // Tag
     Route::post('tags/{tag}/follow', 'TagController@follow');
-    Route::post('tags/{tag}/unfollow', 'TagController@unfollow');
+    Route::delete('tags/{tag}/follow', 'TagController@unfollow');
     Route::get('tags/{user}/articles', 'TagController@articles');
     Route::resource('tags', 'TagController')->except(['create', 'edit']);
 
