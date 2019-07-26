@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\Article\UpdateArticle;
+use App\Http\Requests\Api\Bookmark\CreateBookmark;
+use App\Http\Resources\BookmarkResource;
 use App\Models\Article;
+use App\Models\Bookmark;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;

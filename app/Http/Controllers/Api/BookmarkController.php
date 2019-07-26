@@ -5,29 +5,31 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\Api\Bookmark\CreateBookmark;
 use App\Http\Resources\BookmarkResource;
 use App\Models\Bookmark;
+use App\Models\Article;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use vendor\project\StatusTest;
 
 class BookmarkController extends Controller
 {
-    public function index(Request $request)
-    {
-        $user_id = $request->user()->id;
-        $bookmarks = Bookmark::where('user_id', $user_id)->get();
-        return BookmarkResource::collection($bookmarks);
-    }
-
     public function store(CreateBookmark $request)
     {
         $user = $request->user();
-        $bookmark = $user->bookmarks()->create([
-            'article_id' => $request->get('article_id'),
-        ]);
-        return new BookmarkResource($bookmark);
+        // check xem record này đã được tạo chưa
+        $isExit = Bookmark::where(['user_id' => $user->id, 'article_id' => $request->id])->first();
+        if (!$isExit && $user) {
+            $bookmark = $user->bookmarks()->create([
+                'article_id' => $request->id,
+            ]);
+            return new BookmarkResource($bookmark);
+        }
     }
 
-    public function destroy(Bookmark $bookmark)
+    public function destroy(Request $request)
     {
+        $userId =$request->user()->id;
+        $articleId = $request->id;
+        $bookmark = Bookmark::where(['user_id' => $userId, 'article_id' => $articleId]);
         $bookmark->delete();
         return response()->json(null, 204);
     }

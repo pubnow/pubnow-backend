@@ -34,9 +34,7 @@ class BookmarkTest extends TestCase
             'user_id' => $this->user->id,
             'category_id' => $category->id,
         ]);
-        $response = $this->actingAs($this->user)->json('POST', '/api/bookmarks', [
-            'article_id' => $article->id,
-        ]);
+        $response = $this->actingAs($this->user)->json('POST', '/api/articles/'.$article->id.'/bookmark');
         $response->assertStatus(201);
         $response->assertJsonFragment([
             'content' => $article->content,
@@ -51,9 +49,8 @@ class BookmarkTest extends TestCase
             'user_id' => $this->user->id,
             'category_id' => $category->id,
         ]);
-        $response = $this->json('POST', '/api/bookmarks', [
-            'article_id' => $article->id,
-        ]);
+        $response = $this->json('POST', '/api/articles/'.$article->id.'/bookmark');
+//        dd($response);
         $response->assertStatus(401);
     }
 
@@ -65,11 +62,15 @@ class BookmarkTest extends TestCase
             'user_id' => $this->user->id,
             'category_id' => $category->id,
         ]);
-        $bookmark = factory(Bookmark::class)->create([
-            'user_id' => $this->user->id,
-            'article_id' => $article->id,
-        ]);
-        $response = $this->actingAs($this->user)->json('DELETE', '/api/bookmarks/'.$bookmark->id);
+        $response = $this->actingAs($this->user)->json('DELETE', '/api/articles/'.$article->id.'/bookmark');
         $response->assertStatus(204);
+    }
+
+    // test: tạo bookmark khi bài viết không tồn tại => 500
+    public function test_add_bookmark_with_wrong_article_id()
+    {
+        $fake = '293b47f4-a01b-427d-ae43-d61092f021fa';
+        $response = $this->actingAs($this->user)->json('POST', '/api/articles/'.$fake.'/bookmark');
+        $response->assertStatus(500);
     }
 }

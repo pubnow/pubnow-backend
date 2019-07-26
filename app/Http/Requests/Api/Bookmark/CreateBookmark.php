@@ -2,20 +2,10 @@
 
 namespace App\Http\Requests\Api\Bookmark;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Api\ApiRequest;
 
-class CreateBookmark extends FormRequest
+class CreateBookmark extends ApiRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
-    {
-        return true;
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -24,7 +14,7 @@ class CreateBookmark extends FormRequest
     public function rules()
     {
         return [
-            'article_id' => 'required|uuid|exists:articles,id'
+            'article_id' => 'uuid|exists:articles,id'
         ];
     }
 }

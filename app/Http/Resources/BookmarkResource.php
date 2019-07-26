@@ -17,7 +17,7 @@ class BookmarkResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'article' => new ArticleResource(Article::find($this->article_id)),
+            'article' => new ArticleResource($this->article),
         ];
     }
 }
