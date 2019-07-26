@@ -24,6 +24,7 @@ Route::group(['namespace' => 'Api'], function () {
 
     // User
     Route::get('users/{user}/articles', 'UserController@articles');
+    Route::put('users/change-password', 'UserController@changePassword');
     Route::resource('users', 'UserController')->except(['create', 'edit', 'delete']);
 
     // Category
