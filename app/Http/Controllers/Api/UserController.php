@@ -8,7 +8,11 @@ use App\Http\Requests\Api\User\CreateUser;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\BookmarkResource;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\UserWithFollowingCategoriesResource;
+use App\Http\Resources\UserWithFollowingTagsResource;
+use App\Models\Category;
 use App\Models\Role;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -57,8 +61,6 @@ class UserController extends Controller
             $path = Storage::url($path);
             $data['avatar'] = $path;
         }
-        $role = Role::where(['name' => 'member'])->first();
-        $data['role_id'] = $role->id;
         $user = User::create($data);
         return new UserResource($user);
     }
@@ -101,6 +103,11 @@ class UserController extends Controller
         }
         $user->update($data);
         return new UserResource($user);
+    }
+
+    public function destroy(User $user) {
+        $user->delete();
+        return response()->json(null, 204);
     }
 
     public function changePassword(ChangePassword $request) {

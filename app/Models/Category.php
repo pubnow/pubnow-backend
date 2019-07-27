@@ -31,4 +31,8 @@ class Category extends Model
     public function articles() {
         return $this->hasMany('App\Models\Article', 'category_id', 'id');
     }
+
+    public function followers() {
+        return $this->belongsToMany(User::class, 'user_follow_categories');
+    }
 }
