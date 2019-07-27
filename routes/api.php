@@ -56,4 +56,8 @@ Route::group(['namespace' => 'Api'], function () {
 
     // Comment
     Route::resource('comments', 'CommentController')->except(['index', 'show', 'create', 'edit']);
+
+    // Organization
+    Route::post('organizations/{organization}/active', 'OrganizationController@active');
+    Route::resource('organizations', 'OrganizationController')->except(['create', 'edit']);
 });
