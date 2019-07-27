@@ -70,7 +70,6 @@ class UserTest extends TestCase
 
         $response = $this->actingAs($user)->json('PUT', '/api/users/'.$user->username, [
             'name' => $updateUser->name,
-            'password' => 'password',
             'avatar' => $avatar,
         ]);
 
@@ -138,6 +137,63 @@ class UserTest extends TestCase
         ]);
 
         $response->assertStatus(401);
+    }
+
+    // --- Change password
+    // Test user can update own password
+    public function test_can_update_own_password_if_logged_in() {
+        $this->user->update([
+            'password' => '111111'
+        ]);
+
+        $response = $this->actingAs($this->user)->json('PUT', '/api/users/change-password', [
+            'old_password' => '111111',
+            'new_password' => '123456'
+        ]);
+
+        $response->assertStatus(200);
+    }
+
+    // Test user cannot update password if not logged in
+    public function test_cannot_update_password_if_not_logged_in() {
+        $this->user->update([
+            'password' => '111111'
+        ]);
+
+        $response = $this->json('PUT', '/api/users/change-password', [
+            'old_password' => '111111',
+            'new_password' => '123456'
+        ]);
+
+        $response->assertStatus(401);
+    }
+
+    // Test user cannot update password if wrong password
+    public function test_cannot_update_password_if_logged_in_but_wrong_password() {
+        $this->user->update([
+            'password' => '111111'
+        ]);
+
+        $response = $this->actingAs($this->user)->json('PUT', '/api/users/change-password', [
+            'old_password' => '222222',
+            'new_password' => '123456'
+        ]);
+
+        $response->assertStatus(422);
+    }
+
+    // Test user cannot update password if new password length < 6
+    public function test_cannot_update_password_if_logged_in_but_new_password_too_short() {
+        $this->user->update([
+            'password' => '111111'
+        ]);
+
+        $response = $this->actingAs($this->user)->json('PUT', '/api/users/change-password', [
+            'old_password' => '222222',
+            'new_password' => '123'
+        ]);
+
+        $response->assertStatus(422);
     }
 
 }
