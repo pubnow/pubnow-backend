@@ -23,29 +23,50 @@ Route::group(['namespace' => 'Api'], function () {
     });
 
     // User
-    Route::resource('users', 'UserController')->except(['create', 'edit', 'delete']);
+    Route::get('users/bookmarks', 'UserController@bookmarks');
+    Route::get('users/{user}/articles', 'UserController@articles');
+    Route::put('users/change-password', 'UserController@changePassword');
+    Route::resource('users', 'UserController')->except(['create', 'edit']);
 
     // Category
+    Route::get('categories/{category}/followers', 'CategoryController@followers');
+    Route::post('categories/{category}/follow', 'CategoryController@follow');
+    Route::delete('categories/{category}/follow', 'CategoryController@unfollow');
+    Route::get('categories/{user}/articles', 'CategoryController@articles');
     Route::resource('categories', 'CategoryController')->except(['create', 'edit']);
 
     // Tag
+    Route::get('tags/{tag}/followers', 'TagController@followers');
+    Route::post('tags/{tag}/follow', 'TagController@follow');
+    Route::delete('tags/{tag}/follow', 'TagController@unfollow');
+    Route::get('tags/{user}/articles', 'TagController@articles');
     Route::resource('tags', 'TagController')->except(['create', 'edit']);
 
     // Article
+    Route::get('articles/popular', 'ArticleController@popular');
+    Route::get('articles/featured', 'ArticleController@featured');
+    Route::post('articles/{id}/bookmark', 'BookmarkController@store');
+    Route::delete('articles/{id}/bookmark', 'BookmarkController@destroy');
     Route::resource('articles', 'ArticleController')->except(['create', 'edit']);
-    Route::get('popular-articles', 'ArticleController@popular');
+
 
     // Role
-    Route::resource('roles', 'RoleController')->only(['index', 'show']);
+    Route::resource('roles', 'RoleController')->except(['show', 'create', 'edit']);
 
     // Search
     Route::group(['prefix' => 'search'], function () {
-        Route::get('article', 'SearchController@query');
+        Route::get('article', 'SearchController@article');
     });
 
     // Clap
-    Route::resource('claps', 'ClapController')->except(['index', 'create', 'edit', 'update'])->middleware('auth');
+    Route::resource('claps', 'ClapController')
+        ->except(['index', 'show', 'create', 'edit', 'update'])
+        ->middleware('auth');
 
-    // Role
-    Route::resource('roles', 'RoleController')->except(['create', 'edit']);
+    // Comment
+    Route::resource('comments', 'CommentController')->except(['index', 'show', 'create', 'edit']);
+
+    // Images
+    Route::post('upload', 'ImageController@upload');
+    Route::get('gallery', 'ImageController@gallery');
 });

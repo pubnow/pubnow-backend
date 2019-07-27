@@ -22,7 +22,7 @@ class ClapController extends Controller
                 'count' => $clap->count + 1,
             ]);
         } else {
-            $clap->count = 0;
+            $clap->count = 1;
             $clap->save();
         }
         return new ClapResource($clap);

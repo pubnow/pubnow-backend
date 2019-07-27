@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\Article\UpdateArticle;
+use App\Http\Requests\Api\Bookmark\CreateBookmark;
+use App\Http\Resources\BookmarkResource;
 use App\Models\Article;
+use App\Models\Bookmark;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -14,7 +17,7 @@ class ArticleController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show']);
+        $this->middleware(['auth'])->except(['index', 'show', 'popular', 'featured']);
         $this->authorizeResource(Article::class);
     }
     /**
@@ -46,10 +49,14 @@ class ArticleController extends Controller
         $inputTags = $request->input('tags');
         if ($inputTags && !empty($inputTags)) {
             $tags = array_map(function ($name) {
-                return Tag::firstOrCreate([
+                $tag = Tag::firstOrNew([
                     'name' => $name,
-                    'slug' => str_slug($name) . '-' . base_convert(time(), 10, 36)
-                ])->id;
+                ]);
+                if (!$tag->slug) {
+                    $tag->slug =  str_slug($name) . '-' . base_convert(time(), 10, 36);
+                    $tag->save();
+                }
+                return $tag->id;
             }, $inputTags);
             $article->tags()->attach($tags);
         }
@@ -85,13 +92,17 @@ class ArticleController extends Controller
 
         $article->tags()->detach();
 
-        $inputTags = $request->input('tag_list');
+        $inputTags = $request->input('tags');
         if ($inputTags && !empty($inputTags)) {
             $tags = array_map(function ($name) {
-                return Tag::firstOrCreate([
+                $tag = Tag::firstOrNew([
                     'name' => $name,
-                    'slug' => str_slug($name) . '-' . base_convert(time(), 10, 36)
-                ])->id;
+                ]);
+                if (!$tag->slug) {
+                    $tag->slug =  str_slug($name) . '-' . base_convert(time(), 10, 36);
+                    $tag->save();
+                }
+                return $tag->id;
             }, $inputTags);
             $article->tags()->attach($tags);
         }
@@ -138,5 +149,12 @@ class ArticleController extends Controller
             ->orderByDesc('created_at')
             ->paginate(10);
         return $articles;
+    }
+
+    public function featured() {
+        $articles = Article::with('claps')->with('comments')->get()->sortBy(function ($article) {
+            return $article->claps->sum('count') + $article->comments->count();
+        })->reverse();
+        return ArticleResource::collection($articles);
     }
 }
