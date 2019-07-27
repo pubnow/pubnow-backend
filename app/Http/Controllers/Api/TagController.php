@@ -107,7 +107,7 @@ class TagController extends Controller
                 'errors' => [
                     'message' => 'Already follow this tag'
                 ]
-            ]);
+            ], 422);
         }
         $user->followingTags()->attach($tag);
         return new UserWithFollowingTagsResource($user);
@@ -120,7 +120,7 @@ class TagController extends Controller
                 'errors' => [
                     'message' => 'Has not followed this tag yet'
                 ]
-            ]);
+            ], 422);
         }
         $user->followingTags()->detach($tag);
         return new UserWithFollowingTagsResource($user);

@@ -195,8 +195,77 @@ class TagTest extends TestCase
         $response->assertStatus(404);
     }
 
+    // --- Follow tag
+    // Follow 1 tag, ton tai, user da dang nhap -> ok
+    public function test_user_can_follow_a_tag() {
+        $tag = factory(Tag::class)->create();
+
+        $response = $this->actingAs($this->member)->json('POST', 'api/tags/'.$tag->slug.'/follow');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data.followingTags');
+    }
+
+    // Follow 1 tag, ton tai, user chua dang nhap -> 401
+    public function test_cannot_follow_a_tag_if_not_logged_in() {
+        $tag = factory(Tag::class)->create();
+
+        $response = $this->json('POST', 'api/tags/'.$tag->slug.'/follow');
+
+        $response->assertStatus(401);
+    }
+
+    // Follow 1 tag, khong ton tai, user da dang nhap -> 404
+    public function test_user_cannot_follow_a_tag_if_not_exists() {
+        $tag = factory(Tag::class)->make();
+
+        $response = $this->actingAs($this->member)->json('POST', 'api/tags/'.$tag->slug.'/follow');
+
+        $response->assertStatus(404);
+    }
+
+    // --- Unfollow
+    // Unfollow 1 tag, ton tai, user da dang nhap -> ok
+    public function test_user_can_unfollow_a_followed_tag() {
+        $tag = factory(Tag::class)->create();
+        $this->member->followingtags()->attach($tag);
+
+        $response = $this->actingAs($this->member)->json('DELETE', 'api/tags/'.$tag->slug.'/follow');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(0, 'data.followingTags');
+    }
+
+    // Unfollow 1 tag, ton tai, user chua dang nhap -> 401
+    public function test_cannot_unfollow_a_followed_tag_if_not_logged_in() {
+        $tag = factory(Tag::class)->create();
+        $this->member->followingtags()->attach($tag);
+
+        $response = $this->json('DELETE', 'api/tags/'.$tag->slug.'/follow');
+
+        $response->assertStatus(401);
+    }
+
+    // Unfollow 1 tag, khong ton tai, user da dang nhap -> 404
+    public function test_user_cannot_unfollow_a_followed_tag_if_not_exists() {
+        $tag = factory(Tag::class)->make();
+
+        $response = $this->actingAs($this->member)->json('DELETE', 'api/tags/'.$tag->slug.'/follow');
+
+        $response->assertStatus(404);
+    }
+
+    // Unfollow 1 tag, khong ton tai, user da dang nhap -> 404
+    public function test_user_cannot_unfollow_a_not_followed_tag() {
+        $tag = factory(Tag::class)->create();
+
+        $response = $this->actingAs($this->member)->json('DELETE', 'api/tags/'.$tag->slug.'/follow');
+
+        $response->assertStatus(422);
+    }
+
     // --- Followers
-    // Get list followers of a category
+    // Get list followers of a tag
     public function test_can_get_list_followers_of_a_tag() {
         $tag = factory(Tag::class)->create();
         $tag->followers()->attach($this->member);
