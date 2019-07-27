@@ -6,6 +6,7 @@ use App\Http\Requests\Api\User\ChangePassword;
 use App\Http\Requests\Api\User\UpdateUser;
 use App\Http\Requests\Api\User\CreateUser;
 use App\Http\Resources\ArticleResource;
+use App\Http\Resources\BookmarkResource;
 use App\Http\Resources\UserResource;
 use App\Models\Role;
 use App\Models\User;
@@ -123,4 +124,9 @@ class UserController extends Controller
         return ArticleResource::collection($articles);
     }
 
+
+    public function bookmarks(Request $request) {
+        $bookmark = $request->user()->bookmarks()->paginate(10);
+        return BookmarkResource::collection($bookmark);
+    }
 }
