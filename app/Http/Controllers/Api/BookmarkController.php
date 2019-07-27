@@ -12,9 +12,14 @@ use vendor\project\StatusTest;
 
 class BookmarkController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['auth']);
+    }
+
     public function store(CreateBookmark $request)
     {
-        $user = $request->user();
+        $user = auth()->user();
         // check xem record này đã được tạo chưa
         $isExit = Bookmark::where(['user_id' => $user->id, 'article_id' => $request->id])->first();
         if (!$isExit && $user) {
