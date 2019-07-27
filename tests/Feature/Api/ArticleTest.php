@@ -257,10 +257,9 @@ class ArticleTest extends TestCase
     }
 
     //TODO: lay list featured articles, guest -> 200
-
     public function test_can_get_list_featured_articles() {
         $category = factory(Category::class)->create();
-        $article = factory(Article::class, 10)->create([
+        $articles = factory(Article::class, 10)->create([
             'user_id' => $this->user->id,
             'category_id' => $category->id,
         ]);

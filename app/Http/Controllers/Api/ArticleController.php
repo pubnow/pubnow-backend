@@ -18,7 +18,7 @@ class ArticleController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show', 'popular', 'featured']);
+        $this->middleware(['auth'])->except(['index', 'show', 'popular', 'featured', 'comments']);
         $this->authorizeResource(Article::class);
     }
     /**
@@ -143,6 +143,6 @@ class ArticleController extends Controller
 
     public function comments(Article $article) {
         $comments = $article->comments()->where('parent_id', null)->get();
-        CommentResource::collection($comments);
+        return CommentResource::collection($comments);
     }
 }
