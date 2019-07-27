@@ -6,6 +6,7 @@ use App\Http\Requests\Api\Article\UpdateArticle;
 use App\Http\Resources\ArticleOnlyResource;
 use App\Http\Requests\Api\Bookmark\CreateBookmark;
 use App\Http\Resources\BookmarkResource;
+use App\Http\Resources\CommentResource;
 use App\Models\Article;
 use App\Models\Bookmark;
 use App\Models\Tag;
@@ -18,7 +19,7 @@ class ArticleController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show', 'popular', 'featured']);
+        $this->middleware(['auth'])->except(['index', 'show', 'popular', 'featured', 'comments']);
         $this->authorizeResource(Article::class);
     }
     /**
@@ -139,5 +140,10 @@ class ArticleController extends Controller
             return $article->claps->sum('count') + $article->comments->count();
         })->reverse();
         return ArticleOnlyResource::collection($articles);
+    }
+
+    public function comments(Article $article) {
+        $comments = $article->comments()->where('parent_id', null)->get();
+        return CommentResource::collection($comments);
     }
 }

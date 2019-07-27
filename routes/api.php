@@ -53,6 +53,7 @@ Route::group(['namespace' => 'Api'], function () {
     // Article
     Route::get('articles/popular', 'ArticleController@popular');
     Route::get('articles/featured', 'ArticleController@featured');
+    Route::get('articles/{article}/comments', 'ArticleController@comments');
     Route::post('articles/{id}/bookmark', 'BookmarkController@store');
     Route::delete('articles/{id}/bookmark', 'BookmarkController@destroy');
     Route::resource('articles', 'ArticleController')->except(['create', 'edit']);

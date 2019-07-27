@@ -41,12 +41,6 @@ class OrganizationController extends Controller
         $data = $request->except('active');
         $data['owner'] = $user->id;
 
-        if ($request->hasFile('avatar')) {
-            $path = $request->file('avatar')->store('public/images/avatar');
-            $path = Storage::url($path);
-            $data['avatar'] = $path;
-        }
-
         if ($request->hasFile('logo')) {
             $path = $request->file('logo')->store('public/images/logo');
             $path = Storage::url($path);
