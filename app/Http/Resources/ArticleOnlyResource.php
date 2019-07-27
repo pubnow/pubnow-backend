@@ -19,6 +19,13 @@ class ArticleOnlyResource extends JsonResource
             'slug' => $this->slug,
             'title' => $this->title,
             'content' => $this->content,
+            'excerpt' => excerpt($this->content, 200),
+            'seen_count' => $this->seen_count,
+            'thumbnail' => thumbnail($this->content),
+            'claps' => $this->claps()->sum('count'),
+            'comments_count' => $this->comments()->count(),
+            'createdAt' => $this->created_at,
+            'updatedAt' => $this->updated_at,
         ];
     }
 }

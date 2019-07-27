@@ -16,8 +16,8 @@ class ClapResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user' => $this->user_id,
-            'article' => $this->article_id,
+            'user' => new UserResource($this->user),
+            'article' => new ArticleOnlyResource($this->article),
             'count' => $this->count,
         ];
     }

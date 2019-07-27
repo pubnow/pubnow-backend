@@ -235,6 +235,46 @@ class ArticleTest extends TestCase
 
     // --- popular, featured articles
     //TODO: lay list popular articles, guest -> 200
-    //TODO: lay list featured articles, guest -> 200
+    public function test_can_get_list_popular_articles() {
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class, 10)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
 
+        $response = $this->json('GET', '/api/articles/popular');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(5, 'data');
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id', 'slug', 'title', 'content', 'excerpt', 'seen_count', 'thumbnail',
+                    'author', 'category', 'tags', 'claps', 'publishedAt', 'createdAt', 'updatedAt'
+                ]
+            ]
+        ]);
+    }
+
+    //TODO: lay list featured articles, guest -> 200
+    public function test_can_get_list_featured_articles() {
+        $category = factory(Category::class)->create();
+        $articles = factory(Article::class, 10)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
+
+        $response = $this->json('GET', '/api/articles/featured');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(5, 'data');
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id', 'slug', 'title', 'content', 'excerpt', 'seen_count', 'thumbnail',
+                    'author', 'category', 'tags', 'claps', 'publishedAt', 'createdAt', 'updatedAt'
+                ]
+            ]
+        ]);
+    }
 }
