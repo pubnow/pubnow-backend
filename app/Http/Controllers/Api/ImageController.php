@@ -15,7 +15,7 @@ class ImageController extends Controller
         $this->middleware('auth');
     }
 
-    public function upload(StoreImage $request)
+    public function editorUpload(StoreImage $request)
     {
         $path = Storage::disk('s3')->put('images/originals', $request->file);
         $request->merge([
@@ -23,14 +23,24 @@ class ImageController extends Controller
             'size' => $request->file->getClientSize(),
             'path' => $path,
         ]);
-
         $image = Image::create($request->only('title', 'size', 'path'));
+        return $image;
+    }
+
+    public function upload(StoreImage $request)
+    {
+        $image = $this->editorUpload($request);
         return new ImageResource($image);
+    }
+
+    public function editorGallery()
+    {
+        $images = auth()->user()->images;
+        return $images;
     }
 
     public function gallery()
     {
-        $images = auth()->user()->images;
-        return ImageResource::collection($images);
+        return ImageResource::collection($this->editorGallery());
     }
 }

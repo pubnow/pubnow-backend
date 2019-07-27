@@ -68,5 +68,7 @@ Route::group(['namespace' => 'Api'], function () {
 
     // Images
     Route::post('upload', 'ImageController@upload');
+    Route::post('editor-upload', 'ImageController@editorUpload');
     Route::get('gallery', 'ImageController@gallery');
+    Route::get('editor-gallery', 'ImageController@editorGallery');
 });
