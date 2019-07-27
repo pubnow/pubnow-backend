@@ -137,7 +137,7 @@ class ArticleController extends Controller
     public function featured() {
         $articles = Article::with('claps')->with('comments')->get()->sortBy(function ($article) {
             return $article->claps->sum('count') + $article->comments->count();
-        })->reverse();
+        })->reverse()->take(5);
         return ArticleResource::collection($articles);
     }
 
