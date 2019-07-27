@@ -24,7 +24,7 @@ class ArticleController extends Controller
      */
     public function index()
     {
-        $articles = Article::orderBy('created_at', 'desc')->paginate(10);
+        $articles = $this->filterShowArticle();
         return ArticleResource::collection($articles);
     }
 
@@ -83,7 +83,7 @@ class ArticleController extends Controller
      */
     public function update(UpdateArticle $request, Article $article)
     {
-        $data = $request->only('title', 'content', 'category');
+        $data = $request->only('title', 'content', 'category', 'draft', 'private');
 
         $article->update($data);
 
@@ -119,5 +119,23 @@ class ArticleController extends Controller
     {
         $articles = Article::orderBy('seen_count', 'desc')->take(5)->get();
         return ArticleResource::collection($articles);
+    }
+
+    private function filterPrivateAricle(Article $articles)
+    {
+        $articles = $articles
+            ->where('private', true);
+        return $articles;
+    }
+
+    private function filterShowArticle() {
+        $articles = Article::where('draft', null)
+            ->orWhere('draft', false)
+            ->where('author.id', '2403dabb-2de4-4ce7-a954-e19bf4070ee5')
+//            ->where('private', null)
+//            ->orWhere('private', false)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+        return $articles;
     }
 }
