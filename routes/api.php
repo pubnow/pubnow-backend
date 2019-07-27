@@ -35,6 +35,10 @@ Route::group(['namespace' => 'Api'], function () {
         Route::get('{user}/following-organizations', 'UserController@followingOrganizations');
 
         Route::get('{user}/articles', 'UserController@articles');
+
+        Route::get('bookmarks', 'UserController@bookmarks');
+        Route::get('{user}/articles', 'UserController@articles');
+        Route::put('change-password', 'UserController@changePassword');
     });
     Route::resource('users', 'UserController')->except(['create', 'edit']);
 
@@ -49,7 +53,10 @@ Route::group(['namespace' => 'Api'], function () {
     // Article
     Route::get('articles/popular', 'ArticleController@popular');
     Route::get('articles/featured', 'ArticleController@featured');
+    Route::post('articles/{id}/bookmark', 'BookmarkController@store');
+    Route::delete('articles/{id}/bookmark', 'BookmarkController@destroy');
     Route::resource('articles', 'ArticleController')->except(['create', 'edit']);
+
 
     // Role
     Route::resource('roles', 'RoleController')->except(['show', 'create', 'edit']);
@@ -59,7 +66,6 @@ Route::group(['namespace' => 'Api'], function () {
         Route::get('article', 'SearchController@article');
     });
 
-    // Clap
     Route::resource('claps', 'ClapController')->except(['index', 'show', 'create', 'edit', 'update'])->middleware('auth');
 
     // Organization
