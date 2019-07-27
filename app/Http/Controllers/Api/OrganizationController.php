@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Organization\CreateOrganization;
 use App\Http\Requests\Api\Organization\UpdateOrganization;
 use App\Http\Resources\OrganizationResource;
@@ -13,7 +14,7 @@ class OrganizationController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show', 'getFollowers']);
+        $this->middleware(['auth'])->except(['index', 'show']);
         $this->authorizeResource(Organization::class);
     }
     /**
