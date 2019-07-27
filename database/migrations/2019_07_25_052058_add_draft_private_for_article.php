@@ -14,8 +14,8 @@ class AddDraftPrivateForArticle extends Migration
     public function up()
     {
         Schema::table('articles', function (Blueprint $table) {
-            $table->boolean('draft')->nullable();
-            $table->boolean('private')->nullable();
+            $table->boolean('draft')->default(false);
+            $table->boolean('private')->default(false);
         });
     }
 
@@ -27,8 +27,8 @@ class AddDraftPrivateForArticle extends Migration
     public function down()
     {
         Schema::table('articles', function (Blueprint $table) {
-            $table->dropColumn('draft')->nullable();
-            $table->dropColumn('private')->nullable();
+            $table->dropColumn('draft');
+            $table->dropColumn('private');
         });
     }
 }

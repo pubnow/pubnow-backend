@@ -37,16 +37,12 @@ class ArticleController extends Controller
     public function store(CreateArticle $request)
     {
         $user = $request->user();
-        $data = $request->only('title', 'content', 'category');
-        $article = $user->articles()->create([
-            'title' => $data['title'],
-            'content' => $data['content'],
-            'category_id' => $data['category'],
+        $data = $request->only('title', 'content', 'category', 'draft', 'private');
+        $article = $user->articles()->create(array_merge($data, [
             'seen_count' => 0,
             'slug' => str_slug($data['title']) . '-' . base_convert(time(), 10, 36),
-            'draft' => $request->draft,
-            'private' => $request->private
-        ]);
+            'category_id' => $data['category'],
+        ]));
         $inputTags = $request->input('tags');
         if ($inputTags && !empty($inputTags)) {
             $tags = array_map(function ($name) {
@@ -121,20 +117,25 @@ class ArticleController extends Controller
         return ArticleResource::collection($articles);
     }
 
-    private function filterPrivateAricle(Article $articles)
+    private function filterShowArticle()
     {
+        $user = auth()->user();
+        $articles = Article::where('draft', false);
+        // chưa đăng nhập trả về những bài non-draft và non-private
+        if (!$user) {
+            $articles = $articles
+                ->where('private', false)
+                ->orderByDesc('created_at')
+                ->paginate(10);
+            return $articles;
+        }
+        // đã đăng nhập thì trả về những bài non-draft và bài its private
+        // lấy những bài private nhưng đúng tác giả
+        $privateArticles = $user->articles()->where('private', true);
+        $nonPrivateArticles = $articles->where('private', false);
+        $articles = $nonPrivateArticles->union($privateArticles);
         $articles = $articles
-            ->where('private', true);
-        return $articles;
-    }
-
-    private function filterShowArticle() {
-        $articles = Article::where('draft', null)
-            ->orWhere('draft', false)
-            ->where('author.id', '2403dabb-2de4-4ce7-a954-e19bf4070ee5')
-//            ->where('private', null)
-//            ->orWhere('private', false)
-            ->orderBy('created_at', 'desc')
+            ->orderByDesc('created_at')
             ->paginate(10);
         return $articles;
     }
