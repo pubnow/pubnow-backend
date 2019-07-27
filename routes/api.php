@@ -52,8 +52,15 @@ Route::group(['namespace' => 'Api'], function () {
         Route::get('article', 'SearchController@article');
     });
 
-    Route::resource('claps', 'ClapController')->except(['index', 'show', 'create', 'edit', 'update'])->middleware('auth');
+    // Clap
+    Route::resource('claps', 'ClapController')
+        ->except(['index', 'show', 'create', 'edit', 'update'])
+        ->middleware('auth');
 
     // Comment
     Route::resource('comments', 'CommentController')->except(['index', 'show', 'create', 'edit']);
+
+    // Images
+    Route::post('upload', 'ImageController@upload');
+    Route::get('gallery', 'ImageController@gallery');
 });

@@ -90,9 +90,13 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Article::class);
     }
 
-
     public function bookmarks()
     {
         return $this->hasMany(Bookmark::class);
+    }
+
+    public function images()
+    {
+        return $this->hasMany(Image::class)->latest();
     }
 }
