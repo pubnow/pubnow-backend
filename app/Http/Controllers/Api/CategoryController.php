@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\Category\UpdateCategory;
 use App\Http\Resources\ArticleResource;
+use App\Http\Resources\UserResource;
 use App\Http\Resources\UserWithFollowingCategoriesResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class CategoryController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show', 'articles']);
+        $this->middleware(['auth'])->except(['index', 'show', 'articles', 'followers']);
         $this->authorizeResource(Category::class);
     }
     /**
@@ -103,7 +104,7 @@ class CategoryController extends Controller
                 'errors' => [
                     'message' => 'Already follow this category'
                 ]
-            ]);
+            ], 422);
         }
         $user->followingCategories()->attach($category);
         return new UserWithFollowingCategoriesResource($user);
@@ -116,9 +117,13 @@ class CategoryController extends Controller
                 'errors' => [
                     'message' => 'Has not followed this category yet'
                 ]
-            ]);
+            ], 422);
         }
         $user->followingCategories()->detach($category);
         return new UserWithFollowingCategoriesResource($user);
+    }
+
+    public function followers(Category $category) {
+        return UserResource::collection($category->followers);
     }
 }

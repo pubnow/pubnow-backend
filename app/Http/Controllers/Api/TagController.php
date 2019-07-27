@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\Tag\UpdateTag;
 use App\Http\Resources\ArticleResource;
+use App\Http\Resources\UserResource;
 use App\Http\Resources\UserWithFollowingTagsResource;
 use App\Models\Tag;
 use App\Models\User;
@@ -17,7 +18,7 @@ class TagController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show', 'articles']);
+        $this->middleware(['auth'])->except(['index', 'show', 'articles', 'followers']);
         $this->authorizeResource(Tag::class);
     }
     /**
@@ -123,5 +124,9 @@ class TagController extends Controller
         }
         $user->followingTags()->detach($tag);
         return new UserWithFollowingTagsResource($user);
+    }
+
+    public function followers(Tag $tag) {
+        return UserResource::collection($tag->followers);
     }
 }

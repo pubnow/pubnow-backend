@@ -194,5 +194,17 @@ class TagTest extends TestCase
 
         $response->assertStatus(404);
     }
+
+    // --- Followers
+    // Get list followers of a category
+    public function test_can_get_list_followers_of_a_tag() {
+        $tag = factory(Tag::class)->create();
+        $tag->followers()->attach($this->member);
+
+        $response = $this->json('GET', 'api/tags/'.$tag->slug.'/followers');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+    }
     // ----
 }

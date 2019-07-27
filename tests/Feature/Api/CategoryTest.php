@@ -198,5 +198,87 @@ class CategoryTest extends TestCase
 
         $response->assertStatus(404);
     }
+
+    // --- Follow category
+    // Follow 1 category, ton tai, user da dang nhap -> ok
+    public function test_user_can_follow_a_category() {
+        $category = factory(Category::class)->create();
+
+        $response = $this->actingAs($this->member)->json('POST', 'api/categories/'.$category->slug.'/follow');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data.followingCategories');
+    }
+
+    // Follow 1 category, ton tai, user chua dang nhap -> 401
+    public function test_cannot_follow_a_category_if_not_logged_in() {
+        $category = factory(Category::class)->create();
+
+        $response = $this->json('POST', 'api/categories/'.$category->slug.'/follow');
+
+        $response->assertStatus(401);
+    }
+
+    // Follow 1 category, khong ton tai, user da dang nhap -> 404
+    public function test_user_cannot_follow_a_category_if_not_exists() {
+        $category = factory(Category::class)->make();
+
+        $response = $this->actingAs($this->member)->json('POST', 'api/categories/'.$category->slug.'/follow');
+
+        $response->assertStatus(404);
+    }
+
+    // --- Unfollow
+    // Unfollow 1 category, ton tai, user da dang nhap -> ok
+    public function test_user_can_unfollow_a_followed_category() {
+        $category = factory(Category::class)->create();
+        $this->member->followingCategories()->attach($category);
+
+        $response = $this->actingAs($this->member)->json('DELETE', 'api/categories/'.$category->slug.'/follow');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(0, 'data.followingCategories');
+    }
+
+    // Unfollow 1 category, ton tai, user chua dang nhap -> 401
+    public function test_cannot_unfollow_a_followed_category_if_not_logged_in() {
+        $category = factory(Category::class)->create();
+        $this->member->followingCategories()->attach($category);
+
+        $response = $this->json('DELETE', 'api/categories/'.$category->slug.'/follow');
+
+        $response->assertStatus(401);
+    }
+
+    // Unfollow 1 category, khong ton tai, user da dang nhap -> 404
+    public function test_user_cannot_unfollow_a_followed_category_if_not_exists() {
+        $category = factory(Category::class)->make();
+
+        $response = $this->actingAs($this->member)->json('DELETE', 'api/categories/'.$category->slug.'/follow');
+
+        $response->assertStatus(404);
+    }
+
+    // Unfollow 1 category, khong ton tai, user da dang nhap -> 404
+    public function test_user_cannot_unfollow_a_not_followed_category() {
+        $category = factory(Category::class)->create();
+
+        $response = $this->actingAs($this->member)->json('DELETE', 'api/categories/'.$category->slug.'/follow');
+
+        $response->assertStatus(422);
+    }
+
+    // --- Followers
+    // Get list followers of a category
+    public function test_can_get_list_followers_of_a_category() {
+        $category = factory(Category::class)->create();
+        $category->followers()->attach($this->member);
+
+        $response = $this->json('GET', 'api/categories/'.$category->slug.'/followers');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+    }
+
     //----
 }
