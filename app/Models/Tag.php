@@ -31,5 +31,9 @@ class Tag extends Model
     public function articles() {
         return $this->belongsToMany('App\Models\Article');
     }
+
+    public function followers() {
+        return $this->belongsToMany(User::class, 'user_follow_tags');
+    }
     
 }

@@ -30,7 +30,7 @@ class CreateUser extends FormRequest
             'name'     => 'required',
             'bio'      => 'sometimes',
             'avatar'   => 'sometimes|file',
-            'role_id'     => 'sometimes',
+            'role_id'     => 'sometimes|uuid|exists:roles,id',
         ];
     }
 }
