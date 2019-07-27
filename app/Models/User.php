@@ -112,4 +112,9 @@ class User extends Authenticatable implements JWTSubject
     public function followingCategories() {
         return $this->belongsToMany(Category::class, 'user_follow_categories');
     }
+
+    public function bookmarks()
+    {
+        return $this->hasMany(Bookmark::class);
+    }
 }

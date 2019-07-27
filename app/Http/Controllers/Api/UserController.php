@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\Api\User\ChangePassword;
 use App\Http\Requests\Api\User\UpdateUser;
 use App\Http\Requests\Api\User\CreateUser;
 use App\Http\Resources\ArticleResource;
+use App\Http\Resources\BookmarkResource;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UserWithFollowingCategoriesResource;
 use App\Http\Resources\UserWithFollowingTagsResource;
@@ -14,6 +16,7 @@ use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
@@ -86,6 +89,13 @@ class UserController extends Controller
                 ]
             ], 403);
         }
+        if ($request->has('password') && !$request->user()->isAdmin()) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'user cannot update password',
+                ]
+            ], 403);
+        }
         if ($request->hasFile('avatar')) {
             $path = $request->file('avatar')->store('public/images/avatar');
             $path = Storage::url($path);
@@ -100,9 +110,30 @@ class UserController extends Controller
         return response()->json(null, 204);
     }
 
+    public function changePassword(ChangePassword $request) {
+        $user = $request->user();
+        $oldPassword = $request->get('old_password');
+        if (Hash::check($oldPassword, $user->password)) {
+            $user->update([
+                'password' => $request->get('new_password'),
+            ]);
+            return new UserResource($user);
+        }
+        return response()->json([
+            'errors' => [
+                'message' => 'Password is incorrect'
+            ]
+        ], 422);
+    }
+
     public function articles(Request $request, User $user) {
         $articles = $user->articles()->paginate(10);
         return ArticleResource::collection($articles);
     }
 
+
+    public function bookmarks(Request $request) {
+        $bookmark = $request->user()->bookmarks()->paginate(10);
+        return BookmarkResource::collection($bookmark);
+    }
 }
