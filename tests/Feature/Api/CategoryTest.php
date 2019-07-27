@@ -268,6 +268,15 @@ class CategoryTest extends TestCase
         $response->assertStatus(422);
     }
 
+    // Unfollow 1 category, khong ton tai, user da dang nhap -> 404
+    public function test_user_cannot_unfollow_a_not_exists_category() {
+        $category = factory(Category::class)->make();
+
+        $response = $this->actingAs($this->member)->json('DELETE', 'api/categories/'.$category->slug.'/follow');
+
+        $response->assertStatus(404);
+    }
+
     // --- Followers
     // Get list followers of a category
     public function test_can_get_list_followers_of_a_category() {

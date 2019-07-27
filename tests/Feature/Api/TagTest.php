@@ -255,13 +255,22 @@ class TagTest extends TestCase
         $response->assertStatus(404);
     }
 
-    // Unfollow 1 tag, khong ton tai, user da dang nhap -> 404
+    // Unfollow 1 tag, khong ton tai, user da dang nhap -> 422
     public function test_user_cannot_unfollow_a_not_followed_tag() {
         $tag = factory(Tag::class)->create();
 
         $response = $this->actingAs($this->member)->json('DELETE', 'api/tags/'.$tag->slug.'/follow');
 
         $response->assertStatus(422);
+    }
+
+    // Unfollow 1 tag, khong ton tai, user da dang nhap -> 404
+    public function test_user_cannot_unfollow_a_not_exists_tag() {
+        $tag = factory(Tag::class)->make();
+
+        $response = $this->actingAs($this->member)->json('DELETE', 'api/tags/'.$tag->slug.'/follow');
+
+        $response->assertStatus(404);
     }
 
     // --- Followers
