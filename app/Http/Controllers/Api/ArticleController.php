@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\Api\Article\UpdateArticle;
 use App\Http\Requests\Api\Bookmark\CreateBookmark;
 use App\Http\Resources\BookmarkResource;
+use App\Http\Resources\CommentResource;
 use App\Models\Article;
 use App\Models\Bookmark;
 use App\Models\Tag;
@@ -138,5 +139,10 @@ class ArticleController extends Controller
             return $article->claps->sum('count') + $article->comments->count();
         })->reverse();
         return ArticleResource::collection($articles);
+    }
+
+    public function comments(Article $article) {
+        $comments = $article->comments()->where('parent_id', null)->get();
+        CommentResource::collection($comments);
     }
 }

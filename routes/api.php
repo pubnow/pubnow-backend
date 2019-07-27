@@ -43,6 +43,7 @@ Route::group(['namespace' => 'Api'], function () {
     Route::resource('tags', 'TagController')->except(['create', 'edit']);
 
     // Article
+    Route::get('articles/{article}/comments', 'ArticleController@comments');
     Route::get('articles/popular', 'ArticleController@popular');
     Route::get('articles/featured', 'ArticleController@featured');
     Route::post('articles/{id}/bookmark', 'BookmarkController@store');
