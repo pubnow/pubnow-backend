@@ -27,6 +27,7 @@ class ArticleResource extends JsonResource
             'tags' => TagOnlyResource::collection($this->tags),
             'comments' => CommentResource::collection($this->comments()->where('parent_id', null)->get()),
             'claps' => $this->claps()->sum('count'),
+            'publishedAt' => $this->created_at->diffForHumans(),
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
         ];

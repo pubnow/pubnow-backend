@@ -26,6 +26,7 @@ class TagResource extends JsonResource
             'articlesCount' => $this->articles_count,
             'latestArticle' => $title,
             'image' => $this->image,
+            'publishedAt' => $this->created_at->diffForHumans(),
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
         ];

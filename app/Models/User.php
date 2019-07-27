@@ -13,10 +13,13 @@ class User extends Authenticatable implements JWTSubject
     use Notifiable;
     use UsesUuid;
 
-    public static function boot() {
+    public static function boot()
+    {
         parent::boot();
 
-        static::deleting(function($user) { // before delete() method call this
+
+        static::deleting(function ($user) {
+            // before delete() method call this
             $user->followingTags()->detach();
             $user->followingCategories()->detach();
             $user->comments()->delete();
@@ -101,20 +104,28 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Article::class);
     }
 
-    public function comments() {
+    public function comments()
+    {
         return $this->hasMany(Comment::class);
     }
 
-    public function followingTags() {
+    public function followingTags()
+    {
         return $this->belongsToMany(Tag::class, 'user_follow_tags');
     }
 
-    public function followingCategories() {
+    public function followingCategories()
+    {
         return $this->belongsToMany(Category::class, 'user_follow_categories');
     }
 
     public function bookmarks()
     {
         return $this->hasMany(Bookmark::class);
+    }
+
+    public function images()
+    {
+        return $this->hasMany(Image::class)->latest();
     }
 }
