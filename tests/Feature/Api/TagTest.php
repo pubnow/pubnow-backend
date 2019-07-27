@@ -215,6 +215,16 @@ class TagTest extends TestCase
         $response->assertStatus(401);
     }
 
+    // Follow 1 category, ton tai, da follow roi, user da dang nhap -> 422
+    public function test_user_cannot_follow_a_category_if_followed() {
+        $tag = factory(Tag::class)->create();
+        $this->member->followingTags()->attach($tag);
+
+        $response = $this->actingAs($this->member)->json('POST', 'api/tags/'.$tag->slug.'/follow');
+
+        $response->assertStatus(422);
+    }
+
     // Follow 1 tag, khong ton tai, user da dang nhap -> 404
     public function test_user_cannot_follow_a_tag_if_not_exists() {
         $tag = factory(Tag::class)->make();

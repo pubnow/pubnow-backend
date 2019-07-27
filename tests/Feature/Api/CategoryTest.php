@@ -219,6 +219,16 @@ class CategoryTest extends TestCase
         $response->assertStatus(401);
     }
 
+    // Follow 1 category, ton tai, da follow roi, user da dang nhap -> 422
+    public function test_user_cannot_follow_a_category_if_followed() {
+        $category = factory(Category::class)->create();
+        $this->member->followingCategories()->attach($category);
+
+        $response = $this->actingAs($this->member)->json('POST', 'api/categories/'.$category->slug.'/follow');
+
+        $response->assertStatus(422);
+    }
+
     // Follow 1 category, khong ton tai, user da dang nhap -> 404
     public function test_user_cannot_follow_a_category_if_not_exists() {
         $category = factory(Category::class)->make();
@@ -259,7 +269,7 @@ class CategoryTest extends TestCase
         $response->assertStatus(404);
     }
 
-    // Unfollow 1 category, khong ton tai, user da dang nhap -> 404
+    // Unfollow 1 category, ton tai, chua follow, user da dang nhap -> 422
     public function test_user_cannot_unfollow_a_not_followed_category() {
         $category = factory(Category::class)->create();
 
