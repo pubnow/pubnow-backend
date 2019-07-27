@@ -13,6 +13,20 @@ class User extends Authenticatable implements JWTSubject
     use Notifiable;
     use UsesUuid;
 
+    public static function boot()
+    {
+        parent::boot();
+
+
+        static::deleting(function ($user) {
+            // before delete() method call this
+            $user->followingTags()->detach();
+            $user->followingCategories()->detach();
+            $user->comments()->delete();
+            $user->articles()->delete();
+        });
+    }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -88,6 +102,21 @@ class User extends Authenticatable implements JWTSubject
     public function articles()
     {
         return $this->hasMany(Article::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function followingTags()
+    {
+        return $this->belongsToMany(Tag::class, 'user_follow_tags');
+    }
+
+    public function followingCategories()
+    {
+        return $this->belongsToMany(Category::class, 'user_follow_categories');
     }
 
     public function bookmarks()

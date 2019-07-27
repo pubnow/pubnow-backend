@@ -139,6 +139,42 @@ class UserTest extends TestCase
         $response->assertStatus(401);
     }
 
+    // --- Delete
+    // Test delete user, dang nhap bang admin
+    public function test_can_delete_user_profile_if_logged_in_as_admin() {
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($this->admin)->json('DELETE', '/api/users/'.$user->username);
+
+        $response->assertStatus(204);
+    }
+
+    // Test delete user, dang nhap bang owner
+    public function test_can_delete_user_profile_if_logged_in_as_owner() {
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user)->json('DELETE', '/api/users/'.$user->username);
+
+        $response->assertStatus(204);
+    }
+
+    // Test delete user, chua dang nhap
+    public function test_cannot_delete_user_profile_if_not_logged_in() {
+        $user = factory(User::class)->create();
+
+        $response = $this->json('DELETE', '/api/users/'.$user->username);
+
+        $response->assertStatus(401);
+    }
+
+    // Test delete user, dang nhap bang admin, khong ton tai
+    public function test_admin_cannot_delete_user_profile_if_not_exist() {
+        $user = factory(User::class)->make();
+
+        $response = $this->actingAs($this->admin)->json('DELETE', '/api/users/'.$user->username);
+
+        $response->assertStatus(404);
+    }
     // --- Change password
     // Test user can update own password
     public function test_can_update_own_password_if_logged_in() {
