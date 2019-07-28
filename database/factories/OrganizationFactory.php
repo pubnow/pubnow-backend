@@ -10,7 +10,6 @@ $factory->define(Models\Organization::class, function (Faker $faker) {
         'name' => $faker->unique()->name,
         'email' => $faker->unique()->email,
         'description' => $faker->sentence,
-        'logo' => $faker->imageUrl,
         'active' => false,
     ];
 });

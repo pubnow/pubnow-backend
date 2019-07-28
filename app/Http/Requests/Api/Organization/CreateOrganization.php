@@ -17,7 +17,7 @@ class CreateOrganization extends ApiRequest
             'name' => 'required|max:50|unique:organizations,name',
             'email' => 'required|email|max:255|unique:organizations,email',
             'description' => 'sometimes',
-            'logo' => 'sometimes|file',
+            'image_id' => 'sometimes|uuid|exists:images,id',
         ];
 
     }

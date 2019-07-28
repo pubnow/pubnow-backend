@@ -20,7 +20,7 @@ class OrganizationResource extends JsonResource
             'email' => $this->email,
             'owner' => new UserResource($this->user),
             'description' => $this->description,
-            'logo' => $this->logo,
+            'logo' => $this->image ? $this->image->url : '',
         ];
     }
 }

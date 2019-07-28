@@ -37,11 +37,6 @@ class OrganizationController extends Controller
         $user = $request->user();
         $data = $request->except('active');
         $data['owner'] = $user->id;
-        if ($request->hasFile('logo')) {
-            $path = $request->file('logo')->store('public/images/logo');
-            $path = Storage::url($path);
-            $data['logo'] = $path;
-        }
         $data['active'] = 0;
         $organization = Organization::create($data);
         return new OrganizationResource($organization);
@@ -66,11 +61,6 @@ class OrganizationController extends Controller
     public function update(UpdateOrganization $request, Organization $organization)
     {
         $data = $request->all();
-        if ($request->hasFile('logo')) {
-            $path = $request->file('logo')->store('public/images/logo');
-            $path = Storage::url($path);
-            $data['logo'] = $path;
-        }
         $organization->update($data);
         return new OrganizationResource($organization);
     }

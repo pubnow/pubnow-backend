@@ -4,7 +4,6 @@ namespace Tests\Feature\Api;
 
 use App\Models\Organization;
 use App\Models\User;
-use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -39,7 +38,6 @@ class OrganizationTest extends TestCase
                 'name' => $organization->name,
                 'description' => $organization->description,
                 'email' => $organization->email,
-                'logo' => $organization->logo,
             ]);
         });
     }
@@ -48,13 +46,11 @@ class OrganizationTest extends TestCase
     // Test can create a organization -> 201
     public function test_can_create_an_organization_if_logged_in() {
         $organization = factory(Organization::class)->make();
-        $image = UploadedFile::fake()->create('logo.png');
 
         $response = $this->actingAs($this->user)->json('POST', '/api/organizations', [
             'name' => $organization->name,
             'email' => $organization->email,
             'description' => $organization->description,
-            'logo' => $image,
         ]);
 
         $response->assertStatus(201);
@@ -68,13 +64,11 @@ class OrganizationTest extends TestCase
     // Test create organization, not logged in -> 401
     public function test_cannot_create_an_organization_if_not_logged_in() {
         $organization = factory(Organization::class)->make();
-        $image = UploadedFile::fake()->create('logo.png');
 
         $response = $this->json('POST', '/api/organizations', [
             'name' => $organization->name,
             'email' => $organization->email,
             'description' => $organization->description,
-            'logo' => $image,
         ]);
 
         $response->assertStatus(401);
@@ -83,12 +77,10 @@ class OrganizationTest extends TestCase
     // Test create organization, logged in, missing name field -> 401
     public function test_cannot_create_an_organization_if_logged_in_but_missing_name() {
         $organization = factory(Organization::class)->make();
-        $image = UploadedFile::fake()->create('logo.png');
 
         $response = $this->actingAs($this->user)->json('POST', '/api/organizations', [
             'email' => $organization->email,
             'description' => $organization->description,
-            'logo' => $image,
         ]);
 
         $response->assertStatus(422);
@@ -100,27 +92,11 @@ class OrganizationTest extends TestCase
             'owner' => $this->user->id,
         ]);
         $organization = factory(Organization::class)->make();
-        $image = UploadedFile::fake()->create('logo.png');
 
         $response = $this->actingAs($this->user)->json('POST', '/api/organizations', [
             'name' => $exists->name,
             'email' => $organization->email,
             'description' => $organization->description,
-            'logo' => $image,
-        ]);
-
-        $response->assertStatus(422);
-    }
-
-    // Test create a organization, logged in, logo is not a file -> 201
-    public function test_cannot_create_an_organization_if_logged_in_but_logo_is_not_file() {
-        $organization = factory(Organization::class)->make();
-
-        $response = $this->actingAs($this->user)->json('POST', '/api/organizations', [
-            'name' => $organization->name,
-            'email' => $organization->email,
-            'description' => $organization->description,
-            'logo' => 'abc',
         ]);
 
         $response->assertStatus(422);
@@ -129,13 +105,11 @@ class OrganizationTest extends TestCase
     // Test create a organization, logged in, email is not in format -> 201
     public function test_cannot_create_an_organization_if_logged_in_but_email_not_right_format() {
         $organization = factory(Organization::class)->make();
-        $image = UploadedFile::fake()->create('logo.png');
 
         $response = $this->actingAs($this->user)->json('POST', '/api/organizations', [
             'name' => $organization->name,
             'email' => 'abc',
             'description' => $organization->description,
-            'logo' => $image,
         ]);
 
         $response->assertStatus(422);
@@ -148,13 +122,11 @@ class OrganizationTest extends TestCase
             'owner' => $this->user->id,
         ]);
         $organization = factory(Organization::class)->make();
-        $image = UploadedFile::fake()->create('logo.png');
 
         $response = $this->actingAs($this->user)->json('PUT', '/api/organizations/'.$created->id, [
             'name' => $organization->name,
             'email' => $organization->email,
             'description' => $organization->description,
-            'logo' => $image,
         ]);
 
         $response->assertStatus(200);
@@ -171,13 +143,11 @@ class OrganizationTest extends TestCase
             'owner' => $this->user->id,
         ]);
         $organization = factory(Organization::class)->make();
-        $image = UploadedFile::fake()->create('logo.png');
 
         $response = $this->json('PUT', '/api/organizations/'.$created->id, [
             'name' => $organization->name,
             'email' => $organization->email,
             'description' => $organization->description,
-            'logo' => $image,
         ]);
 
         $response->assertStatus(401);
@@ -191,13 +161,11 @@ class OrganizationTest extends TestCase
             'owner' => $this->user->id,
         ]);
         $organization = factory(Organization::class)->make();
-        $image = UploadedFile::fake()->create('logo.png');
 
         $response = $this->actingAs($user)->json('PUT', '/api/organizations/'.$created->id, [
             'name' => $organization->name,
             'email' => $organization->email,
             'description' => $organization->description,
-            'logo' => $image,
         ]);
 
         $response->assertStatus(403);
@@ -211,12 +179,10 @@ class OrganizationTest extends TestCase
         $id = $created->id;
         $created->delete();
         $organization = factory(Organization::class)->make();
-        $image = UploadedFile::fake()->create('logo.png');
 
         $response = $this->actingAs($this->user)->json('PUT', '/api/organizations/'.$id, [
             'email' => $organization->email,
             'description' => $organization->description,
-            'logo' => $image,
         ]);
 
         $response->assertStatus(404);
@@ -228,30 +194,11 @@ class OrganizationTest extends TestCase
             'owner' => $this->user->id,
         ]);
         $organization = factory(Organization::class)->make();
-        $image = UploadedFile::fake()->create('logo.png');
 
         $response = $this->actingAs($this->user)->json('PUT', '/api/organizations/'.$createds[0]->id, [
             'name' => $createds[1]->name,
             'email' => $organization->email,
             'description' => $organization->description,
-            'logo' => $image,
-        ]);
-
-        $response->assertStatus(422);
-    }
-
-    // Test update a organization, logged in, logo is not a file -> 201
-    public function test_cannot_update_an_organization_if_logged_in_but_logo_is_not_file() {
-        $created = factory(Organization::class)->create([
-            'owner' => $this->user->id,
-        ]);
-        $organization = factory(Organization::class)->make();
-
-        $response = $this->actingAs($this->user)->json('PUT', '/api/organizations/'.$created->id, [
-            'name' => $organization->name,
-            'email' => $organization->email,
-            'description' => $organization->description,
-            'logo' => 'abc',
         ]);
 
         $response->assertStatus(422);
@@ -263,13 +210,11 @@ class OrganizationTest extends TestCase
             'owner' => $this->user->id,
         ]);
         $organization = factory(Organization::class)->make();
-        $image = UploadedFile::fake()->create('logo.png');
 
         $response = $this->actingAs($this->user)->json('PUT', '/api/organizations/'.$created->id, [
             'name' => $organization->name,
             'email' => 'abc',
             'description' => $organization->description,
-            'logo' => $image,
         ]);
 
         $response->assertStatus(422);

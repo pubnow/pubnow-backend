@@ -17,7 +17,7 @@ class UpdateOrganization extends ApiRequest
             'name' => 'sometimes|max:60|unique:organizations,name',
             'email' => 'sometimes|email|max:255|unique:organizations,email',
             'description' => 'sometimes',
-            'logo' => 'sometimes|file',
+            'image_id' => 'sometimes|uuid|exists:images,id',
         ];
     }
 }

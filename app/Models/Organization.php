@@ -14,9 +14,14 @@ class Organization extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'owner', 'description', 'logo', 'active',
+        'name', 'email', 'owner', 'description', 'image_id', 'active',
     ];
     public function user() {
         return $this->belongsTo(User::class, 'owner', 'id');
+    }
+
+    public function image()
+    {
+        return $this->hasOne(Image::class, 'id', 'image_id');
     }
 }

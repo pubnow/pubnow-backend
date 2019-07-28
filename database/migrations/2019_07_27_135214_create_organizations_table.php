@@ -21,7 +21,11 @@ class CreateOrganizationsTable extends Migration
             $table->string('name')->unique();
             $table->string('email')->unique();
             $table->string('description')->nullable();
-            $table->string('logo')->nullable();
+
+            $table->uuid('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('images')
+                ->onUpdate('cascade')->onDelete('cascade');
+
             $table->boolean('active');
             $table->timestamps();
         });
