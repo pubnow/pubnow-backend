@@ -237,4 +237,19 @@ class ArticleTest extends TestCase
     //TODO: lay list popular articles, guest -> 200
     //TODO: lay list featured articles, guest -> 200
 
+    // TODO: Lấy bài viết có filter draft và private mà chưa đăng nhập
+    public function test_filter_draft_private_method_unauthorize()
+    {
+        $response = $this->json('GET', '/api/articles');
+
+        $response->assertStatus(200);
+    }
+
+    // TODO: Lấy bài viết có filter draft và private mà chưa đăng nhập
+    public function test_filter_draft_private_method_authorize()
+    {
+        $response = $this->actingAs($this->admin)->json('GET', '/api/articles');
+
+        $response->assertStatus(200);
+    }
 }
