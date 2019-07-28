@@ -35,7 +35,7 @@ class User extends Authenticatable implements JWTSubject
     protected $fillable = [
         'username', 'name',
         'email', 'password',
-        'bio', 'avatar', 'role_id',
+        'bio', 'image_id', 'role_id',
     ];
 
     /**
@@ -127,5 +127,10 @@ class User extends Authenticatable implements JWTSubject
     public function images()
     {
         return $this->hasMany(Image::class)->latest();
+    }
+
+    public function image()
+    {
+        return $this->hasOne(Image::class, 'id', 'image_id');
     }
 }
