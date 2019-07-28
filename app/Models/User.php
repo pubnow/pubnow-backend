@@ -35,7 +35,7 @@ class User extends Authenticatable implements JWTSubject
     protected $fillable = [
         'username', 'name',
         'email', 'password',
-        'bio', 'avatar', 'role_id',
+        'bio', 'image_id', 'role_id',
     ];
 
     /**
@@ -135,7 +135,13 @@ class User extends Authenticatable implements JWTSubject
     }
 
     // Users who this user followed
-    public function followingUsers() {
+    public function followingUsers()
+    {
         return $this->belongsToMany(User::class, 'user_follow_users', 'followed', 'user_id');
+    }
+
+    public function image()
+    {
+        return $this->hasOne(Image::class, 'id', 'image_id');
     }
 }
