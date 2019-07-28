@@ -67,9 +67,14 @@ Route::group(['namespace' => 'Api'], function () {
     // Comment
     Route::resource('comments', 'CommentController')->except(['index', 'show', 'create', 'edit']);
 
+    // Organization
+    Route::post('organizations/{organization}/active', 'OrganizationController@active');
+    Route::resource('organizations', 'OrganizationController')->except(['create', 'edit']);
+
     // Images
     Route::post('upload', 'ImageController@upload');
     Route::post('editor-upload', 'ImageController@editorUpload');
     Route::get('gallery', 'ImageController@gallery');
+
     Route::get('editor-gallery', 'ImageController@editorGallery');
 });
