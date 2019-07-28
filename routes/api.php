@@ -69,4 +69,7 @@ Route::group(['namespace' => 'Api'], function () {
     // Images
     Route::post('upload', 'ImageController@upload');
     Route::get('gallery', 'ImageController@gallery');
+
+    // Series
+    Route::resource('series', 'SeriesController');
 });
