@@ -43,6 +43,7 @@ Route::group(['namespace' => 'Api'], function () {
     Route::resource('tags', 'TagController')->except(['create', 'edit']);
 
     // Article
+    Route::get('articles/{article}/comments', 'ArticleController@comments');
     Route::get('articles/popular', 'ArticleController@popular');
     Route::get('articles/featured', 'ArticleController@featured');
     Route::post('articles/{id}/bookmark', 'BookmarkController@store');
@@ -72,6 +73,8 @@ Route::group(['namespace' => 'Api'], function () {
 
     // Images
     Route::post('upload', 'ImageController@upload');
+    Route::post('editor-upload', 'ImageController@editorUpload');
     Route::get('gallery', 'ImageController@gallery');
 
+    Route::get('editor-gallery', 'ImageController@editorGallery');
 });
