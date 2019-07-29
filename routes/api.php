@@ -23,6 +23,12 @@ Route::group(['namespace' => 'Api'], function () {
     });
 
     // User
+    Route::post('users/{user}/follow', 'UserController@follow');
+    Route::delete('users/{user}/follow', 'UserController@unfollow');
+
+    Route::get('users/{user}/following-users', 'UserController@followingUsers');
+    Route::get('users/{user}/followers', 'UserController@followers');
+
     Route::get('users/bookmarks', 'UserController@bookmarks');
     Route::get('users/{user}/articles', 'UserController@articles');
     Route::put('users/change-password', 'UserController@changePassword');
@@ -43,6 +49,7 @@ Route::group(['namespace' => 'Api'], function () {
     Route::resource('tags', 'TagController')->except(['create', 'edit']);
 
     // Article
+    Route::get('articles/{article}/comments', 'ArticleController@comments');
     Route::get('articles/popular', 'ArticleController@popular');
     Route::get('articles/featured', 'ArticleController@featured');
     Route::post('articles/{id}/bookmark', 'BookmarkController@store');
@@ -66,7 +73,14 @@ Route::group(['namespace' => 'Api'], function () {
     // Comment
     Route::resource('comments', 'CommentController')->except(['index', 'show', 'create', 'edit']);
 
+    // Organization
+    Route::post('organizations/{organization}/active', 'OrganizationController@active');
+    Route::resource('organizations', 'OrganizationController')->except(['create', 'edit']);
+
     // Images
     Route::post('upload', 'ImageController@upload');
+    Route::post('editor-upload', 'ImageController@editorUpload');
     Route::get('gallery', 'ImageController@gallery');
+
+    Route::get('editor-gallery', 'ImageController@editorGallery');
 });

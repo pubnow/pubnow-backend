@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\Api\Article\UpdateArticle;
 use App\Http\Requests\Api\Bookmark\CreateBookmark;
 use App\Http\Resources\BookmarkResource;
+use App\Http\Resources\CommentResource;
 use App\Models\Article;
 use App\Models\Bookmark;
 use App\Models\Tag;
@@ -17,7 +18,7 @@ class ArticleController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show', 'popular', 'featured']);
+        $this->middleware(['auth'])->except(['index', 'show', 'popular', 'featured', 'comments']);
         $this->authorizeResource(Article::class);
     }
     /**
@@ -154,7 +155,12 @@ class ArticleController extends Controller
     public function featured() {
         $articles = Article::with('claps')->with('comments')->get()->sortBy(function ($article) {
             return $article->claps->sum('count') + $article->comments->count();
-        })->reverse();
+        })->reverse()->take(5);
         return ArticleResource::collection($articles);
+    }
+
+    public function comments(Article $article) {
+        $comments = $article->comments()->where('parent_id', null)->get();
+        return CommentResource::collection($comments);
     }
 }
