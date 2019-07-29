@@ -29,6 +29,8 @@ class ArticleResource extends JsonResource
             'publishedAt' => $this->created_at->diffForHumans(),
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
+            'draft' => $this->draft,
+            'private' => $this->private,
         ];
     }
 }

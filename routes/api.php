@@ -25,6 +25,13 @@ Route::group(['namespace' => 'Api'], function () {
     // User
     Route::get('users/invite-requests', 'UserController@inviteRequests');
     Route::get('users/organizations', 'UserController@organizations');
+
+    Route::post('users/{user}/follow', 'UserController@follow');
+    Route::delete('users/{user}/follow', 'UserController@unfollow');
+
+    Route::get('users/{user}/following-users', 'UserController@followingUsers');
+    Route::get('users/{user}/followers', 'UserController@followers');
+
     Route::get('users/bookmarks', 'UserController@bookmarks');
     Route::get('users/{user}/articles', 'UserController@articles');
     Route::put('users/change-password', 'UserController@changePassword');

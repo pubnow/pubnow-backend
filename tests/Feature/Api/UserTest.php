@@ -257,7 +257,8 @@ class UserTest extends TestCase
     }
 
     // Test get joined organizations, not logged in
-    public function test_cannot_get_list_joined_organizations_if_not_logged_in() {
+    public function test_cannot_get_list_joined_organizations_if_not_logged_in()
+    {
         $organizations = factory(Organization::class, 5)->create([
             'owner' => $this->user->id
         ]);
@@ -271,6 +272,92 @@ class UserTest extends TestCase
         });
 
         $response = $this->json('GET', 'api/users/organizations');
+    }
+
+    // --- Follow
+    // Test follow user, logged in, user exists
+    public function test_user_can_follow_an_exists_user() {
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($this->user)->json('POST', 'api/users/'.$user->username.'/follow');
+
+        $response->assertStatus(200);
+
+        $response->assertJsonFragment([
+            'name' => $this->user->name,
+            'username' => $this->user->username,
+            'email' => $this->user->email
+        ]);
+
+        $response->assertJsonCount(1, 'data.followingUsers');
+
+        $response->assertJsonStructure([
+            'data' => [
+                'id', 'username', 'name', 'email', 'isAdmin', 'bio', 'avatar', 'role', 'followingUsers'
+            ]
+        ]);
+    }
+
+    // Test follow user, not logged in, user exists
+    public function test_guest_cannot_follow_an_exists_user() {
+        $user = factory(User::class)->create();
+
+        $response = $this->json('POST', 'api/users/'.$user->username.'/follow');
+
+        $response->assertStatus(401);
+    }
+
+    // Test follow user, logged in, not user exists
+    public function test_user_cannot_follow_a_not_exists_user() {
+        $user = factory(User::class)->make();
+
+        $response = $this->actingAs($this->user)->json('POST', 'api/users/'.$user->username.'/follow');
+
+        $response->assertStatus(404);
+    }
+
+    // Test follow user, logged in, user exists, followed
+    public function test_user_can_follow_an_followed_user() {
+        $user = factory(User::class)->create();
+        $this->user->followingUsers()->attach($user);
+
+        $response = $this->actingAs($this->user)->json('POST', 'api/users/'.$user->username.'/follow');
+
+        $response->assertStatus(422);
+    }
+
+    // --- Unfollow
+    // Test unfollow user, logged in, user exists, followed
+    public function test_user_can_unfollow_a_followed_user() {
+        $user = factory(User::class)->create();
+        $this->user->followingUsers()->attach($user);
+
+        $response = $this->actingAs($this->user)->json('DELETE', 'api/users/'.$user->username.'/follow');
+
+        $response->assertStatus(200);
+
+        $response->assertJsonFragment([
+            'name' => $this->user->name,
+            'username' => $this->user->username,
+            'email' => $this->user->email
+        ]);
+
+        $response->assertJsonCount(0, 'data.followingUsers');
+
+        $response->assertJsonStructure([
+            'data' => [
+                'id', 'username', 'name', 'email', 'isAdmin', 'bio', 'avatar', 'role', 'followingUsers'
+            ]
+        ]);
+    }
+
+    // Test unfollow user, not logged in, user exists
+    public function test_guest_cannot_unfollow_an_user() {
+        $user = factory(User::class)->create();
+        $this->user->followingUsers()->attach($user);
+
+        $response = $this->json('DELETE', 'api/users/'.$user->username.'/follow');
+
 
         $response->assertStatus(401);
     }
@@ -315,4 +402,67 @@ class UserTest extends TestCase
 
         $response->assertStatus(401);
     }
+
+    // Test unfollow user, logged in, not user exists
+    public function test_user_cannot_unfollow_a_not_exists_user() {
+        $user = factory(User::class)->make();
+
+        $response = $this->actingAs($this->user)->json('DELETE', 'api/users/'.$user->username.'/follow');
+
+        $response->assertStatus(404);
+    }
+
+    // Test unfollow user, logged in, user exists, followed
+    public function test_user_can_unfollow_a_not_followed_user() {
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($this->user)->json('DELETE', 'api/users/'.$user->username.'/follow');
+
+        $response->assertStatus(422);
+    }
+
+    // --- Following Users
+    // Test get list followers
+    public function test_can_get_list_following_users() {
+        $users = factory(User::class, 5)->create();
+
+        $users->each(function ($following) {
+            $this->user->followingUsers()->attach($following);
+        });
+
+        $response = $this->json('GET', 'api/users/'.$this->user->username.'/following-users');
+
+        $response->assertJsonCount(count($users), 'data');
+
+        $users->each(function ($user) use ($response) {
+            $response->assertJsonFragment([
+                'name' => $user->name,
+                'username' => $user->username,
+                'email' => $user->email
+            ]);
+        });
+    }
+
+    // --- Followers
+    // Test get list followers
+    public function test_can_get_list_followers() {
+        $users = factory(User::class, 5)->create();
+
+        $users->each(function ($follower) {
+            $this->user->followers()->attach($follower);
+        });
+
+        $response = $this->json('GET', 'api/users/'.$this->user->username.'/followers');
+
+        $response->assertJsonCount(count($users), 'data');
+
+        $users->each(function ($user) use ($response) {
+            $response->assertJsonFragment([
+                'name' => $user->name,
+                'username' => $user->username,
+                'email' => $user->email
+            ]);
+        });
+    }
+
 }
