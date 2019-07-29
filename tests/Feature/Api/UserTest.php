@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\InviteRequest;
+use App\Models\Organization;
 use App\Models\User;
 use Faker\Factory;
 use Illuminate\Http\UploadedFile;
@@ -232,4 +234,85 @@ class UserTest extends TestCase
         $response->assertStatus(422);
     }
 
+    // --- Get joined organizations
+    // Test get joined organizations, logged in
+    public function test_can_get_list_joined_organizations() {
+        $organizations = factory(Organization::class, 5)->create([
+            'owner' => $this->user->id
+        ]);
+
+        $organizations->each(function ($organization) {
+            InviteRequest::create([
+                'user_id' => $this->user->id,
+                'organization_id' => $organization->id,
+                'status' => 'accepted'
+            ]);
+        });
+
+        $response = $this->actingAs($this->user)->json('GET', 'api/users/organizations');
+
+        $response->assertStatus(200);
+
+        $response->assertJsonCount(count($organizations), 'data');
+    }
+
+    // Test get joined organizations, not logged in
+    public function test_cannot_get_list_joined_organizations_if_not_logged_in() {
+        $organizations = factory(Organization::class, 5)->create([
+            'owner' => $this->user->id
+        ]);
+
+        $organizations->each(function ($organization) {
+            InviteRequest::create([
+                'user_id' => $this->user->id,
+                'organization_id' => $organization->id,
+                'status' => 'accepted'
+            ]);
+        });
+
+        $response = $this->json('GET', 'api/users/organizations');
+
+        $response->assertStatus(401);
+    }
+
+    // --- Get invite requests
+    // Test can get list invite requests, logged in
+    public function test_can_get_list_invite_requests() {
+        $organizations = factory(Organization::class, 5)->create([
+            'owner' => $this->user->id
+        ]);
+
+        $organizations->each(function ($organization) {
+            InviteRequest::create([
+                'user_id' => $this->user->id,
+                'organization_id' => $organization->id,
+                'status' => 'pending'
+            ]);
+        });
+
+        $response = $this->actingAs($this->user)->json('GET', 'api/users/invite-requests');
+
+        $response->assertStatus(200);
+
+        $response->assertJsonCount(count($organizations), 'data');
+    }
+
+    // Test can get list invite requests, not logged in
+    public function test_cannot_get_list_invite_requests_if_not_logged_in() {
+        $organizations = factory(Organization::class, 5)->create([
+            'owner' => $this->user->id
+        ]);
+
+        $organizations->each(function ($organization) {
+            InviteRequest::create([
+                'user_id' => $this->user->id,
+                'organization_id' => $organization->id,
+                'status' => 'pending'
+            ]);
+        });
+
+        $response = $this->json('GET', 'api/users/invite-requests');
+
+        $response->assertStatus(401);
+    }
 }

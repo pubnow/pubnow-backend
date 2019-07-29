@@ -23,6 +23,8 @@ Route::group(['namespace' => 'Api'], function () {
     });
 
     // User
+    Route::get('users/invite-requests', 'UserController@inviteRequests');
+    Route::get('users/organizations', 'UserController@organizations');
     Route::get('users/bookmarks', 'UserController@bookmarks');
     Route::get('users/{user}/articles', 'UserController@articles');
     Route::put('users/change-password', 'UserController@changePassword');
@@ -50,7 +52,6 @@ Route::group(['namespace' => 'Api'], function () {
     Route::delete('articles/{id}/bookmark', 'BookmarkController@destroy');
     Route::resource('articles', 'ArticleController')->except(['create', 'edit']);
 
-
     // Role
     Route::resource('roles', 'RoleController')->except(['show', 'create', 'edit']);
 
@@ -68,6 +69,7 @@ Route::group(['namespace' => 'Api'], function () {
     Route::resource('comments', 'CommentController')->except(['index', 'show', 'create', 'edit']);
 
     // Organization
+    Route::get('organizations/{organization}/members', 'OrganizationController@members');
     Route::post('organizations/{organization}/active', 'OrganizationController@active');
     Route::resource('organizations', 'OrganizationController')->except(['create', 'edit']);
 
@@ -77,4 +79,9 @@ Route::group(['namespace' => 'Api'], function () {
     Route::get('gallery', 'ImageController@gallery');
 
     Route::get('editor-gallery', 'ImageController@editorGallery');
+
+    // Invite request
+    Route::post('invite-requests/{inviteRequest}/accept', 'InviteRequestController@accept');
+    Route::post('invite-requests/{inviteRequest}/deny', 'InviteRequestController@deny');
+    Route::resource('invite-requests', 'InviteRequestController')->except('create', 'edit', 'show');
 });
