@@ -10,11 +10,11 @@ use Illuminate\Http\Request;
 
 class SeriesController extends Controller
 {
-//    public function __construct()
-//    {
-//        $this->middleware(['auth'])->except(['index', 'show']);
-//        $this->authorizeResource(Series::class);
-//    }
+    public function __construct()
+    {
+        $this->middleware(['auth'])->except(['index', 'show']);
+        $this->authorizeResource(Series::class);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -66,7 +66,12 @@ class SeriesController extends Controller
     {
         $data = $request->only('title', 'content');
 
-        $series->update($data);
+        $slug = str_slug($data['title']) . '-' . base_convert(time(), 10, 36);
+        $series->update([
+            'title' => $data['title'],
+            'content' => $data['content'],
+            'slug' => $slug
+        ]);
 
         return new SeriesResource($series);
     }
