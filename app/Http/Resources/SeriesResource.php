@@ -14,11 +14,13 @@ class SeriesResource extends JsonResource
      */
     public function toArray($request)
     {
+        dd($this->articles);
         return [
             'id' => $this->id,
             'slug' => $this->slug,
             'title' => $this->title,
             'content' => $this->content,
+//            'articles' => ArticleOnlyResource::collection($this->articles),
             'author' => new UserResource($this->author),
             'publishedAt' => $this->created_at->diffForHumans(),
             'createdAt' => $this->created_at,

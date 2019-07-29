@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\Series\CreateSeries;
+use App\Http\Resources\ArticleResource;
 use App\Http\Resources\SeriesResource;
+use App\Models\Category;
 use App\Models\Series;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -86,5 +88,11 @@ class SeriesController extends Controller
     {
         $series->delete();
         return response()->json(null, 204);
+    }
+
+    public function articles(Series $series) {
+        dd($series);
+        $articles = $series->articles;
+        return ArticleResource::collection($articles);
     }
 }
