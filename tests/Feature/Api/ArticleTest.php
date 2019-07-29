@@ -257,7 +257,8 @@ class ArticleTest extends TestCase
     }
 
     //TODO: lay list featured articles, guest -> 200
-    public function test_can_get_list_featured_articles() {
+    public function test_can_get_list_featured_articles()
+    {
         $category = factory(Category::class)->create();
         $articles = factory(Article::class, 10)->create([
             'user_id' => $this->user->id,
@@ -265,7 +266,6 @@ class ArticleTest extends TestCase
         ]);
 
         $response = $this->json('GET', '/api/articles/featured');
-
         $response->assertStatus(200);
         $response->assertJsonCount(5, 'data');
         $response->assertJsonStructure([
@@ -276,5 +276,88 @@ class ArticleTest extends TestCase
                 ]
             ]
         ]);
+    }
+
+    // TODO: Lấy bài viết có filter draft và private mà chưa đăng nhập
+    public function test_filter_draft_private_method_unauthorize()
+    {
+        $category = factory(Category::class)->create();
+        factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'draft' => true,
+            'private' => false
+        ]);
+        factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'draft' => false,
+            'private' => true
+        ]);
+        $notDraft = [
+            factory(Article::class)->create([
+                'user_id' => $this->user->id,
+                'category_id' => $category->id,
+                'draft' => false,
+                'private' => false
+            ]),
+            factory(Article::class)->create([
+                'user_id' => $this->user->id,
+                'category_id' => $category->id,
+                'draft' => false,
+                'private' => false
+            ])
+        ];
+        $response = $this->json('GET', '/api/articles');
+        $response->assertStatus(200);
+        $response->assertJsonCount(2, 'data');
+        foreach ($notDraft as $article) {
+            $response->assertJsonFragment([
+                'draft' => $article->draft,
+                'private' => $article->private,
+            ]);
+        }
+    }
+
+    // TODO: Lấy bài viết có filter draft và private mà đã đăng nhập
+    public function test_filter_draft_private_method_authorize()
+    {
+        $category = factory(Category::class)->create();
+        factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'draft' => true,
+            'private' => false
+        ]);
+        $notDraftNPrivate = [
+            factory(Article::class)->create([
+                'user_id' => $this->user->id,
+                'category_id' => $category->id,
+                'draft' => false,
+                'private' => false
+            ]),
+            factory(Article::class)->create([
+                'user_id' => $this->user->id,
+                'category_id' => $category->id,
+                'draft' => false,
+                'private' => false
+            ]),
+            factory(Article::class)->create([
+                'user_id' => $this->user->id,
+                'category_id' => $category->id,
+                'draft' => false,
+                'private' => true
+            ])
+        ];
+        $response = $this->actingAs($this->user)->json('GET', '/api/articles');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(3, 'data');
+        foreach ($notDraftNPrivate as $article) {
+            $response->assertJsonFragment([
+                'draft' => $article->draft,
+                'private' => $article->private,
+            ]);
+        }
     }
 }
