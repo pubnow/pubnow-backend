@@ -272,6 +272,7 @@ class UserTest extends TestCase
         });
 
         $response = $this->json('GET', 'api/users/organizations');
+        $response->assertStatus(401);
     }
 
     // --- Follow
