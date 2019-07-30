@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Organization\CreateOrganization;
 use App\Http\Requests\Api\Organization\UpdateOrganization;
+use App\Http\Resources\InviteRequestResource;
 use App\Http\Resources\OrganizationResource;
 use App\Models\Organization;
 use Illuminate\Http\Request;
@@ -14,7 +15,7 @@ class OrganizationController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show']);
+        $this->middleware(['auth'])->except(['index', 'show', 'members']);
         $this->authorizeResource(Organization::class);
     }
     /**
@@ -75,11 +76,16 @@ class OrganizationController extends Controller
         $organization->delete();
         return response()->json(null, 204);
     }
+
     public function active(Request $request, Organization $organization) {
         $this->authorize('active', $organization);
         $organization->update([
             'active' => 1,
         ]);
         return new OrganizationResource($organization);
+    }
+
+    public function members(Request $request, Organization $organization) {
+        return InviteRequestResource::collection($organization->members);
     }
 }

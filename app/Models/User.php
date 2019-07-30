@@ -144,4 +144,12 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(Image::class, 'id', 'image_id');
     }
+
+    public function inviteRequests() {
+        return $this->belongsToMany(Organization::class, 'invite_requests')->whereRaw("invite_requests.status = 'pending'");
+    }
+
+    public function organizations() {
+        return $this->belongsToMany(Organization::class, 'invite_requests')->whereRaw("invite_requests.status = 'accepted'");
+    }
 }

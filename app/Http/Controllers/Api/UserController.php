@@ -7,6 +7,8 @@ use App\Http\Requests\Api\User\UpdateUser;
 use App\Http\Requests\Api\User\CreateUser;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\BookmarkResource;
+use App\Http\Resources\InviteRequestResource;
+use App\Http\Resources\OrganizationResource;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UserWithFollowingUsersResource;
 use App\Http\Resources\UserWithFollowingCategoriesResource;
@@ -135,11 +137,21 @@ class UserController extends Controller
         return ArticleResource::collection($articles);
     }
 
-
     public function bookmarks(Request $request)
     {
         $bookmark = $request->user()->bookmarks()->paginate(10);
         return BookmarkResource::collection($bookmark);
+    }
+
+    public function inviteRequests(Request $request) {
+        $user = $request->user();
+        return InviteRequestResource::collection($user->inviteRequests);
+    }
+
+    public function organizations(Request $request)
+    {
+        $user = $request->user();
+        return OrganizationResource::collection($user->organizations);
     }
 
     public function follow(Request $request, User $user) {

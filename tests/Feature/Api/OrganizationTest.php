@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\InviteRequest;
 use App\Models\Organization;
 use App\Models\User;
 use Tests\TestCase;
@@ -302,5 +303,26 @@ class OrganizationTest extends TestCase
         $response->assertStatus(401);
     }
 
+    // --- Get list members
+    public function test_can_get_list_members() {
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id
+        ]);
+        $users = factory(User::class, 5)->create();
+
+        $users->each(function ($user) use ($organization) {
+            InviteRequest::create([
+                'user_id' => $user->id,
+                'organization_id' => $organization->id,
+                'status' => 'pending'
+            ]);
+        });
+
+        $response = $this->json('GET', 'api/organizations/'.$organization->id.'/members');
+
+        $response->assertStatus(200);
+
+        $response->assertJsonCount(count($users), 'data');
+    }
 
 }
