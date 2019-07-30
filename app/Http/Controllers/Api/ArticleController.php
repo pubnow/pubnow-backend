@@ -59,7 +59,6 @@ class ArticleController extends Controller
                 }
                 return $tag->id;
             }, $inputTags);
-            dd($tags);
             $article->tags()->attach($tags);
         }
         return new ArticleResource($article);

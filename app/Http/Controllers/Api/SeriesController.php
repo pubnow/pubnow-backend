@@ -92,7 +92,6 @@ class SeriesController extends Controller
             $listArticles = array_map(function ($item) {
                 return $item;
             }, $articles);
-            dd($listArticles);
             $series->articles()->attach($listArticles);
         }
 

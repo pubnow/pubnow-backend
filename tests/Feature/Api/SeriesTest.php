@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Article;
+use App\Models\Category;
 use App\Models\Series;
 use App\Models\User;
 use Tests\TestCase;
@@ -46,6 +47,33 @@ class SeriesTest extends TestCase
             'title' => $series->title,
             'content' => $series->content,
         ]);
+    }
+
+    // test: tạo series with article, khi đã đăng nhập
+    public function test_create_series_with_article_logged_in() {
+        $series = factory(Series::class)->make();
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
+        $arrayArticlesId = [$article->id];
+        $response = $this->actingAs($this->user)->json('POST', '/api/series', [
+            'title' => $series->title,
+            'content' => $series->content,
+            'articles' => $arrayArticlesId
+        ]);
+
+        $response->assertStatus(201);
+        $response->assertJsonFragment([
+            'title' => $series->title,
+            'content' => $series->content,
+        ]);
+        foreach ($arrayArticlesId as $id) {
+            $response->assertJsonFragment([
+                'id' => $id,
+            ]);
+        }
     }
 
     // test: xóa series, khi đã đăng nhập + đúng tác giả
@@ -106,6 +134,36 @@ class SeriesTest extends TestCase
             'title' => $updateSeries->title,
             'content' => $updateSeries->content,
         ]);
+    }
+
+    // test: sửa series, khi đã đăng nhập + có bài viết + thêm article + đúng dạng data
+    public function test_update_series_add_article_logged_in_exist_valid() {
+        $series = factory(Series::class)->create([
+            'user_id' => $this->user->id
+        ]);
+        $updateSeries = factory(Series::class)->make();
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
+        $arrayArticlesId = [$article->id];
+        $response = $this->actingAs($this->admin)->json('PUT', '/api/series/'.$series->slug, [
+            'title' => $updateSeries->title,
+            'content' => $updateSeries->content,
+            'articles' => $arrayArticlesId
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonFragment([
+            'title' => $updateSeries->title,
+            'content' => $updateSeries->content,
+        ]);
+        foreach ($arrayArticlesId as $id) {
+            $response->assertJsonFragment([
+                'id' => $id,
+            ]);
+        }
     }
 
     // test: sửa series, khi đã đăng nhập + bài viết không tồn tại
