@@ -26,7 +26,7 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show', 'articles', 'followers', 'followingUsers']);
+        $this->middleware(['auth'])->except(['index', 'show', 'articles', 'followers', 'followingUsers', 'followingOrganizations']);
         $this->authorizeResource(User::class);
     }
     /**
@@ -188,5 +188,10 @@ class UserController extends Controller
     // Get users who be followed by this user
     public function followingUsers(User $user) {
         return UserResource::collection($user->followingUsers);
+    }
+
+    // Get organizations who be followed by this user
+    public function followingOrganizations(User $user) {
+        return OrganizationResource::collection($user->followingOrganizations);
     }
 }

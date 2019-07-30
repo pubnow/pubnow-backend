@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Organization\CreateOrganization;
+use App\Http\Requests\Api\Organization\FollowOrganization;
 use App\Http\Requests\Api\Organization\UpdateOrganization;
 use App\Http\Resources\InviteRequestResource;
 use App\Http\Resources\OrganizationResource;
+use App\Http\Resources\UserResource;
+use App\Http\Resources\UserWithFollowingOrganizationsResource;
 use App\Models\Organization;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -15,7 +18,7 @@ class OrganizationController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show', 'members']);
+        $this->middleware(['auth'])->except(['index', 'show', 'members', 'followers']);
         $this->authorizeResource(Organization::class);
     }
     /**
@@ -87,5 +90,36 @@ class OrganizationController extends Controller
 
     public function members(Request $request, Organization $organization) {
         return InviteRequestResource::collection($organization->members);
+    }
+
+    // Get users who followed this user
+    public function followers(Organization $organization) {
+        return UserResource::collection($organization->followers);
+    }
+
+    public function follow(Request $request, Organization $organization) {
+        $user = $request->user();
+        if ($user->followingOrganizations()->find($organization->id)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Already followed this organization',
+                ]
+            ], 422);
+        }
+        $user->followingOrganizations()->attach($organization);
+        return new UserWithFollowingOrganizationsResource($user);
+    }
+
+    public function unfollow(Request $request, Organization $organization) {
+        $user = $request->user();
+        if (!$user->followingOrganizations()->find($organization->id)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Has not followed this organization yet',
+                ]
+            ], 422);
+        }
+        $user->followingOrganizations()->detach($organization);
+        return new UserWithFollowingOrganizationsResource($user);
     }
 }
