@@ -21,6 +21,7 @@ class CategoryResource extends JsonResource
             'description' => $this->description,
             'image' => $this->image,
             'articles' => ArticleOnlyResource::collection($this->articles),
+            'articlesCount' => $this->articles_count,
             'publishedAt' => $this->created_at->diffForHumans(),
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,

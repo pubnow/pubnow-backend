@@ -23,6 +23,7 @@ class TagResource extends JsonResource
             'name' => $this->name,
             'slug' => $this->slug,
             'description' => $this->description,
+            'articles' => ArticleOnlyResource::collection($this->articles),
             'articlesCount' => $this->articles_count,
             'latestArticle' => $title,
             'image' => $this->image,
