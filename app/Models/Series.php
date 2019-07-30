@@ -36,7 +36,7 @@ class Series extends Model
 
 
     public function articles() {
-        return $this->hasMany('App\Models\Article');
+        return $this->belongsToMany(Article::class, 'series_article');
     }
 
     public function user()

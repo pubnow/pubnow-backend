@@ -16,6 +16,7 @@ class CreateSeries extends ApiRequest
         return [
             'title' => 'required|min:10',
             'content' => 'required|string',
+            'articles' => 'sometimes|array'
         ];
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\Api\Series\CreateSeries;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\SeriesResource;
+use App\Models\Article;
 use App\Models\Category;
 use App\Models\Series;
 use App\Http\Controllers\Controller;
@@ -38,11 +39,21 @@ class SeriesController extends Controller
     {
         $user = $request->user();
         $data = $request->only('title', 'content');
+
         $series = $user->series()->create([
             'title' => $data['title'],
             'content' => $data['content'],
             'slug' => str_slug($data['title']) . '-' . base_convert(time(), 10, 36),
         ]);
+
+        $articles = $request->input('articles');
+        if ($articles && !empty($articles)) {
+            $listArticles = array_map(function ($item) {
+                return $item;
+            }, $articles);
+            $series->articles()->attach($listArticles);
+        }
+
         return new SeriesResource($series);
     }
 
@@ -75,6 +86,16 @@ class SeriesController extends Controller
             'slug' => $slug
         ]);
 
+        $series->articles()->detach();
+        $articles = $request->input('articles');
+        if ($articles && !empty($articles)) {
+            $listArticles = array_map(function ($item) {
+                return $item;
+            }, $articles);
+            dd($listArticles);
+            $series->articles()->attach($listArticles);
+        }
+
         return new SeriesResource($series);
     }
 
@@ -91,7 +112,6 @@ class SeriesController extends Controller
     }
 
     public function articles(Series $series) {
-        dd($series);
         $articles = $series->articles;
         return ArticleResource::collection($articles);
     }

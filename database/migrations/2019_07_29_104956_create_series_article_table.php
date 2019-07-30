@@ -14,7 +14,7 @@ class CreateSeriesArticleTable extends Migration
     public function up()
     {
         Schema::create('series_article', function (Blueprint $table) {
-            $table->uuid('id')->primary('id');
+            $table->uuid('id')->default(DB::raw('gen_random_uuid()'))->primary('id');
 
             $table->uuid('series_id');
             $table->foreign('series_id')->references('id')->on('series')
