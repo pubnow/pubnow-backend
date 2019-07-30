@@ -8,6 +8,7 @@ use App\Http\Requests\Api\User\CreateUser;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\BookmarkResource;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\UserWithFollowingUsersResource;
 use App\Http\Resources\UserWithFollowingCategoriesResource;
 use App\Http\Resources\UserWithFollowingTagsResource;
 use App\Models\Category;
@@ -23,7 +24,7 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show', 'articles']);
+        $this->middleware(['auth'])->except(['index', 'show', 'articles', 'followers', 'followingUsers']);
         $this->authorizeResource(User::class);
     }
     /**
@@ -72,7 +73,7 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, User $user)
+    public function update(UpdateUser $request, User $user)
     {
         if ($request->has('email') || $request->has('username')) {
             return response()->json([
@@ -105,12 +106,14 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
-    public function destroy(User $user) {
+    public function destroy(User $user)
+    {
         $user->delete();
         return response()->json(null, 204);
     }
 
-    public function changePassword(ChangePassword $request) {
+    public function changePassword(ChangePassword $request)
+    {
         $user = $request->user();
         $oldPassword = $request->get('old_password');
         if (Hash::check($oldPassword, $user->password)) {
@@ -126,14 +129,52 @@ class UserController extends Controller
         ], 422);
     }
 
-    public function articles(Request $request, User $user) {
+    public function articles(Request $request, User $user)
+    {
         $articles = $user->articles()->paginate(10);
         return ArticleResource::collection($articles);
     }
 
 
-    public function bookmarks(Request $request) {
+    public function bookmarks(Request $request)
+    {
         $bookmark = $request->user()->bookmarks()->paginate(10);
         return BookmarkResource::collection($bookmark);
+    }
+
+    public function follow(Request $request, User $user) {
+        $follower = $request->user();
+        if ($follower->followingUsers()->find($user->id)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Already followed this user',
+                ]
+            ], 422);
+        }
+        $follower->followingUsers()->attach($user);
+        return new UserWithFollowingUsersResource($follower);
+    }
+
+    public function unfollow(Request $request, User $user) {
+        $follower = $request->user();
+        if (!$follower->followingUsers()->find($user->id)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Has not followed this user yet',
+                ]
+            ], 422);
+        }
+        $follower->followingUsers()->detach($user);
+        return new UserWithFollowingUsersResource($follower);
+    }
+
+    // Get users who followed this user
+    public function followers(User $user) {
+        return UserResource::collection($user->followers);
+    }
+
+    // Get users who be followed by this user
+    public function followingUsers(User $user) {
+        return UserResource::collection($user->followingUsers);
     }
 }

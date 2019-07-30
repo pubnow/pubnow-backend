@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\Api\Article\UpdateArticle;
 use App\Http\Requests\Api\Bookmark\CreateBookmark;
 use App\Http\Resources\BookmarkResource;
+use App\Http\Resources\CommentResource;
 use App\Models\Article;
 use App\Models\Bookmark;
 use App\Models\Tag;
@@ -17,7 +18,7 @@ class ArticleController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show', 'popular', 'featured']);
+        $this->middleware(['auth'])->except(['index', 'show', 'popular', 'featured', 'comments']);
         $this->authorizeResource(Article::class);
     }
     /**
@@ -27,7 +28,7 @@ class ArticleController extends Controller
      */
     public function index()
     {
-        $articles = Article::orderBy('created_at', 'desc')->paginate(10);
+        $articles = $this->filterShowArticle();
         return ArticleResource::collection($articles);
     }
 
@@ -40,16 +41,12 @@ class ArticleController extends Controller
     public function store(CreateArticle $request)
     {
         $user = $request->user();
-        $data = $request->only('title', 'content', 'category');
-
-        $article = $user->articles()->create([
-            'title' => $data['title'],
-            'content' => $data['content'],
-            'category_id' => $data['category'],
+        $data = $request->only('title', 'content', 'category', 'draft', 'private');
+        $article = $user->articles()->create(array_merge($data, [
             'seen_count' => 0,
             'slug' => str_slug($data['title']) . '-' . base_convert(time(), 10, 36),
-        ]);
-
+            'category_id' => $data['category'],
+        ]));
         $inputTags = $request->input('tags');
         if ($inputTags && !empty($inputTags)) {
             $tags = array_map(function ($name) {
@@ -64,7 +61,6 @@ class ArticleController extends Controller
             }, $inputTags);
             $article->tags()->attach($tags);
         }
-
         return new ArticleResource($article);
     }
 
@@ -91,7 +87,7 @@ class ArticleController extends Controller
      */
     public function update(UpdateArticle $request, Article $article)
     {
-        $data = $request->only('title', 'content', 'category');
+        $data = $request->only('title', 'content', 'category', 'draft', 'private');
 
         $article->update($data);
 
@@ -133,10 +129,38 @@ class ArticleController extends Controller
         return ArticleResource::collection($articles);
     }
 
+    private function filterShowArticle()
+    {
+        $user = auth()->user();
+        $articles = Article::where('draft', false);
+        // chưa đăng nhập trả về những bài non-draft và non-private
+        if (!$user) {
+            $articles = $articles
+                ->where('private', false)
+                ->orderByDesc('created_at')
+                ->paginate(10);
+            return $articles;
+        }
+        // đã đăng nhập thì trả về những bài non-draft và bài its private
+        // lấy những bài private nhưng đúng tác giả
+        $privateArticles = $user->articles()->where('private', true);
+        $nonPrivateArticles = $articles->where('private', false);
+        $articles = $nonPrivateArticles->union($privateArticles);
+        $articles = $articles
+            ->orderByDesc('created_at')
+            ->paginate(10);
+        return $articles;
+    }
+
     public function featured() {
         $articles = Article::with('claps')->with('comments')->get()->sortBy(function ($article) {
             return $article->claps->sum('count') + $article->comments->count();
-        })->reverse();
+        })->reverse()->take(5);
         return ArticleResource::collection($articles);
+    }
+
+    public function comments(Article $article) {
+        $comments = $article->comments()->where('parent_id', null)->get();
+        return CommentResource::collection($comments);
     }
 }

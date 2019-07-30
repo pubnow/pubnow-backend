@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\Category\UpdateCategory;
 use App\Http\Resources\ArticleResource;
+use App\Http\Resources\CategoryOnlyResource;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UserWithFollowingCategoriesResource;
 use App\Models\Category;
@@ -28,7 +29,7 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::all();
-        return CategoryResource::collection($categories);
+        return CategoryOnlyResource::collection($categories);
     }
 
     /**

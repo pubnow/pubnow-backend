@@ -13,7 +13,7 @@ class Image extends Model
         'title', 'path', 'user_id', 'size',
     ];
 
-    public $appends = ['file', 'uploaded_time', 'size_in_kb'];
+    public $appends = ['url', 'link', 'uploaded_time', 'size_in_kb'];
 
     public static function boot()
     {
@@ -23,7 +23,12 @@ class Image extends Model
         });
     }
 
-    public function getFileAttribute()
+    public function getLinkAttribute()
+    {
+        return Storage::disk('s3')->url($this->path);
+    }
+
+    public function getUrlAttribute()
     {
         return Storage::disk('s3')->url($this->path);
     }

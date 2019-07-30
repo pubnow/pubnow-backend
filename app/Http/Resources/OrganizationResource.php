@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ClapResource extends JsonResource
+class OrganizationResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,9 +16,11 @@ class ClapResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user' => new UserResource($this->user),
-            'article' => new ArticleOnlyResource($this->article),
-            'count' => $this->count,
+            'name' => $this->name,
+            'email' => $this->email,
+            'owner' => new UserResource($this->user),
+            'description' => $this->description,
+            'logo' => $this->image ? $this->image->url : '',
         ];
     }
 }

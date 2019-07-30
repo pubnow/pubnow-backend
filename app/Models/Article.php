@@ -28,7 +28,7 @@ class Article extends Model
      */
     protected $fillable = [
         'title', 'content', 'slug', 'user_id',
-        'category_id', 'seen_count', 'excerpt', 'thumbnail',
+        'category_id', 'seen_count', 'excerpt', 'thumbnail', 'draft', 'private'
     ];
 
     /**
