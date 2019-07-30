@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\InviteRequest;
+use App\Models\Organization;
 use App\Models\User;
 use Faker\Factory;
 use Illuminate\Http\UploadedFile;
@@ -175,6 +177,7 @@ class UserTest extends TestCase
 
         $response->assertStatus(404);
     }
+
     // --- Change password
     // Test user can update own password
     public function test_can_update_own_password_if_logged_in() {
@@ -232,7 +235,89 @@ class UserTest extends TestCase
         $response->assertStatus(422);
     }
 
-    // --- Follow
+    // --- Get joined organizations
+    // Test get joined organizations, logged in
+    public function test_can_get_list_joined_organizations() {
+        $organizations = factory(Organization::class, 5)->create([
+            'owner' => $this->user->id
+        ]);
+
+        $organizations->each(function ($organization) {
+            InviteRequest::create([
+                'user_id' => $this->user->id,
+                'organization_id' => $organization->id,
+                'status' => 'accepted'
+            ]);
+        });
+
+        $response = $this->actingAs($this->user)->json('GET', 'api/users/organizations');
+
+        $response->assertStatus(200);
+
+        $response->assertJsonCount(count($organizations), 'data');
+    }
+
+    // Test get joined organizations, not logged in
+    public function test_cannot_get_list_joined_organizations_if_not_logged_in()
+    {
+        $organizations = factory(Organization::class, 5)->create([
+            'owner' => $this->user->id
+        ]);
+
+        $organizations->each(function ($organization) {
+            InviteRequest::create([
+                'user_id' => $this->user->id,
+                'organization_id' => $organization->id,
+                'status' => 'accepted'
+            ]);
+        });
+
+        $response = $this->json('GET', 'api/users/organizations');
+        $response->assertStatus(401);
+    }
+
+    // --- Get invite requests
+    // Test can get list invite requests, logged in
+    public function test_can_get_list_invite_requests() {
+        $organizations = factory(Organization::class, 5)->create([
+            'owner' => $this->user->id
+        ]);
+
+        $organizations->each(function ($organization) {
+            InviteRequest::create([
+                'user_id' => $this->user->id,
+                'organization_id' => $organization->id,
+                'status' => 'pending'
+            ]);
+        });
+
+        $response = $this->actingAs($this->user)->json('GET', 'api/users/invite-requests');
+
+        $response->assertStatus(200);
+
+        $response->assertJsonCount(count($organizations), 'data');
+    }
+
+    // Test can get list invite requests, not logged in
+    public function test_cannot_get_list_invite_requests_if_not_logged_in() {
+        $organizations = factory(Organization::class, 5)->create([
+            'owner' => $this->user->id
+        ]);
+
+        $organizations->each(function ($organization) {
+            InviteRequest::create([
+                'user_id' => $this->user->id,
+                'organization_id' => $organization->id,
+                'status' => 'pending'
+            ]);
+        });
+
+        $response = $this->json('GET', 'api/users/invite-requests');
+
+        $response->assertStatus(401);
+    }
+
+    // --- Follow User
     // Test follow user, logged in, user exists
     public function test_user_can_follow_an_exists_user() {
         $user = factory(User::class)->create();
@@ -284,7 +369,7 @@ class UserTest extends TestCase
         $response->assertStatus(422);
     }
 
-    // --- Unfollow
+    // --- Unfollow User
     // Test unfollow user, logged in, user exists, followed
     public function test_user_can_unfollow_a_followed_user() {
         $user = factory(User::class)->create();
@@ -315,6 +400,7 @@ class UserTest extends TestCase
         $this->user->followingUsers()->attach($user);
 
         $response = $this->json('DELETE', 'api/users/'.$user->username.'/follow');
+
 
         $response->assertStatus(401);
     }
@@ -348,6 +434,7 @@ class UserTest extends TestCase
 
         $response = $this->json('GET', 'api/users/'.$this->user->username.'/following-users');
 
+        $response->assertStatus(200);
         $response->assertJsonCount(count($users), 'data');
 
         $users->each(function ($user) use ($response) {
@@ -370,6 +457,7 @@ class UserTest extends TestCase
 
         $response = $this->json('GET', 'api/users/'.$this->user->username.'/followers');
 
+        $response->assertStatus(200);
         $response->assertJsonCount(count($users), 'data');
 
         $users->each(function ($user) use ($response) {
@@ -377,6 +465,33 @@ class UserTest extends TestCase
                 'name' => $user->name,
                 'username' => $user->username,
                 'email' => $user->email
+            ]);
+        });
+    }
+
+    // --- Following Organizations
+    // Test get list followers
+    public function test_can_get_list_following_organizations() {
+        $user = factory(User::class)->create();
+        $organizations = factory(Organization::class, 5)->create([
+            'owner' => $user->id
+        ]);
+
+        $organizations->each(function ($organization) {
+            $this->user->followingOrganizations()->attach($organization);
+        });
+
+        $response = $this->json('GET', 'api/users/'.$this->user->username.'/following-organizations');
+
+        $response->assertStatus(200);
+
+        $response->assertJsonCount(count($organizations), 'data');
+
+        $organizations->each(function ($organization) use ($response) {
+            $response->assertJsonFragment([
+                'name' => $organization->name,
+                'description' => $organization->description,
+                'email' => $organization->email
             ]);
         });
     }

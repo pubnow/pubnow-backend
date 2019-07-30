@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\InviteRequest;
 use App\Models\Organization;
 use App\Models\User;
 use Tests\TestCase;
@@ -302,5 +303,186 @@ class OrganizationTest extends TestCase
         $response->assertStatus(401);
     }
 
+    // --- Get list members
+    public function test_can_get_list_members() {
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id
+        ]);
+        $users = factory(User::class, 5)->create();
+
+        $users->each(function ($user) use ($organization) {
+            InviteRequest::create([
+                'user_id' => $user->id,
+                'organization_id' => $organization->id,
+                'status' => 'pending'
+            ]);
+        });
+
+        $response = $this->json('GET', 'api/organizations/'.$organization->id.'/members');
+
+        $response->assertStatus(200);
+
+        $response->assertJsonCount(count($users), 'data');
+    }
+
+    // --- Follow Organization
+    // Test follow organization, logged in, organization exists
+    public function test_user_can_follow_an_exists_organization() {
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $user->id
+        ]);
+
+        $response = $this->actingAs($this->user)->json('POST', 'api/organizations/'.$organization->id.'/follow');
+
+        $response->assertStatus(200);
+
+        $response->assertJsonFragment([
+            'name' => $this->user->name,
+            'username' => $this->user->username,
+            'email' => $this->user->email
+        ]);
+
+        $response->assertJsonCount(1, 'data.followingOrganizations');
+
+        $response->assertJsonStructure([
+            'data' => [
+                'id', 'username', 'name', 'email', 'isAdmin', 'bio', 'avatar', 'role', 'followingOrganizations'
+            ]
+        ]);
+    }
+
+    // Test follow organization, not logged in, organization exists
+    public function test_guest_cannot_follow_an_exists_organization() {
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $user->id
+        ]);
+
+        $response = $this->json('POST', 'api/organizations/'.$organization->id.'/follow');
+
+        $response->assertStatus(401);
+    }
+
+    // Test follow organization, logged in, organization not exists
+    public function test_user_cannot_follow_a_not_exists_organization() {
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $user->id
+        ]);
+        $id = $organization->id;
+        $organization->delete();
+
+        $response = $this->actingAs($this->user)->json('POST', 'api/organizations/'.$id.'/follow');
+
+        $response->assertStatus(404);
+    }
+
+    // Test follow organization, logged in, organization exists, followed
+    public function test_user_can_follow_an_followed_organization() {
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $user->id
+        ]);
+        $this->user->followingOrganizations()->attach($organization);
+
+        $response = $this->actingAs($this->user)->json('POST', 'api/organizations/'.$organization->id.'/follow');
+
+        $response->assertStatus(422);
+    }
+
+    // --- Unfollow organization
+    // Test unfollow organization, logged in, organization exists, followed
+    public function test_user_can_unfollow_a_followed_organization() {
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $user->id
+        ]);
+        $this->user->followingOrganizations()->attach($organization);
+
+        $response = $this->actingAs($this->user)->json('DELETE', 'api/organizations/'.$organization->id.'/follow');
+
+        $response->assertStatus(200);
+
+        $response->assertJsonFragment([
+            'name' => $this->user->name,
+            'username' => $this->user->username,
+            'email' => $this->user->email
+        ]);
+
+        $response->assertJsonCount(0, 'data.followingOrganizations');
+
+        $response->assertJsonStructure([
+            'data' => [
+                'id', 'username', 'name', 'email', 'isAdmin', 'bio', 'avatar', 'role', 'followingOrganizations'
+            ]
+        ]);
+    }
+
+    // Test unfollow organization, not logged in, organization exists
+    public function test_guest_cannot_unfollow_an_organization() {
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $user->id
+        ]);
+        $this->user->followingOrganizations()->attach($organization);
+
+        $response = $this->json('DELETE', 'api/organizations/'.$organization->id.'/follow');
+
+
+        $response->assertStatus(401);
+    }
+
+    // Test unfollow organization, logged in, organization not exists
+    public function test_user_cannot_unfollow_a_not_exists_organization() {
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $user->id
+        ]);
+        $id = $organization->id;
+        $organization->delete();
+
+        $response = $this->actingAs($this->user)->json('DELETE', 'api/organizations/'.$id.'/follow');
+
+        $response->assertStatus(404);
+    }
+
+    // Test unfollow organization, logged in, organization exists, followed
+    public function test_user_can_unfollow_a_not_followed_organization() {
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $user->id
+        ]);
+
+        $response = $this->actingAs($this->user)->json('DELETE', 'api/organizations/'.$organization->id.'/follow');
+
+        $response->assertStatus(422);
+    }
+
+    // --- Followers
+    // Test get list followers
+    public function test_can_get_list_followers() {
+        $users = factory(User::class, 5)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id
+        ]);
+
+        $users->each(function ($user) use ($organization) {
+            $organization->followers()->attach($user);
+        });
+
+        $response = $this->json('GET', 'api/organizations/'.$organization->id.'/followers');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(count($users), 'data');
+
+        $users->each(function ($user) use ($response) {
+            $response->assertJsonFragment([
+                'name' => $user->name,
+                'username' => $user->username,
+                'email' => $user->email
+            ]);
+        });
+    }
 
 }

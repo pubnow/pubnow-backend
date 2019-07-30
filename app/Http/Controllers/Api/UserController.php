@@ -7,6 +7,8 @@ use App\Http\Requests\Api\User\UpdateUser;
 use App\Http\Requests\Api\User\CreateUser;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\BookmarkResource;
+use App\Http\Resources\InviteRequestResource;
+use App\Http\Resources\OrganizationResource;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UserWithFollowingUsersResource;
 use App\Http\Resources\UserWithFollowingCategoriesResource;
@@ -24,7 +26,7 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show', 'articles', 'followers', 'followingUsers']);
+        $this->middleware(['auth'])->except(['index', 'show', 'articles', 'followers', 'followingUsers', 'followingOrganizations']);
         $this->authorizeResource(User::class);
     }
     /**
@@ -135,11 +137,21 @@ class UserController extends Controller
         return ArticleResource::collection($articles);
     }
 
-
     public function bookmarks(Request $request)
     {
         $bookmark = $request->user()->bookmarks()->paginate(10);
         return BookmarkResource::collection($bookmark);
+    }
+
+    public function inviteRequests(Request $request) {
+        $user = $request->user();
+        return InviteRequestResource::collection($user->inviteRequests);
+    }
+
+    public function organizations(Request $request)
+    {
+        $user = $request->user();
+        return OrganizationResource::collection($user->organizations);
     }
 
     public function follow(Request $request, User $user) {
@@ -176,5 +188,10 @@ class UserController extends Controller
     // Get users who be followed by this user
     public function followingUsers(User $user) {
         return UserResource::collection($user->followingUsers);
+    }
+
+    // Get organizations who be followed by this user
+    public function followingOrganizations(User $user) {
+        return OrganizationResource::collection($user->followingOrganizations);
     }
 }
