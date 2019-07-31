@@ -23,6 +23,73 @@ class SeriesTest extends TestCase
         $this->user = factory(User::class)->create();
     }
 
+    // test: lấy danh sách series, khi chưa đăng nhập
+    public function test_get_series_without_log_in() {
+        $series1 = factory(Series::class)->make();
+        $series2 = factory(Series::class)->make();
+        $listSeries = [
+            factory(Series::class)->create([
+                'user_id' => $this->user->id,
+                'title' => $series1->title,
+                'content' => $series1->content
+            ]),
+            factory(Series::class)->create([
+                'user_id' => $this->user->id,
+                'title' => $series2->title,
+                'content' => $series2->content
+            ])
+        ];
+        $response = $this->json('GET', '/api/series');
+
+        $response->assertStatus(200);
+        foreach ($listSeries as $series) {
+            $response->assertJsonFragment([
+                'id' => $series->id,
+            ]);
+        }
+    }
+
+    // test: lấy danh sách series, khi đã đăng nhập
+    public function test_get_series_logged_in() {
+        $series1 = factory(Series::class)->make();
+        $series2 = factory(Series::class)->make();
+        $listSeries = [
+            factory(Series::class)->create([
+                'user_id' => $this->user->id,
+                'title' => $series1->title,
+                'content' => $series1->content
+            ]),
+            factory(Series::class)->create([
+                'user_id' => $this->user->id,
+                'title' => $series2->title,
+                'content' => $series2->content
+            ])
+        ];
+        $response = $this->actingAs($this->user)->json('GET', '/api/series');
+
+        $response->assertStatus(200);
+        foreach ($listSeries as $series) {
+            $response->assertJsonFragment([
+                'id' => $series->id,
+            ]);
+        }
+    }
+
+    // test: lấy 1 series, khi đăng nhập
+    public function test_get_a_series_logged_in() {
+        $series = factory(Series::class)->make();
+        $seriesReal = factory(Series::class)->create([
+            'user_id' => $this->user->id,
+            'title' => $series->title,
+            'content' => $series->content
+        ]);
+        $response = $this->actingAs($this->user)->json('GET', '/api/series/'.$seriesReal->slug);
+        $response->assertStatus(200);
+        $response->assertJsonFragment([
+            'id' => $seriesReal->id
+        ]);
+    }
+
     // test: tạo series, khi chưa đăng nhập
     public function test_create_series_without_log_in() {
         $series = factory(Series::class)->make();
