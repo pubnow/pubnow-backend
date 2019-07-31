@@ -4,7 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\Tag\UpdateTag;
 use App\Http\Resources\ArticleResource;
+use App\Http\Resources\TagOnlyResource;
+use App\Http\Resources\UserResource;
+use App\Http\Resources\UserWithFollowingTagsResource;
 use App\Models\Tag;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TagResource;
@@ -15,7 +19,7 @@ class TagController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show', 'articles']);
+        $this->middleware(['auth'])->except(['index', 'show', 'articles', 'followers']);
         $this->authorizeResource(Tag::class);
     }
     /**
@@ -26,7 +30,7 @@ class TagController extends Controller
     public function index()
     {
         $tags = Tag::orderBy('created_at', 'desc')->withCount('articles')->paginate(10);
-        return TagResource::collection($tags);
+        return TagOnlyResource::collection($tags);
     }
 
 
@@ -94,5 +98,36 @@ class TagController extends Controller
     public function articles(Tag $tag) {
         $articles = $tag->articles()->paginate(10);
         return ArticleResource::collection($articles);
+    }
+
+    public function follow(Request $request, Tag $tag) {
+
+        $user = $request->user();
+        if ($user->followingTags()->find($tag->id)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Already follow this tag'
+                ]
+            ], 422);
+        }
+        $user->followingTags()->attach($tag);
+        return new UserWithFollowingTagsResource($user);
+    }
+
+    public function unfollow(Request $request, Tag $tag) {
+        $user = $request->user();
+        if (!$user->followingTags()->find($tag->id)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Has not followed this tag yet'
+                ]
+            ], 422);
+        }
+        $user->followingTags()->detach($tag);
+        return new UserWithFollowingTagsResource($user);
+    }
+
+    public function followers(Tag $tag) {
+        return UserResource::collection($tag->followers);
     }
 }

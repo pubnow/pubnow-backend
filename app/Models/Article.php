@@ -11,6 +11,16 @@ class Article extends Model
     use UsesUuid;
     use Searchable;
 
+    public static function boot() {
+        parent::boot();
+
+        static::deleting(function($article) { // before delete() method call this
+            $article->tags()->detach();
+            $article->comments()->delete();
+            $article->tags()->delete();
+        });
+    }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -18,7 +28,7 @@ class Article extends Model
      */
     protected $fillable = [
         'title', 'content', 'slug', 'user_id',
-        'category_id', 'seen_count', 'excerpt', 'thumbnail',
+        'category_id', 'seen_count', 'excerpt', 'thumbnail', 'draft', 'private'
     ];
 
     /**

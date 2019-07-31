@@ -2,20 +2,10 @@
 
 namespace App\Http\Requests\Api\User;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Api\ApiRequest;
 
-class UpdateUser extends FormRequest
+class UpdateUser extends ApiRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
-    {
-        return false;
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -27,7 +17,7 @@ class UpdateUser extends FormRequest
             'password' => 'sometimes|min:6',
             'name'     => 'sometimes',
             'bio'      => 'sometimes',
-            'avatar'   => 'sometimes|file',
+            'image_id'   => 'sometimes|uuid|exists:images,id',
             'role_id'     => 'sometimes',
         ];
     }

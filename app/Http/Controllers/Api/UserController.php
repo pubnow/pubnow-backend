@@ -2,21 +2,31 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\Api\User\ChangePassword;
 use App\Http\Requests\Api\User\UpdateUser;
 use App\Http\Requests\Api\User\CreateUser;
 use App\Http\Resources\ArticleResource;
+use App\Http\Resources\BookmarkResource;
+use App\Http\Resources\InviteRequestResource;
+use App\Http\Resources\OrganizationResource;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\UserWithFollowingUsersResource;
+use App\Http\Resources\UserWithFollowingCategoriesResource;
+use App\Http\Resources\UserWithFollowingTagsResource;
+use App\Models\Category;
 use App\Models\Role;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show', 'articles']);
+        $this->middleware(['auth'])->except(['index', 'show', 'articles', 'followers', 'followingUsers', 'followingOrganizations']);
         $this->authorizeResource(User::class);
     }
     /**
@@ -54,8 +64,6 @@ class UserController extends Controller
             $path = Storage::url($path);
             $data['avatar'] = $path;
         }
-        $role = Role::where(['name' => 'member'])->first();
-        $data['role_id'] = $role->id;
         $user = User::create($data);
         return new UserResource($user);
     }
@@ -67,7 +75,7 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, User $user)
+    public function update(UpdateUser $request, User $user)
     {
         if ($request->has('email') || $request->has('username')) {
             return response()->json([
@@ -84,6 +92,13 @@ class UserController extends Controller
                 ]
             ], 403);
         }
+        if ($request->has('password') && !$request->user()->isAdmin()) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'user cannot update password',
+                ]
+            ], 403);
+        }
         if ($request->hasFile('avatar')) {
             $path = $request->file('avatar')->store('public/images/avatar');
             $path = Storage::url($path);
@@ -93,9 +108,90 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
-    public function articles(Request $request, User $user) {
+    public function destroy(User $user)
+    {
+        $user->delete();
+        return response()->json(null, 204);
+    }
+
+    public function changePassword(ChangePassword $request)
+    {
+        $user = $request->user();
+        $oldPassword = $request->get('old_password');
+        if (Hash::check($oldPassword, $user->password)) {
+            $user->update([
+                'password' => $request->get('new_password'),
+            ]);
+            return new UserResource($user);
+        }
+        return response()->json([
+            'errors' => [
+                'message' => 'Password is incorrect'
+            ]
+        ], 422);
+    }
+
+    public function articles(Request $request, User $user)
+    {
         $articles = $user->articles()->paginate(10);
         return ArticleResource::collection($articles);
     }
 
+    public function bookmarks(Request $request)
+    {
+        $bookmark = $request->user()->bookmarks()->paginate(10);
+        return BookmarkResource::collection($bookmark);
+    }
+
+    public function inviteRequests(Request $request) {
+        $user = $request->user();
+        return InviteRequestResource::collection($user->inviteRequests);
+    }
+
+    public function organizations(Request $request)
+    {
+        $user = $request->user();
+        return OrganizationResource::collection($user->organizations);
+    }
+
+    public function follow(Request $request, User $user) {
+        $follower = $request->user();
+        if ($follower->followingUsers()->find($user->id)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Already followed this user',
+                ]
+            ], 422);
+        }
+        $follower->followingUsers()->attach($user);
+        return new UserWithFollowingUsersResource($follower);
+    }
+
+    public function unfollow(Request $request, User $user) {
+        $follower = $request->user();
+        if (!$follower->followingUsers()->find($user->id)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Has not followed this user yet',
+                ]
+            ], 422);
+        }
+        $follower->followingUsers()->detach($user);
+        return new UserWithFollowingUsersResource($follower);
+    }
+
+    // Get users who followed this user
+    public function followers(User $user) {
+        return UserResource::collection($user->followers);
+    }
+
+    // Get users who be followed by this user
+    public function followingUsers(User $user) {
+        return UserResource::collection($user->followingUsers);
+    }
+
+    // Get organizations who be followed by this user
+    public function followingOrganizations(User $user) {
+        return OrganizationResource::collection($user->followingOrganizations);
+    }
 }

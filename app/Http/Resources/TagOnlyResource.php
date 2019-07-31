@@ -20,6 +20,8 @@ class TagOnlyResource extends JsonResource
             'slug' => $this->slug,
             'description' => $this->description,
             'image' => $this->image,
+            'articles_count' => $this->articles()->count(),
+            'publishedAt' => $this->created_at->diffForHumans(),
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
         ];

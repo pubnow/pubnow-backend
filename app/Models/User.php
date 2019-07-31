@@ -13,6 +13,20 @@ class User extends Authenticatable implements JWTSubject
     use Notifiable;
     use UsesUuid;
 
+    public static function boot()
+    {
+        parent::boot();
+
+
+        static::deleting(function ($user) {
+            // before delete() method call this
+            $user->followingTags()->detach();
+            $user->followingCategories()->detach();
+            $user->comments()->delete();
+            $user->articles()->delete();
+        });
+    }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -21,7 +35,7 @@ class User extends Authenticatable implements JWTSubject
     protected $fillable = [
         'username', 'name',
         'email', 'password',
-        'bio', 'avatar', 'role_id',
+        'bio', 'image_id', 'role_id',
     ];
 
     /**
@@ -90,6 +104,58 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Article::class);
     }
 
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function followingTags()
+    {
+        return $this->belongsToMany(Tag::class, 'user_follow_tags');
+    }
+
+    public function followingCategories()
+    {
+        return $this->belongsToMany(Category::class, 'user_follow_categories');
+    }
+
+    public function bookmarks()
+    {
+        return $this->hasMany(Bookmark::class);
+    }
+
+    public function images()
+    {
+        return $this->hasMany(Image::class)->latest();
+    }
+
+    // Users who followed this user
+    public function followers() {
+        return $this->belongsToMany(User::class, 'user_follow_users', 'user_id', 'followed');
+    }
+
+    // Users who this user followed
+    public function followingUsers()
+    {
+        return $this->belongsToMany(User::class, 'user_follow_users', 'followed', 'user_id');
+    }
+
+    public function image()
+    {
+        return $this->hasOne(Image::class, 'id', 'image_id');
+    }
+
+    public function inviteRequests() {
+        return $this->belongsToMany(Organization::class, 'invite_requests')->whereRaw("invite_requests.status = 'pending'");
+    }
+
+    public function organizations() {
+        return $this->belongsToMany(Organization::class, 'invite_requests')->whereRaw("invite_requests.status = 'accepted'");
+    }
+
+    public function followingOrganizations() {
+        return $this->belongsToMany(Organization::class, 'user_follow_organizations');
+    }
 
     public function feedback()
     {
