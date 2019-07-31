@@ -71,7 +71,7 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategory $request, Category $category)
     {
-        $data = $request->only(['name']);
+        $data = $request->only(['name', 'description']);
         if ($request->has('name') && !empty($data['name'])) {
             $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
         }

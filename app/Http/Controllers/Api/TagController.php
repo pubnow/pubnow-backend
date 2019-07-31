@@ -73,7 +73,7 @@ class TagController extends Controller
      */
     public function update(UpdateTag $request, Tag $tag)
     {
-        $data = $request->only(['name']);
+        $data = $request->only(['name', 'description']);
         if ($request->has('name') && !empty($data['name'])) {
             $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
         }
