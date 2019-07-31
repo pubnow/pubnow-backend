@@ -14,6 +14,18 @@ class ArticleResource extends JsonResource
      */
     public function toArray($request)
     {
+        $clapped = false;
+        $bookmarked = false;
+        $logged = $request->user();
+        if ($logged) {
+            if ($this->claps()->where('user_id', $logged->id)->first()) {
+                $clapped = true;
+            }
+
+            if ($this->usersBookmarked()->find($logged->id)) {
+                $bookmarked = true;
+            }
+        }
         return [
             'id' => $this->id,
             'slug' => $this->slug,
@@ -26,6 +38,8 @@ class ArticleResource extends JsonResource
             'category' => new CategoryOnlyResource($this->category),
             'tags' => TagOnlyResource::collection($this->tags),
             'claps' => $this->claps()->sum('count'),
+            'clapped' => $clapped,
+            'bookmaked' => $bookmarked,
             'publishedAt' => $this->created_at->diffForHumans(),
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,

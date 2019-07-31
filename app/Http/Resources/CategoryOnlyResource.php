@@ -14,6 +14,11 @@ class CategoryOnlyResource extends JsonResource
      */
     public function toArray($request)
     {
+        $following = false;
+        $logged = $request->user();
+        if ($logged && $this->followers()->find($logged->id)) {
+            $following = true;
+        }
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -21,6 +26,7 @@ class CategoryOnlyResource extends JsonResource
             'description' => $this->description,
             'image' => $this->image,
             'articles_count' => $this->articles()->count(),
+            'following' => $following,
             'publishedAt' => $this->created_at->diffForHumans(),
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
