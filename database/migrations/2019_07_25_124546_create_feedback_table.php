@@ -14,10 +14,10 @@ class CreateFeedbackTable extends Migration
     public function up()
     {
         Schema::create('feedback', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->uuid('id')->primary('id');
             $table->string('username');
             $table->string('email');
-            $table->string('reference_link');
+            $table->string('reference');
             $table->text('content');
             $table->timestamps();
         });

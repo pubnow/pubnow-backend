@@ -78,7 +78,6 @@ class Article extends Model
         return $this->hasMany(Clap::class);
     }
 
-
     public function feedback()
     {
         return $this->hasMany(Feedback::class);

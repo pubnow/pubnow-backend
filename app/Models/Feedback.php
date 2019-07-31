@@ -10,12 +10,11 @@ class Feedback extends Model
         'username', 'email', 'reference_link', 'content'
     ];
 
-
     public function user() {
-        return $this->belongsTo('App\Models\User');
+        return $this->belongsTo('App\Models\User', 'user_id');
     }
 
     public function article() {
-        return $this->belongsTo('App\Models\Article');
+        return $this->belongsTo('App\Models\Article', 'article_id');
     }
 }

@@ -5,10 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\CreateFeedback;
 use App\Http\Resources\FeedbackResource;
 use App\Models\Feedback;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class FeedbackController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['auth'])->except(['store', 'update']);
+        $this->authorizeResource(Feedback::class);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -16,19 +22,7 @@ class FeedbackController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create(CreateFeedback $request)
-    {
-
-        $feedback = Feedback::create($request->all());
-        return new FeedbackResource($feedback);
+        return FeedbackResource::collection(Feedback::all());
     }
 
     /**
@@ -39,7 +33,19 @@ class FeedbackController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $user = auth()->user();
+        $data = $request->only('reference', 'content');
+        dd($data);
+        // check xem record này đã được tạo chưa
+        $isExit = Feedback::where(['user_id' => $user->id, 'article_id' => $request->id])->first();
+        if (!$isExit && $user) {
+            $feedback = $user->feedback()->create([
+                'article_id' => $request->id,
+                'reference' => $request->id,
+                'content' => $request->id
+            ]);
+            return new FeedbackResource($feedback);
+        }
     }
 
     /**
@@ -50,18 +56,7 @@ class FeedbackController extends Controller
      */
     public function show(Feedback $feedback)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Feedback  $feedback
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Feedback $feedback)
-    {
-        //
+        return new FeedbackResource($feedback);
     }
 
     /**
@@ -84,6 +79,7 @@ class FeedbackController extends Controller
      */
     public function destroy(Feedback $feedback)
     {
-        //
+        $feedback->delete();
+        return response()->json(null, 204);
     }
 }
