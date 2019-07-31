@@ -39,7 +39,7 @@ class ArticleResource extends JsonResource
             'tags' => TagOnlyResource::collection($this->tags),
             'claps' => $this->claps()->sum('count'),
             'clapped' => $clapped,
-            'bookmaked' => $bookmarked,
+            'bookmarked' => $bookmarked,
             'publishedAt' => $this->created_at->diffForHumans(),
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,

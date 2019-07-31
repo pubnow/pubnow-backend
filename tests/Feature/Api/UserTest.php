@@ -41,7 +41,8 @@ class UserTest extends TestCase
             $response->assertJsonFragment([
                 'name' => $user->name,
                 'username' => $user->username,
-                'email' => $user->email
+                'email' => $user->email,
+                'following' => false,
             ]);
         });
     }
@@ -58,9 +59,30 @@ class UserTest extends TestCase
         $response->assertJsonFragment([
             'name' => $user->name,
             'username' => $user->username,
-            'email' => $user->email
+            'email' => $user->email,
+            'following' => false,
         ]);
     }
+
+    // Test get user profile, logged in, following
+
+    public function test_can_get_a_user_logged_in_following()
+    {
+        $user = factory(User::class)->create();
+        $user->followers()->attach($this->user);
+
+        $response = $this->actingAs($this->user)->json('GET', '/api/users/'.$user->username);
+
+        $response->assertStatus(200);
+
+        $response->assertJsonFragment([
+            'name' => $user->name,
+            'username' => $user->username,
+            'email' => $user->email,
+            'following' => true,
+        ]);
+    }
+
     // ---
     // Update user
     // Test user can update his/she profile

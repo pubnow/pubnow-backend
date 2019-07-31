@@ -39,7 +39,7 @@ class ArticleOnlyResource extends JsonResource
             'claps' => $this->claps()->sum('count'),
             'comments_count' => $this->comments()->count(),
             'clapped' => $clapped,
-            'bookmaked' => $bookmarked,
+            'bookmarked' => $bookmarked,
             'publishedAt' => $this->created_at->diffForHumans(),
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
