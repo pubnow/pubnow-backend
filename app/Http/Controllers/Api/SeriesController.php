@@ -87,15 +87,17 @@ class SeriesController extends Controller
             $slug = str_slug($data['title']) . '-' . base_convert(time(), 10, 36);
             $data['slug'] = $slug;
         }
-        $series->update($data);
 
-        $series->articles()->detach();
         $articles = $request->input('articles');
+        $series->update($data);
         if ($articles && !empty($articles)) {
-            $listArticles = array_map(function ($item) {
-                return $item;
-            }, $articles);
-            $series->articles()->attach($listArticles);
+            $series->articles()->detach();
+            if ($articles && !empty($articles)) {
+                $listArticles = array_map(function ($item) {
+                    return $item;
+                }, $articles);
+                $series->articles()->attach($listArticles);
+            }
         }
 
         return new SeriesResource($series);
