@@ -3,7 +3,10 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Article;
+use App\Models\Bookmark;
 use App\Models\Category;
+use App\Models\Clap;
+use App\Models\Comment;
 use App\Models\User;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -87,6 +90,35 @@ class ArticleTest extends TestCase
         $response->assertJsonFragment([
             'title' => $article->title,
             'content' => $article->content,
+            'clapped' => false,
+            'bookmarked' => false,
+        ]);
+    }
+    // TODO: Xem 1 article, clapped, bookmarked
+
+    public function test_can_view_an_exists_article_clapped_bookmarked() {
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
+        $clap = Clap::create([
+            'user_id' => $this->user->id,
+            'article_id' => $article->id,
+            'count' => 1,
+        ]);
+        $bookmark = Bookmark::create([
+            'user_id' => $this->user->id,
+            'article_id' => $article->id,
+        ]);
+        $response = $this->actingAs($this->user)->json('GET', '/api/articles/'.$article->slug);
+
+        $response->assertOk();
+        $response->assertJsonFragment([
+            'title' => $article->title,
+            'content' => $article->content,
+            'clapped' => true,
+            'bookmarked' => true,
         ]);
     }
     // TODO: Xem 1 article, khong ton tai -> 404 not found
@@ -249,7 +281,7 @@ class ArticleTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 '*' => [
-                    'id', 'slug', 'title', 'content', 'excerpt', 'seen_count', 'thumbnail',
+                    'id', 'slug', 'title', 'content', 'excerpt', 'seen_count', 'thumbnail', 'clapped', 'bookmarked',
                     'author', 'category', 'tags', 'claps', 'publishedAt', 'createdAt', 'updatedAt'
                 ]
             ]
@@ -271,7 +303,7 @@ class ArticleTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 '*' => [
-                    'id', 'slug', 'title', 'content', 'excerpt', 'seen_count', 'thumbnail',
+                    'id', 'slug', 'title', 'content', 'excerpt', 'seen_count', 'thumbnail', 'clapped', 'bookmarked',
                     'author', 'category', 'tags', 'claps', 'publishedAt', 'createdAt', 'updatedAt'
                 ]
             ]

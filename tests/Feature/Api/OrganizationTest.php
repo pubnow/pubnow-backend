@@ -39,8 +39,47 @@ class OrganizationTest extends TestCase
                 'name' => $organization->name,
                 'description' => $organization->description,
                 'email' => $organization->email,
+                'following' => false,
             ]);
         });
+    }
+
+    // --- Get one
+    public function test_can_get_an_organization() {
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id,
+        ]);
+
+        $response = $this->json('GET', '/api/organizations/'.$organization->id);
+
+        $response->assertStatus(200);
+
+        $response->assertJsonFragment([
+            'name' => $organization->name,
+            'description' => $organization->description,
+            'email' => $organization->email,
+            'following' => false,
+        ]);
+    }
+
+    // Test get an organization, logged in, following
+    public function test_can_get_an_organization_logged_in_following() {
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id,
+        ]);
+
+        $organization->followers()->attach($this->user);
+
+        $response = $this->actingAs($this->user)->json('GET', '/api/organizations/'.$organization->id);
+
+        $response->assertStatus(200);
+
+        $response->assertJsonFragment([
+            'name' => $organization->name,
+            'description' => $organization->description,
+            'email' => $organization->email,
+            'following' => true,
+        ]);
     }
 
     // --- Create
