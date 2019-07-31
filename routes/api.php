@@ -30,6 +30,7 @@ Route::group(['namespace' => 'Api'], function () {
     Route::delete('users/{user}/follow', 'UserController@unfollow');
 
     Route::get('users/{user}/following-users', 'UserController@followingUsers');
+    Route::get('users/{user}/following-organizations', 'UserController@followingOrganizations');
     Route::get('users/{user}/followers', 'UserController@followers');
 
     Route::get('users/bookmarks', 'UserController@bookmarks');
@@ -76,6 +77,11 @@ Route::group(['namespace' => 'Api'], function () {
     Route::resource('comments', 'CommentController')->except(['index', 'show', 'create', 'edit']);
 
     // Organization
+    Route::post('organizations/{organization}/follow', 'OrganizationController@follow');
+    Route::delete('organizations/{organization}/follow', 'OrganizationController@unfollow');
+
+    Route::get('organizations/{organization}/followers', 'OrganizationController@followers');
+
     Route::get('organizations/{organization}/members', 'OrganizationController@members');
     Route::post('organizations/{organization}/active', 'OrganizationController@active');
     Route::resource('organizations', 'OrganizationController')->except(['create', 'edit']);

@@ -152,4 +152,8 @@ class User extends Authenticatable implements JWTSubject
     public function organizations() {
         return $this->belongsToMany(Organization::class, 'invite_requests')->whereRaw("invite_requests.status = 'accepted'");
     }
+
+    public function followingOrganizations() {
+        return $this->belongsToMany(Organization::class, 'user_follow_organizations');
+    }
 }

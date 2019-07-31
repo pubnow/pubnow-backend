@@ -28,4 +28,8 @@ class Organization extends Model
     public function members() {
         return $this->hasMany(InviteRequest::class)->whereRaw("invite_requests.status = 'pending' or invite_requests.status = 'accepted'");
     }
+
+    public function followers() {
+        return $this->belongsToMany(User::class, 'user_follow_organizations');
+    }
 }
