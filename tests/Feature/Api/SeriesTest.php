@@ -143,6 +143,33 @@ class SeriesTest extends TestCase
         }
     }
 
+    // test: tạo series with wrong id article, khi đã đăng nhập
+    public function test_create_series_with_wrong_article_logged_in() {
+        $series = factory(Series::class)->make();
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
+        $arrayArticlesId = [$article->id];
+        $response = $this->actingAs($this->user)->json('POST', '/api/series', [
+            'title' => $series->title,
+            'content' => $series->content,
+            'articles' => $arrayArticlesId
+        ]);
+
+        $response->assertStatus(201);
+        $response->assertJsonFragment([
+            'title' => $series->title,
+            'content' => $series->content,
+        ]);
+        foreach ($arrayArticlesId as $id) {
+            $response->assertJsonFragment([
+                'id' => $id,
+            ]);
+        }
+    }
+
     // test: xóa series, khi đã đăng nhập + đúng tác giả
     public function test_delete_series_logged_in_right_author() {
         $series = factory(Series::class)->create([

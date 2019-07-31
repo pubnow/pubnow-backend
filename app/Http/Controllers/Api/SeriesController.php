@@ -49,7 +49,12 @@ class SeriesController extends Controller
         $articles = $request->input('articles');
         if ($articles && !empty($articles)) {
             $listArticles = array_map(function ($item) {
-                return $item;
+                $article = Article::firstOrNew([
+                    'id' => $item
+                ]);
+                if ($article) {
+                    return $item;
+                }
             }, $articles);
             $series->articles()->attach($listArticles);
         }
@@ -78,13 +83,11 @@ class SeriesController extends Controller
     public function update(Request $request, Series $series)
     {
         $data = $request->only('title', 'content');
-
-        $slug = str_slug($data['title']) . '-' . base_convert(time(), 10, 36);
-        $series->update([
-            'title' => $data['title'],
-            'content' => $data['content'],
-            'slug' => $slug
-        ]);
+        if(array_key_exists("title", $data) && ($series->title !== $data['title'])) {
+            $slug = str_slug($data['title']) . '-' . base_convert(time(), 10, 36);
+            $data['slug'] = $slug;
+        }
+        $series->update($data);
 
         $series->articles()->detach();
         $articles = $request->input('articles');
