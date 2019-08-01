@@ -14,11 +14,17 @@ class OrganizationResource extends JsonResource
      */
     public function toArray($request)
     {
+        $following = false;
+        $logged = $request->user();
+        if ($logged && $this->followers()->find($logged->id)) {
+            $following = true;
+        }
         return [
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
             'owner' => new UserResource($this->user),
+            'following' => $following,
             'description' => $this->description,
             'logo' => $this->image ? $this->image->url : '',
         ];

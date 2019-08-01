@@ -11,6 +11,11 @@ use App\Http\Controllers\Controller;
 class CommentController extends Controller
 {
 
+    public function __construct()
+    {
+        $this->middleware(['auth']);
+        $this->authorizeResource(Comment::class);
+    }
     /**
      * Store a newly created resource in storage.
      *
@@ -19,6 +24,16 @@ class CommentController extends Controller
      */
     public function store(CreateComment $request)
     {
+        if ($request->has('parent_id') && !empty($request->get('parent_id'))) {
+            $comment = Comment::find($request->get('parent_id'));
+            if ($comment && $comment->parent()->exists() && $comment->parent->parent()->exists()) {
+                return response()->json([
+                    'errors' => [
+                        'message' => 'Comments is limited at level 3'
+                    ]
+                ], 422);
+            }
+        }
         $user = $request->user();
         $data = $request->all();
         $data['user_id'] = $user->id;

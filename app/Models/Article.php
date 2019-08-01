@@ -20,7 +20,7 @@ class Article extends Model
         static::deleting(function($article) { // before delete() method call this
             $article->tags()->detach();
             $article->comments()->delete();
-            $article->tags()->delete();
+            $article->claps()->delete();
         });
 
 //        static::addGlobalScope(new ArticleScope);
@@ -81,5 +81,9 @@ class Article extends Model
     public function claps()
     {
         return $this->hasMany(Clap::class);
+    }
+
+    public function usersBookmarked() {
+        return $this->belongsToMany(User::class, 'bookmarks');
     }
 }

@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserResource extends JsonResource
+class UserWithFollowingOrganizationsResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,11 +14,6 @@ class UserResource extends JsonResource
      */
     public function toArray($request)
     {
-        $following = false;
-        $logged = $request->user();
-        if ($logged && $this->followers()->find($logged->id)) {
-            $following = true;
-        }
         return [
             'id' => $this->id,
             'username' => $this->username,
@@ -26,9 +21,9 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'isAdmin' => $this->isAdmin(),
             'bio' => $this->bio,
-            'following' => $following,
-            'avatar' => $this->image ? $this->image->url : '',
+            'avatar' => $this->avatar,
             'role' => new RoleResource($this->role),
+            'followingOrganizations' => OrganizationResource::collection($this->followingOrganizations)
         ];
     }
 }

@@ -131,17 +131,29 @@ class User extends Authenticatable implements JWTSubject
 
     // Users who followed this user
     public function followers() {
-        return $this->belongsToMany(User::class, 'user_follow_users', 'user_id', 'followed');
+        return $this->belongsToMany(User::class, 'user_follow_users', 'followed', 'user_id');
     }
 
     // Users who this user followed
     public function followingUsers()
     {
-        return $this->belongsToMany(User::class, 'user_follow_users', 'followed', 'user_id');
+        return $this->belongsToMany(User::class, 'user_follow_users', 'user_id', 'followed');
     }
 
     public function image()
     {
         return $this->hasOne(Image::class, 'id', 'image_id');
+    }
+
+    public function inviteRequests() {
+        return $this->belongsToMany(Organization::class, 'invite_requests')->whereRaw("invite_requests.status = 'pending'");
+    }
+
+    public function organizations() {
+        return $this->belongsToMany(Organization::class, 'invite_requests')->whereRaw("invite_requests.status = 'accepted'");
+    }
+
+    public function followingOrganizations() {
+        return $this->belongsToMany(Organization::class, 'user_follow_organizations');
     }
 }

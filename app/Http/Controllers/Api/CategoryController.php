@@ -71,7 +71,10 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategory $request, Category $category)
     {
-        $data = $request->all();
+        $data = $request->only(['name', 'description']);
+        if ($request->has('name') && !empty($data['name'])) {
+            $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
+        }
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('public/images/tag');
             $path = Storage::url($path);
