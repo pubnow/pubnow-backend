@@ -90,6 +90,21 @@ class SeriesTest extends TestCase
         ]);
     }
 
+    // test: lấy 1 series, khi chưa đăng nhập
+    public function test_get_a_series_without_log_in() {
+        $series = factory(Series::class)->make();
+        $seriesReal = factory(Series::class)->create([
+            'user_id' => $this->user->id,
+            'title' => $series->title,
+            'content' => $series->content
+        ]);
+        $response = $this->json('GET', '/api/series/'.$seriesReal->slug);
+        $response->assertStatus(200);
+        $response->assertJsonFragment([
+            'id' => $seriesReal->id
+        ]);
+    }
+
     // test: tạo series, khi chưa đăng nhập
     public function test_create_series_without_log_in() {
         $series = factory(Series::class)->make();
@@ -270,5 +285,20 @@ class SeriesTest extends TestCase
         ]);
 
         $response->assertStatus(404);
+    }
+
+    // test: show danh sách articles theo series
+    public function test_get_articles_series_logged_in() {
+        $series = factory(Series::class)->make();
+        $seriesReal = factory(Series::class)->create([
+            'user_id' => $this->user->id,
+            'title' => $series->title,
+            'content' => $series->content
+        ]);
+        $response = $this->actingAs($this->user)->json('GET', '/api/series/'.$seriesReal->slug);
+        $response->assertStatus(200);
+        $response->assertJsonFragment([
+            'articles' => $seriesReal->articles
+        ]);
     }
 }

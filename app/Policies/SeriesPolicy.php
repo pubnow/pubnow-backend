@@ -69,18 +69,6 @@ class SeriesPolicy
     }
 
     /**
-     * Determine whether the user can restore the series.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Series  $series
-     * @return mixed
-     */
-    public function restore(User $user, Series $series)
-    {
-        return $user->isAdmin() || ($user->id === $series->user_id);
-    }
-
-    /**
      * Determine whether the user can permanently delete the series.
      *
      * @param  \App\Models\User  $user
