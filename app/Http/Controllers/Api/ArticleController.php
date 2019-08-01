@@ -41,11 +41,10 @@ class ArticleController extends Controller
     public function store(CreateArticle $request)
     {
         $user = $request->user();
-        $data = $request->only('title', 'content', 'category', 'draft', 'private');
+        $data = $request->only('title', 'content', 'category_id', 'draft', 'private');
         $article = $user->articles()->create(array_merge($data, [
             'seen_count' => 0,
             'slug' => str_slug($data['title']) . '-' . base_convert(time(), 10, 36),
-            'category_id' => $data['category'],
         ]));
         $inputTags = $request->input('tags');
         if ($inputTags && !empty($inputTags)) {
@@ -87,7 +86,7 @@ class ArticleController extends Controller
      */
     public function update(UpdateArticle $request, Article $article)
     {
-        $data = $request->only('title', 'content', 'category', 'draft', 'private');
+        $data = $request->only('title', 'content', 'category_id', 'draft', 'private');
 
         $article->update($data);
 
