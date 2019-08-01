@@ -392,4 +392,88 @@ class ArticleTest extends TestCase
             ]);
         }
     }
+
+    // TODO: Lấy bài viết popular có filter draft và private mà đã đăng nhập
+    public function test_get_popular_filter_draft_private_method_authorize()
+    {
+        $category = factory(Category::class)->create();
+        factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'draft' => true,
+            'private' => false
+        ]);
+        $notDraftNPrivate = [
+            factory(Article::class)->create([
+                'user_id' => $this->user->id,
+                'category_id' => $category->id,
+                'draft' => false,
+                'private' => false
+            ]),
+            factory(Article::class)->create([
+                'user_id' => $this->user->id,
+                'category_id' => $category->id,
+                'draft' => false,
+                'private' => false
+            ]),
+            factory(Article::class)->create([
+                'user_id' => $this->user->id,
+                'category_id' => $category->id,
+                'draft' => false,
+                'private' => true
+            ])
+        ];
+        $response = $this->actingAs($this->user)->json('GET', '/api/articles/popular');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(3, 'data');
+        foreach ($notDraftNPrivate as $article) {
+            $response->assertJsonFragment([
+                'draft' => $article->draft,
+                'private' => $article->private,
+            ]);
+        }
+    }
+
+    // TODO: Lấy bài viết featured có filter draft và private mà đã đăng nhập
+    public function test_get_feature_filter_draft_private_method_authorize()
+    {
+        $category = factory(Category::class)->create();
+        factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'draft' => true,
+            'private' => false
+        ]);
+        $notDraftNPrivate = [
+            factory(Article::class)->create([
+                'user_id' => $this->user->id,
+                'category_id' => $category->id,
+                'draft' => false,
+                'private' => false
+            ]),
+            factory(Article::class)->create([
+                'user_id' => $this->user->id,
+                'category_id' => $category->id,
+                'draft' => false,
+                'private' => false
+            ]),
+            factory(Article::class)->create([
+                'user_id' => $this->user->id,
+                'category_id' => $category->id,
+                'draft' => false,
+                'private' => true
+            ])
+        ];
+        $response = $this->actingAs($this->user)->json('GET', '/api/articles/featured');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(3, 'data');
+        foreach ($notDraftNPrivate as $article) {
+            $response->assertJsonFragment([
+                'draft' => $article->draft,
+                'private' => $article->private,
+            ]);
+        }
+    }
 }
