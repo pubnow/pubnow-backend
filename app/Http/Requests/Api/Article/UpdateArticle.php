@@ -16,7 +16,7 @@ class UpdateArticle extends ApiRequest
         return [
             'title' => 'sometimes|min:10',
             'content' => 'sometimes|string',
-            'category' => 'sometimes|uuid|exists:categories,id',
+            'category_id' => 'sometimes|uuid|exists:categories,id',
             'tag_list' => 'sometimes|array'
         ];
     }

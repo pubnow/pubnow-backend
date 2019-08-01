@@ -24,7 +24,7 @@ class CategoryOnlyResource extends JsonResource
             'name' => $this->name,
             'slug' => $this->slug,
             'description' => $this->description,
-            'image' => $this->image,
+            'image' => $this->image ? $this->image->url : '',
             'articles_count' => $this->articles()->count(),
             'following' => $following,
             'publishedAt' => $this->created_at->diffForHumans(),
