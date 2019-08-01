@@ -28,7 +28,7 @@ class ArticleController extends Controller
      */
     public function index()
     {
-        $articles = $this->filterShowArticle();
+        $articles = Article::withAuthor()->orderByDesc('created_at')->paginate(10);
         return ArticleResource::collection($articles);
     }
 
@@ -72,6 +72,13 @@ class ArticleController extends Controller
      */
     public function show(Article $article)
     {
+        if ($article->private) {
+            return response()->json([
+                'message' => [
+                    'Unauthorized',
+                ]
+            ], 401);
+        }
         $article->update([
             'seen_count' => $article->seen_count + 1
         ]);
@@ -125,7 +132,7 @@ class ArticleController extends Controller
 
     public function popular()
     {
-        $articles = Article::orderBy('seen_count', 'desc')->take(5)->get();
+        $articles = Article::withAuthor()->orderBy('seen_count', 'desc')->take(5)->get();
         return ArticleResource::collection($articles);
     }
 
@@ -153,7 +160,7 @@ class ArticleController extends Controller
     }
 
     public function featured() {
-        $articles = Article::with('claps')->with('comments')->get()->sortBy(function ($article) {
+        $articles = Article::withAuthor()->with('claps')->with('comments')->get()->sortBy(function ($article) {
             return $article->claps->sum('count') + $article->comments->count();
         })->reverse()->take(5);
         return ArticleResource::collection($articles);

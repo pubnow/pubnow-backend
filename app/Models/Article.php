@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Traits\WithAuthor;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Concerns\UsesUuid;
 use Laravel\Scout\Searchable;
+use App\Models\Traits\ArticleScope;
 
 class Article extends Model
 {
     use UsesUuid;
     use Searchable;
+    use WithAuthor;
 
     public static function boot() {
         parent::boot();
@@ -19,6 +22,8 @@ class Article extends Model
             $article->comments()->delete();
             $article->tags()->delete();
         });
+
+//        static::addGlobalScope(new ArticleScope);
     }
 
     /**
