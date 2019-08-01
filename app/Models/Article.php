@@ -6,7 +6,6 @@ use App\Models\Traits\WithAuthor;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Concerns\UsesUuid;
 use Laravel\Scout\Searchable;
-use App\Models\Traits\ArticleScope;
 
 class Article extends Model
 {
@@ -22,8 +21,6 @@ class Article extends Model
             $article->comments()->delete();
             $article->claps()->delete();
         });
-
-//        static::addGlobalScope(new ArticleScope);
     }
 
     /**
@@ -46,6 +43,16 @@ class Article extends Model
         $array = $this->toArray();
 
         return array('title' => $array['title'], 'content' => $array['content']);
+    }
+
+    private function isPublished()
+    {
+        return !$this->draft && !$this->private;
+    }
+
+    public function shouldBeSearchable()
+    {
+        return $this->isPublished();
     }
 
     /**
