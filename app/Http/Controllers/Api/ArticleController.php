@@ -9,6 +9,7 @@ use App\Http\Resources\CommentResource;
 use App\Models\Article;
 use App\Models\Bookmark;
 use App\Models\Tag;
+use http\Client\Curl\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticleResource;
@@ -41,11 +42,10 @@ class ArticleController extends Controller
     public function store(CreateArticle $request)
     {
         $user = $request->user();
-        $data = $request->only('title', 'content', 'category', 'draft', 'private');
+        $data = $request->only('title', 'content', 'category_id', 'draft', 'private');
         $article = $user->articles()->create(array_merge($data, [
             'seen_count' => 0,
             'slug' => str_slug($data['title']) . '-' . base_convert(time(), 10, 36),
-            'category_id' => $data['category'],
         ]));
         $inputTags = $request->input('tags');
         if ($inputTags && !empty($inputTags)) {
@@ -87,7 +87,7 @@ class ArticleController extends Controller
      */
     public function update(UpdateArticle $request, Article $article)
     {
-        $data = $request->only('title', 'content', 'category', 'draft', 'private');
+        $data = $request->only('title', 'content', 'category_id', 'draft', 'private', 'organization_private');
 
         $article->update($data);
 
@@ -135,17 +135,29 @@ class ArticleController extends Controller
         $articles = Article::where('draft', false);
         // chưa đăng nhập trả về những bài non-draft và non-private
         if (!$user) {
-            $articles = $articles
-                ->where('private', false)
+            $userArticles = $articles
+                ->where('organization_id', null)
+                ->where('private', false);
+            $organizationArticles = $articles
+                ->where('organization_id', '<>', null)
+                ->where('organization_private', false);
+            $articles = $userArticles->union($organizationArticles)
                 ->orderByDesc('created_at')
                 ->paginate(10);
             return $articles;
         }
         // đã đăng nhập thì trả về những bài non-draft và bài its private
         // lấy những bài private nhưng đúng tác giả
-        $privateArticles = $user->articles()->where('private', true);
-        $nonPrivateArticles = $articles->where('private', false);
-        $articles = $nonPrivateArticles->union($privateArticles);
+        $userPrivateArticles = $user->articles()->where('organization_id', null)->where('private', true);
+        $userNonPrivateArticles = $articles->where('organization_id', null)->where('private', false);
+
+        $organizationPrivateArticles = $user->organizations()->articles()->where('organization_private', true);
+        $organizationNonPrivateArticles = $articles->where('organization_id', '<>', null)->where('organization_private', false);
+
+        $articles = $userNonPrivateArticles
+            ->union($userPrivateArticles)
+            ->union($organizationPrivateArticles)
+            ->union($organizationNonPrivateArticles);
         $articles = $articles
             ->orderByDesc('created_at')
             ->paginate(10);

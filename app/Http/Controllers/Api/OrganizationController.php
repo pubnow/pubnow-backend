@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Organization\CreateOrganization;
 use App\Http\Requests\Api\Organization\FollowOrganization;
 use App\Http\Requests\Api\Organization\UpdateOrganization;
+use App\Http\Resources\ArticleOnlyResource;
 use App\Http\Resources\InviteRequestResource;
 use App\Http\Resources\OrganizationResource;
 use App\Http\Resources\UserResource;
@@ -121,5 +122,20 @@ class OrganizationController extends Controller
         }
         $user->followingOrganizations()->detach($organization);
         return new UserWithFollowingOrganizationsResource($user);
+    }
+
+    public function articles(Request $request, Organization $organization) {
+        $articles = $organization->articles();
+        $nonPrivateArticles = $articles->where('organization_private', false);
+        $user = $request->user();
+        if (!$user) {
+            $articles = $nonPrivateArticles;
+        } else {
+            if (!$organization->members()->find($user->id)) {
+                $articles = $nonPrivateArticles;
+            }
+        }
+        $articles = $articles->orderByDesc('created_at')->paginate(10);
+        return ArticleOnlyResource::collection($articles);
     }
 }

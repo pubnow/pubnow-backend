@@ -32,4 +32,8 @@ class Organization extends Model
     public function followers() {
         return $this->belongsToMany(User::class, 'user_follow_organizations');
     }
+
+    public function articles() {
+        return $this->hasMany(Article::class);
+    }
 }
