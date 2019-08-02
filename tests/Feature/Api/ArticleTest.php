@@ -7,6 +7,7 @@ use App\Models\Bookmark;
 use App\Models\Category;
 use App\Models\Clap;
 use App\Models\Comment;
+use App\Models\Tag;
 use App\Models\User;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -475,5 +476,82 @@ class ArticleTest extends TestCase
                 'private' => $article->private,
             ]);
         }
+    }
+
+    // TODO: Lấy 1 bài viết private mà đã chưa đăng nhập hoặc k đúng người đăng => 401
+    public function test_get_a_articles_filter_private_method_Unauthorized()
+    {
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'draft' => false,
+            'private' => true
+        ]);
+        $response = $this->json('GET', '/api/articles/'.$article->slug);
+
+        $response->assertStatus(401);
+    }
+
+    // TODO: Lấy bài viết theo user mà có filter draft và private
+    public function test_get_user_articles_filter_draft_private()
+    {
+        $otherUsers = factory(User::class)->create();
+        $category = factory(Category::class)->create();
+        factory(Article::class, 3)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'draft' => false,
+            'private' => false
+        ]);
+        // bài viết của user có private
+        factory(Article::class, 2)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'draft' => false,
+            'private' => true
+        ]);
+        factory(Article::class)->create([
+            'user_id' => $otherUsers->id,
+            'category_id' => $category->id,
+            'draft' => false,
+            'private' => false
+        ]);
+        factory(Article::class)->create([
+            'user_id' => $otherUsers->id,
+            'category_id' => $category->id,
+            'draft' => false,
+            'private' => true
+        ]);
+        $response = $this->json('GET', '/api/users/' .$this->user->username. '/articles');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(3, 'data');
+    }
+
+    // TODO: Lấy bài viết theo tag mà có filter draft và private
+    public function test_get_tag_articles_filter_draft_private()
+    {
+        $tag = factory(Tag::class)->create();
+        $category = factory(Category::class)->create();
+        $tags = [$tag->name];
+        factory(Article::class, 3)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'tags' => $tags,
+            'draft' => false,
+            'private' => false
+        ]);
+        factory(Article::class, 2)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'tags' => $tags,
+            'draft' => false,
+            'private' => true
+        ]);
+        $response = $this->json('GET', '/api/tags/' .$this->tag->slug. '/articles');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(3, 'data');
     }
 }
