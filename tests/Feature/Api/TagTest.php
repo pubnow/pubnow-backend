@@ -124,7 +124,6 @@ class TagTest extends TestCase
         $response->assertOk();
         $response->assertJsonFragment([
             'name' => $updateTag->name,
-            'slug' => $tag->slug,
             'description' => $updateTag->description,
         ]);
     }

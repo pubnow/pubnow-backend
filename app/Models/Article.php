@@ -17,7 +17,7 @@ class Article extends Model
         static::deleting(function($article) { // before delete() method call this
             $article->tags()->detach();
             $article->comments()->delete();
-            $article->tags()->delete();
+            $article->claps()->delete();
         });
     }
 
@@ -81,5 +81,9 @@ class Article extends Model
     public function series()
     {
         return $this->belongsToMany(Series::class, 'series_article');
+    }
+
+    public function usersBookmarked() {
+        return $this->belongsToMany(User::class, 'bookmarks');
     }
 }

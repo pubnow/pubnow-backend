@@ -182,7 +182,7 @@ class SeriesTest extends TestCase
         $response->assertStatus(204);
     }
 
-    // test: xóa 1 series không tồn tại, khi đã đăng nhập + đúng tác giả
+    // test: xóa 1 article series không tồn tại, khi đã đăng nhập + đúng tác giả
     public function test_delete_not_exist_series_logged_in_right_author() {
         $category = factory(Category::class)->create();
         $article = factory(Article::class)->create([
