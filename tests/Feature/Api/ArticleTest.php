@@ -392,4 +392,162 @@ class ArticleTest extends TestCase
             ]);
         }
     }
+
+    // --- Clap
+    // Test clap a exists article, logged in -> 201
+    public function test_can_clap_a_exists_article() {
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
+
+        $response = $this->actingAs($this->user)->json('POST', 'api/articles/'.$article->slug.'/clap');
+
+        $response->assertStatus(201);
+
+        $response->assertJson([
+            'data' => [
+                'user' => [
+                    'id' => $this->user->id,
+                    'username' => $this->user->username,
+                    'name' => $this->user->name,
+                    'email' => $this->user->email,
+                ],
+                'article' => [
+                    'id' => $article->id,
+                    'slug' => $article->slug,
+                    'title' => $article->title,
+                ],
+                'count' => 1
+            ]
+        ]);
+    }
+
+    // Test clap a exists article, logged in, clapped -> 200
+    public function test_can_clap_a_exists_article_clapped() {
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
+
+        Clap::create([
+            'user_id' => $this->user->id,
+            'article_id' => $article->id,
+            'count' => 1
+        ]);
+
+        $response = $this->actingAs($this->user)->json('POST', 'api/articles/'.$article->slug.'/clap');
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            'data' => [
+                'user' => [
+                    'id' => $this->user->id,
+                    'username' => $this->user->username,
+                    'name' => $this->user->name,
+                    'email' => $this->user->email,
+                ],
+                'article' => [
+                    'id' => $article->id,
+                    'slug' => $article->slug,
+                    'title' => $article->title,
+                ],
+                'count' => 2
+            ]
+        ]);
+    }
+
+    // Test clap a exists article, not logged in -> 401
+    public function test_cannot_clap_a_exists_article_if_not_logged_in() {
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
+
+        $response = $this->json('POST', 'api/articles/'.$article->slug.'/clap');
+
+        $response->assertStatus(401);
+    }
+    // Test clap a not exists article, logged in -> 404
+    public function test_cannot_clap_a_not_exists_article() {
+
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->make([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
+
+        $response = $this->actingAs($this->user)->json('POST', 'api/articles/'.$article->slug.'/clap');
+
+        $response->assertStatus(404);
+    }
+
+    // --- Unclap
+    // Test unclap a exists article, clapped -> 204
+    public function test_can_unclap_a_exists_article_clapped() {
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
+
+        Clap::create([
+            'user_id' => $this->user->id,
+            'article_id' => $article->id,
+            'count' => 1
+        ]);
+
+        $response = $this->actingAs($this->user)->json('DELETE', 'api/articles/'.$article->slug.'/clap');
+
+        $response->assertStatus(204);
+    }
+
+    // Test unclap a exists article, not clapped -> 404
+    public function test_can_unclap_a_exists_article_not_clapped() {
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
+
+        $response = $this->actingAs($this->user)->json('DELETE', 'api/articles/'.$article->slug.'/clap');
+
+        $response->assertStatus(404);
+    }
+
+    // Test upclap a exists article, not logged in
+    public function test_can_unclap_a_exists_article_clapped_but_not_logged_in() {
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
+
+        Clap::create([
+            'user_id' => $this->user->id,
+            'article_id' => $article->id,
+            'count' => 1
+        ]);
+
+        $response = $this->json('DELETE', 'api/articles/'.$article->slug.'/clap');
+
+        $response->assertStatus(401);
+    }
+
+    // Test upclap a not exists article
+    public function test_cannot_unclap_a_not_exists_article() {
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->make([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
+
+        $response = $this->actingAs($this->user)->json('DELETE', 'api/articles/'.$article->slug.'/clap');
+
+        $response->assertStatus(404);
+    }
 }
