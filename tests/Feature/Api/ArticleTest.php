@@ -33,7 +33,7 @@ class ArticleTest extends TestCase
         $response = $this->actingAs($this->user)->json('POST', '/api/articles', [
             'title' => $article->title,
             'content' => $article->content,
-            'category' => $category->id,
+            'category_id' => $category->id,
         ]);
 
         $response->assertStatus(201);
@@ -49,7 +49,7 @@ class ArticleTest extends TestCase
         $response = $this->json('POST', '/api/articles', [
             'title' => $article->title,
             'content' => $article->content,
-            'category' => $category->id,
+            'category_id' => $category->id,
         ]);
 
         $response->assertStatus(401);
@@ -60,7 +60,7 @@ class ArticleTest extends TestCase
         $article = factory(Article::class)->make();
         $response = $this->actingAs($this->user)->json('POST', '/api/articles', [
             'content' => $article->content,
-            'category' => $category->id,
+            'category_id' => $category->id,
         ]);
 
         $response->assertStatus(422);
@@ -71,7 +71,7 @@ class ArticleTest extends TestCase
         $article = factory(Article::class)->make();
         $response = $this->actingAs($this->user)->json('POST', '/api/articles', [
             'content' => $article->content,
-            'category' => $category->id,
+            'category_id' => $category->id,
         ]);
 
         $response->assertStatus(422);
@@ -200,7 +200,7 @@ class ArticleTest extends TestCase
         ]);
         $updateCategory = factory(Category::class)->make();
         $response = $this->actingAs($this->admin)->json('PUT', '/api/articles/'.$article->slug, [
-            'category' => $updateCategory->id
+            'category_id' => $updateCategory->id
         ]);
 
         $response->assertStatus(422);

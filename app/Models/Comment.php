@@ -16,27 +16,33 @@ class Comment extends Model
     protected $fillable = [
         'content', 'article_id', 'parent_id', 'user_id'
     ];
-    public static function boot() {
+    public static function boot()
+    {
         parent::boot();
 
-        static::deleting(function($comment) { // before delete() method call this
+        static::deleting(function ($comment) {
+            // before delete() method call this
             $comment->childs()->delete();
         });
     }
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo('App\Models\User');
     }
 
-    public function article() {
+    public function article()
+    {
         return $this->belongsTo('App\Models\Article');
     }
 
-    public function parent() {
+    public function parent()
+    {
         return $this->belongsTo('App\Models\Comment', 'parent_id', 'id');
     }
 
-    public function childs() {
+    public function childs()
+    {
         return $this->hasMany('App\Models\Comment', 'parent_id', 'id');
     }
 }

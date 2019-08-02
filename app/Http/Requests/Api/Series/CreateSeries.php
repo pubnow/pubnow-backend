@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Api\Article;
+namespace App\Http\Requests\Api\Series;
 
 use App\Http\Requests\Api\ApiRequest;
 
-class CreateArticle extends ApiRequest
+class CreateSeries extends ApiRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -16,8 +16,7 @@ class CreateArticle extends ApiRequest
         return [
             'title' => 'required|min:10',
             'content' => 'required|string',
-            'category_id' => 'required|uuid|exists:categories,id',
-            'tag_list' => 'sometimes|array'
+            'articles' => 'sometimes|array'
         ];
     }
 }

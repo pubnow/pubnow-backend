@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class CategoryOnlyResource extends JsonResource
+class SeriesResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,19 +14,13 @@ class CategoryOnlyResource extends JsonResource
      */
     public function toArray($request)
     {
-        $following = false;
-        $logged = $request->user();
-        if ($logged && $this->followers()->find($logged->id)) {
-            $following = true;
-        }
         return [
             'id' => $this->id,
-            'name' => $this->name,
             'slug' => $this->slug,
-            'description' => $this->description,
-            'image' => $this->photo ? $this->photo->url : '',
-            'articles_count' => $this->articles()->count(),
-            'following' => $following,
+            'title' => $this->title,
+            'content' => $this->content,
+            'articles' => ArticleOnlyResource::collection($this->articles),
+            'author' => new UserResource($this->author),
             'publishedAt' => $this->created_at->diffForHumans(),
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,

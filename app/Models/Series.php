@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Concerns\UsesUuid;
+use Illuminate\Database\Eloquent\Model;
 
-class Tag extends Model
+class Series extends Model
 {
     use UsesUuid;
 
@@ -15,7 +15,7 @@ class Tag extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'slug', 'description', 'image_id',
+        'title', 'content', 'slug', 'user_id',
     ];
 
     /**
@@ -28,17 +28,20 @@ class Tag extends Model
         return 'slug';
     }
 
-    public function articles() {
-        return $this->belongsToMany(Article::class, 'article_tag');
+
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function followers()
+
+    public function articles()
     {
-        return $this->belongsToMany(User::class, 'user_follow_tags');
+        return $this->belongsToMany(Article::class, 'series_article');
     }
 
-    public function photo()
+    public function user()
     {
-        return $this->hasOne(Image::class, 'id', 'image_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 }
