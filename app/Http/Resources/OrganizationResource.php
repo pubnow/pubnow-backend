@@ -27,6 +27,7 @@ class OrganizationResource extends JsonResource
             'following' => $following,
             'description' => $this->description,
             'logo' => $this->image ? $this->image->url : '',
+            'active' => $this->active
         ];
     }
 }

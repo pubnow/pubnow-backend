@@ -10,6 +10,5 @@ $factory->define(Category::class, function (Faker $faker) {
         'name' => $faker->unique()->name,
         'slug' => $faker->unique()->word,
         'description' => $faker->sentence,
-        'image' => $faker->imageUrl,
     ];
 });

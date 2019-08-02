@@ -83,13 +83,15 @@ Route::group(['namespace' => 'Api'], function () {
     Route::get('organizations/{organization}/followers', 'OrganizationController@followers');
 
     Route::get('organizations/{organization}/members', 'OrganizationController@members');
-    Route::post('organizations/{organization}/active', 'OrganizationController@active');
     Route::resource('organizations', 'OrganizationController')->except(['create', 'edit']);
 
     // Images
     Route::post('upload', 'ImageController@upload');
     Route::post('editor-upload', 'ImageController@editorUpload');
     Route::get('gallery', 'ImageController@gallery');
+
+    // Series
+    Route::resource('series', 'SeriesController');
 
     Route::get('editor-gallery', 'ImageController@editorGallery');
 

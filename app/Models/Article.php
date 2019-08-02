@@ -78,6 +78,11 @@ class Article extends Model
         return $this->hasMany(Clap::class);
     }
 
+    public function series()
+    {
+        return $this->belongsToMany(Series::class, 'series_article');
+    }
+
     public function usersBookmarked() {
         return $this->belongsToMany(User::class, 'bookmarks');
     }

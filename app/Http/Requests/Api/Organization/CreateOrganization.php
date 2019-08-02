@@ -19,6 +19,5 @@ class CreateOrganization extends ApiRequest
             'description' => 'sometimes',
             'image_id' => 'sometimes|uuid|exists:images,id',
         ];
-
     }
 }

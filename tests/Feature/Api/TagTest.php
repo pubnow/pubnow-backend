@@ -35,7 +35,6 @@ class TagTest extends TestCase
                 'name' => $tag->name,
                 'slug' => $tag->slug,
                 'description' => $tag->description,
-                'image' => $tag->image,
             ]);
         });
     }
@@ -44,12 +43,10 @@ class TagTest extends TestCase
     public function test_can_create_tag_if_logged_in()
     {
         $tag = factory(Tag::class)->make();
-        $image = UploadedFile::fake()->create('tag_image.png');
 
         $response = $this->actingAs($this->member)->json('POST', '/api/tags', [
             'name' => $tag->name,
             'description' => $tag->description,
-            'image' => $image,
         ]);
 
         $response->assertStatus(201);
@@ -95,7 +92,6 @@ class TagTest extends TestCase
             'name' => $tag->name,
             'slug' => $tag->slug,
             'description' => $tag->description,
-            'image' => $tag->image,
         ]);
     }
     // Xem 1 tag, khong ton tai -> 404 not found
@@ -113,12 +109,10 @@ class TagTest extends TestCase
     {
         $tag = factory(Tag::class)->create();
         $updateTag = factory(Tag::class)->make();
-        $image = UploadedFile::fake()->create('tag_image.png');
 
         $response = $this->actingAs($this->admin)->json('PUT', '/api/tags/' . $tag->slug, [
             'name' => $updateTag->name,
             'description' => $updateTag->description,
-            'image' => $image,
         ]);
 
         $response->assertOk();
