@@ -35,7 +35,8 @@ class Series extends Model
     }
 
 
-    public function articles() {
+    public function articles()
+    {
         return $this->belongsToMany(Article::class, 'series_article');
     }
 

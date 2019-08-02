@@ -16,10 +16,12 @@ class InviteRequest extends Model
     protected $fillable = [
         'organization_id', 'user_id', 'status',
     ];
-    public function organization() {
+    public function organization()
+    {
         return $this->belongsTo(Organization::class);
     }
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 }

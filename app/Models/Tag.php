@@ -28,17 +28,18 @@ class Tag extends Model
         return 'slug';
     }
 
-    public function articles() {
+    public function articles()
+    {
         return $this->belongsToMany('App\Models\Article');
     }
 
-    public function followers() {
+    public function followers()
+    {
         return $this->belongsToMany(User::class, 'user_follow_tags');
     }
 
-    public function image()
+    public function photo()
     {
         return $this->hasOne(Image::class, 'id', 'image_id');
     }
-    
 }
