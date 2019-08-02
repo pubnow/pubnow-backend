@@ -89,7 +89,7 @@ class TagController extends Controller
     }
 
     public function articles(Tag $tag) {
-        $articles = $tag->articles()->paginate(10);
+        $articles = $tag->articles()->withAuthor()->paginate(10);
         return ArticleResource::collection($articles);
     }
 

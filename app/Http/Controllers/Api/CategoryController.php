@@ -87,7 +87,7 @@ class CategoryController extends Controller
     }
 
     public function articles(Category $category) {
-        $articles = $category->articles()->paginate(10);
+        $articles = $category->articles()->withAuthor()->paginate(10);
         return ArticleResource::collection($articles);
     }
 
