@@ -156,7 +156,7 @@ class OrganizationTest extends TestCase
     }
 
     // --- Update
-    // Test update a organization, logged in, owner -> 201
+    // Test update a organization, logged in, owner -> 200
     public function test_can_update_an_organization_if_logged_in() {
         $created = factory(Organization::class)->create([
             'owner' => $this->user->id,
@@ -175,6 +175,45 @@ class OrganizationTest extends TestCase
             'description' => $organization->description,
             'email' => $organization->email,
         ]);
+    }
+
+    // Test update a organization, admin -> 200
+    public function test_can_update_an_organization_if_logged_in_as_admin() {
+        $created = factory(Organization::class)->create([
+            'owner' => $this->user->id,
+        ]);
+        $organization = factory(Organization::class)->make();
+
+        $response = $this->actingAs($this->admin)->json('PUT', '/api/organizations/'.$created->id, [
+            'name' => $organization->name,
+            'email' => $organization->email,
+            'description' => $organization->description,
+            'active' => 1
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonFragment([
+            'name' => $organization->name,
+            'description' => $organization->description,
+            'email' => $organization->email,
+        ]);
+    }
+
+    // Test update a organization, owner, update active -> 403
+    public function test_cannot_update_an_organization_if_logged_in_as_owner_and_update_active() {
+        $created = factory(Organization::class)->create([
+            'owner' => $this->user->id,
+        ]);
+        $organization = factory(Organization::class)->make();
+
+        $response = $this->actingAs($this->user)->json('PUT', '/api/organizations/'.$created->id, [
+            'name' => $organization->name,
+            'email' => $organization->email,
+            'description' => $organization->description,
+            'active' => 1
+        ]);
+
+        $response->assertStatus(403);
     }
 
     // Test update organization, not logged in -> 401
@@ -306,40 +345,6 @@ class OrganizationTest extends TestCase
         $response = $this->actingAs($user)->json('DELETE', '/api/organizations/'.$created->id);
 
         $response->assertStatus(403);
-    }
-
-    // Active
-    // Test active organization, admin -> ok
-    public function test_can_active_organization_if_logged_in_as_admin() {
-        $created = factory(Organization::class)->create([
-            'owner' => $this->user->id,
-        ]);
-
-        $response = $this->actingAs($this->admin)->json('POST', '/api/organizations/'.$created->id.'/active');
-
-        $response->assertStatus(200);
-    }
-
-    // Test active organization, user -> 403
-    public function test_cannot_active_organization_if_logged_in_as_user() {
-        $created = factory(Organization::class)->create([
-            'owner' => $this->user->id,
-        ]);
-
-        $response = $this->actingAs($this->user)->json('POST', '/api/organizations/'.$created->id.'/active');
-
-        $response->assertStatus(403);
-    }
-
-    // Test active organization, not logged in -> 401
-    public function test_cannot_active_organization_if_not_logged() {
-        $created = factory(Organization::class)->create([
-            'owner' => $this->user->id,
-        ]);
-
-        $response = $this->json('POST', '/api/organizations/'.$created->id.'/active');
-
-        $response->assertStatus(401);
     }
 
     // --- Get list members

@@ -64,6 +64,14 @@ class OrganizationController extends Controller
      */
     public function update(UpdateOrganization $request, Organization $organization)
     {
+        $user = $request->user();
+        if ($request->has('active') && !$user->isAdmin()) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Only admin can active organization',
+                ]
+            ], 403);
+        }
         $data = $request->all();
         $organization->update($data);
         return new OrganizationResource($organization);
@@ -78,14 +86,6 @@ class OrganizationController extends Controller
     {
         $organization->delete();
         return response()->json(null, 204);
-    }
-
-    public function active(Request $request, Organization $organization) {
-        $this->authorize('active', $organization);
-        $organization->update([
-            'active' => 1,
-        ]);
-        return new OrganizationResource($organization);
     }
 
     public function members(Request $request, Organization $organization) {
