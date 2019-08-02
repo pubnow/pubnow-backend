@@ -534,24 +534,31 @@ class ArticleTest extends TestCase
     {
         $tag = factory(Tag::class)->create();
         $category = factory(Category::class)->create();
-        $tags = [$tag->name];
-        factory(Article::class, 3)->create([
+        $tags = [$tag->id];
+        $article_1 = factory(Article::class)->create([
             'user_id' => $this->user->id,
             'category_id' => $category->id,
-            'tags' => $tags,
             'draft' => false,
             'private' => false
         ]);
-        factory(Article::class, 2)->create([
+        $article_2 = factory(Article::class)->create([
             'user_id' => $this->user->id,
             'category_id' => $category->id,
-            'tags' => $tags,
+            'draft' => false,
+            'private' => false
+        ]);
+        $article_3 = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
             'draft' => false,
             'private' => true
         ]);
-        $response = $this->json('GET', '/api/tags/' .$this->tag->slug. '/articles');
+        $article_1->tags()->attach($tags);
+        $article_2->tags()->attach($tags);
+        $article_3->tags()->attach($tags);
+        $response = $this->json('GET', '/api/tags/' .$tag->slug. '/articles');
 
         $response->assertStatus(200);
-        $response->assertJsonCount(3, 'data');
+        $response->assertJsonCount(2, 'data');
     }
 }
