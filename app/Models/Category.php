@@ -15,7 +15,7 @@ class Category extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'slug', 'description', 'image',
+        'name', 'slug', 'description', 'image_id',
     ];
 
     /**
@@ -34,5 +34,10 @@ class Category extends Model
 
     public function followers() {
         return $this->belongsToMany(User::class, 'user_follow_categories');
+    }
+
+    public function image()
+    {
+        return $this->hasOne(Image::class, 'id', 'image_id');
     }
 }

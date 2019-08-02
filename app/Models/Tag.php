@@ -15,7 +15,7 @@ class Tag extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'slug', 'description', 'image',
+        'name', 'slug', 'description', 'image_id',
     ];
 
     /**
@@ -34,6 +34,11 @@ class Tag extends Model
 
     public function followers() {
         return $this->belongsToMany(User::class, 'user_follow_tags');
+    }
+
+    public function image()
+    {
+        return $this->hasOne(Image::class, 'id', 'image_id');
     }
     
 }

@@ -32,7 +32,7 @@ class TagResource extends JsonResource
             'articlesCount' => $this->articles_count,
             'latestArticle' => $title,
             'following' => $following,
-            'image' => $this->image,
+            'image' => $this->image ? $this->image->url : '',
             'publishedAt' => $this->created_at->diffForHumans(),
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
