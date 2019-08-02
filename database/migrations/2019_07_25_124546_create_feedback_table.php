@@ -19,6 +19,12 @@ class CreateFeedbackTable extends Migration
             $table->string('email');
             $table->string('reference');
             $table->text('content');
+
+            $table->foreign('user_id')->references('id')->on('users')
+                ->onUpdate('cascade')->onDelete('cascade');
+            $table->uuid('article_id');
+            $table->foreign('article_id')->references('id')->on('articles')
+                ->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
     }

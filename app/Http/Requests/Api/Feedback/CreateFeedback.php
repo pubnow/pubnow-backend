@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Api\Feedback;
 
 use App\Http\Requests\Api\ApiRequest;
 
@@ -14,7 +14,10 @@ class CreateFeedback extends ApiRequest
     public function rules()
     {
         return [
-            'article_id' => 'uuid|exists:articles,id'
+            'article_id' => 'uuid|exists:articles,id',
+            'username' => 'min:3',
+            'content' => 'required|string',
+            'email' => 'email|max:255',
         ];
     }
 }

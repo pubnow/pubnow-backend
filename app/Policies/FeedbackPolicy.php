@@ -69,18 +69,6 @@ class FeedbackPolicy
     }
 
     /**
-     * Determine whether the user can restore the feedback.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Feedback  $feedback
-     * @return mixed
-     */
-    public function restore(User $user, Feedback $feedback)
-    {
-        return $user->isAdmin();
-    }
-
-    /**
      * Determine whether the user can permanently delete the feedback.
      *
      * @param  \App\Models\User  $user

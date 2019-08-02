@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\CreateFeedback;
 use App\Http\Resources\FeedbackResource;
 use App\Models\Feedback;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Requests\Api\Feedback\CreateFeedback;
 
 class FeedbackController extends Controller
 {
@@ -31,18 +31,37 @@ class FeedbackController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CreateFeedback $request)
     {
         $user = auth()->user();
-        $data = $request->only('reference', 'content');
-        dd($data);
-        // check xem record này đã được tạo chưa
+        $data = $request->only('reference', 'content', 'username', 'email');
+        // nếu mà chưa đăng nhập, thì bắt nó nhập tên và email
+        if (!$user) {
+            if ((!array_key_exists("username", $data) || !array_key_exists("email", $data))) {
+                return response()->json([
+                    "errors" => [
+                        "Username and email field must be filled."
+                    ]
+                ], 500);
+            } else {
+                return new FeedbackResource(Feedback::firstOrNew([
+                    'article_id' => $request->id,
+                    'reference' => $data['reference'],
+                    'content' => $data['content'],
+                    'username' => $data['username'],
+                    'email' => $data['email']
+                ]));
+            }
+        }
+        // còn đã đăng nhập rồi thì username và email lấy lun
         $isExit = Feedback::where(['user_id' => $user->id, 'article_id' => $request->id])->first();
         if (!$isExit && $user) {
             $feedback = $user->feedback()->create([
                 'article_id' => $request->id,
-                'reference' => $request->id,
-                'content' => $request->id
+                'reference' => $data['reference'],
+                'content' => $data['content'],
+                'username' => $user->name,
+                'email' => $user->email
             ]);
             return new FeedbackResource($feedback);
         }
