@@ -25,8 +25,14 @@ class Organization extends Model
         return $this->hasOne(Image::class, 'id', 'image_id');
     }
 
-    public function members() {
+    public function memberRequests() {
         return $this->hasMany(InviteRequest::class)->whereRaw("invite_requests.status = 'pending' or invite_requests.status = 'accepted'");
+    }
+
+    public function members() {
+        return $this->belongsToMany(User::class, 'invite_requests')
+            ->whereRaw("invite_requests.status = 'pending' or invite_requests.status = 'accepted'")
+            ->withPivot(['status']);
     }
 
     public function followers() {

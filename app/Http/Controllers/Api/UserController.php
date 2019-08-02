@@ -77,7 +77,7 @@ class UserController extends Controller
      */
     public function update(UpdateUser $request, User $user)
     {
-        if ($request->has('email') || $request->has('username')) {
+        if ($request->has('email') || $request->has( 'username')) {
             return response()->json([
                 'errors' => [
                     'message' => 'cannot update username or email',
@@ -85,12 +85,23 @@ class UserController extends Controller
             ], 403);
         }
         $data = $request->all();
-        if ($request->has('role_id') && !$request->user()->isAdmin()) {
-            return response()->json([
-                'errors' => [
-                    'message' => 'user cannot update own role',
-                ]
-            ], 403);
+        if ($request->has('role_id')) {
+            if (!$request->user()->isAdmin()) {
+                return response()->json([
+                    'errors' => [
+                        'message' => 'User cannot update own role',
+                    ]
+                ], 403);
+            }
+            $role_name = $user->role->name;
+            if ($role_name === 'admin' || $role_name === 'member') {
+                return response()->json([
+                    'errors' => [
+                        'message' => 'Cannot update role of user who already has base role',
+                    ]
+                ], 403);
+            }
+
         }
         if ($request->has('password') && !$request->user()->isAdmin()) {
             return response()->json([

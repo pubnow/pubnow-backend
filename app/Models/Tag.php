@@ -29,7 +29,7 @@ class Tag extends Model
     }
 
     public function articles() {
-        return $this->belongsToMany('App\Models\Article');
+        return $this->belongsToMany(Article::class, 'article_tag');
     }
 
     public function followers() {
