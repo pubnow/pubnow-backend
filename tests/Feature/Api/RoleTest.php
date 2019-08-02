@@ -167,6 +167,30 @@ class RoleTest extends TestCase
         $response->assertStatus(404);
     }
 
+    // Test can update role - admin login, role admin
+    public function test_admin_cannot_update_role_admin() {
+        $role_admin = Role::where(['name' => 'admin'])->first();
+
+        $reponse = $this->actingAs($this->admin)->json('PUT', '/api/roles/'.$role_admin->id, [
+            'name' => 'sample',
+            'description' => 'sample'
+        ]);
+
+        $reponse->assertStatus(422);
+    }
+
+    // Test can update role - admin login, role member
+    public function test_admin_cannot_update_role_member() {
+        $role_admin = Role::where(['name' => 'member'])->first();
+
+        $reponse = $this->actingAs($this->admin)->json('PUT', '/api/roles/'.$role_admin->id, [
+            'name' => 'sample',
+            'description' => 'sample'
+        ]);
+
+        $reponse->assertStatus(422);
+    }
+
     //--- Delete
     // Test can delete role - admin login
     public function test_admin_can_delete_role() {

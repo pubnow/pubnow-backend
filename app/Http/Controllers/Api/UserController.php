@@ -93,15 +93,6 @@ class UserController extends Controller
                     ]
                 ], 403);
             }
-            $role_name = $user->role->name;
-            if ($role_name === 'admin' || $role_name === 'member') {
-                return response()->json([
-                    'errors' => [
-                        'message' => 'Cannot update role of user who already has base role',
-                    ]
-                ], 403);
-            }
-
         }
         if ($request->has('password') && !$request->user()->isAdmin()) {
             return response()->json([
