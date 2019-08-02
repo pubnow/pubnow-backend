@@ -90,6 +90,9 @@ Route::group(['namespace' => 'Api'], function () {
     Route::post('editor-upload', 'ImageController@editorUpload');
     Route::get('gallery', 'ImageController@gallery');
 
+    // Series
+    Route::resource('series', 'SeriesController');
+
     Route::get('editor-gallery', 'ImageController@editorGallery');
 
     // Invite request
