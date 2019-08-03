@@ -28,7 +28,7 @@ class ArticleController extends Controller
      */
     public function index()
     {
-        $articles = $this->filterShowArticle();
+        $articles = Article::withAuthor()->orderByDesc('created_at')->paginate(10);
         return ArticleResource::collection($articles);
     }
 
@@ -41,11 +41,10 @@ class ArticleController extends Controller
     public function store(CreateArticle $request)
     {
         $user = $request->user();
-        $data = $request->only('title', 'content', 'category', 'draft', 'private');
+        $data = $request->only('title', 'content', 'category_id', 'draft', 'private');
         $article = $user->articles()->create(array_merge($data, [
             'seen_count' => 0,
             'slug' => str_slug($data['title']) . '-' . base_convert(time(), 10, 36),
-            'category_id' => $data['category'],
         ]));
         $inputTags = $request->input('tags');
         if ($inputTags && !empty($inputTags)) {
@@ -72,6 +71,13 @@ class ArticleController extends Controller
      */
     public function show(Article $article)
     {
+        if ($article->private) {
+            return response()->json([
+                'message' => [
+                    'Unauthorized',
+                ]
+            ], 401);
+        }
         $article->update([
             'seen_count' => $article->seen_count + 1
         ]);
@@ -87,7 +93,7 @@ class ArticleController extends Controller
      */
     public function update(UpdateArticle $request, Article $article)
     {
-        $data = $request->only('title', 'content', 'category', 'draft', 'private');
+        $data = $request->only('title', 'content', 'category_id', 'draft', 'private');
 
         $article->update($data);
 
@@ -125,7 +131,7 @@ class ArticleController extends Controller
 
     public function popular()
     {
-        $articles = Article::orderBy('seen_count', 'desc')->take(5)->get();
+        $articles = Article::withAuthor()->orderBy('seen_count', 'desc')->take(5)->get();
         return ArticleResource::collection($articles);
     }
 
@@ -153,7 +159,7 @@ class ArticleController extends Controller
     }
 
     public function featured() {
-        $articles = Article::with('claps')->with('comments')->get()->sortBy(function ($article) {
+        $articles = Article::withAuthor()->with('claps')->with('comments')->get()->sortBy(function ($article) {
             return $article->claps->sum('count') + $article->comments->count();
         })->reverse()->take(5);
         return ArticleResource::collection($articles);

@@ -42,11 +42,6 @@ class CategoryController extends Controller
     {
         $data = $request->all();
         $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('public/images/tag');
-            $path = Storage::url($path);
-            $data['image'] = $path;
-        }
         $newCategory = Category::create($data);
         return new CategoryResource($newCategory);
     }
@@ -71,11 +66,9 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategory $request, Category $category)
     {
-        $data = $request->all();
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('public/images/tag');
-            $path = Storage::url($path);
-            $data['image'] = $path;
+        $data = $request->only(['name', 'description']);
+        if ($request->has('name') && !empty($data['name'])) {
+            $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
         }
         $category->update($data);
         return new CategoryResource($category);
@@ -94,7 +87,7 @@ class CategoryController extends Controller
     }
 
     public function articles(Category $category) {
-        $articles = $category->articles()->paginate(10);
+        $articles = $category->articles()->withAuthor()->paginate(10);
         return ArticleResource::collection($articles);
     }
 

@@ -30,6 +30,7 @@ class CategoryTest extends TestCase
         $categories = factory(Category::class, 5)->create();
 
         $response = $this->json('GET', '/api/categories');
+//        dd($response);
 
         $response->assertStatus(200);
 
@@ -39,7 +40,6 @@ class CategoryTest extends TestCase
             $response->assertJsonFragment([
                 'name' => $category->name,
                 'description' => $category->description,
-                'image' => $category->image,
             ]);
         });
     }
@@ -48,12 +48,10 @@ class CategoryTest extends TestCase
     public function test_can_create_category_if_user_is_admin()
     {
         $categoryData = factory(Category::class)->make();
-        $image = UploadedFile::fake()->create('category_image.png');
 
         $response = $this->actingAs($this->admin)->json('POST', '/api/categories', [
             'name' => $categoryData->name,
             'description' => $categoryData->description,
-            'image' => $image,
         ]);
 
         $response->assertStatus(201);
@@ -86,7 +84,6 @@ class CategoryTest extends TestCase
             'name' => $category->name,
             'slug' => $category->slug,
             'description' => $category->description,
-            'image' => $category->image
         ]);
     }
     // Xem 1 category, khong ton tai -> 404 not found
@@ -104,7 +101,6 @@ class CategoryTest extends TestCase
 
         $response = $this->actingAs($this->admin)->json('POST', '/api/categories', [
             'description' => $categoryData->description,
-            'image' => $categoryData->image,
         ]);
 
         $response->assertStatus(422);
@@ -115,12 +111,10 @@ class CategoryTest extends TestCase
     {
         $categoryData = factory(Category::class)->create();
         $updateCategoryData = factory(Category::class)->make();
-        $image = UploadedFile::fake()->create('tag_image.png');
 
         $response = $this->actingAs($this->admin)->json('PUT', '/api/categories/' . $categoryData->slug, [
             'name' => $updateCategoryData->name,
             'description' => $updateCategoryData->description,
-            'image' => $image,
         ]);
 
         $response->assertOk();
@@ -138,7 +132,6 @@ class CategoryTest extends TestCase
         $response = $this->actingAs($this->member)->json('PUT', '/api/categories/' . $categoryData->slug, [
             'name' => $updateCategoryData->name,
             'description' => $updateCategoryData->description,
-            'image' => $updateCategoryData->image,
         ]);
 
         $response->assertStatus(403);
@@ -152,7 +145,6 @@ class CategoryTest extends TestCase
         $response = $this->actingAs($this->admin)->json('PUT', '/api/categories/' . $categoryDatas[0]->slug, [
             'name' => $categoryDatas[1]->name,
             'description' => $updateCategoryData->description,
-            'image' => $updateCategoryData->image,
         ]);
 
         $response->assertStatus(422);
@@ -165,7 +157,6 @@ class CategoryTest extends TestCase
         $response = $this->actingAs($this->member)->json('PUT', '/api/categories/' . $categoryData->slug, [
             'name' => $categoryData->name,
             'description' => $categoryData->description,
-            'image' => $categoryData->image,
         ]);
 
         $response->assertStatus(404);

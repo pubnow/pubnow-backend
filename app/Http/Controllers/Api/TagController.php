@@ -44,11 +44,6 @@ class TagController extends Controller
     {
         $data = $request->all();
         $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('public/images/tag');
-            $path = Storage::url($path);
-            $data['image'] = $path;
-        }
         $newTag = Tag::create($data);
         return new TagResource($newTag);
     }
@@ -73,11 +68,9 @@ class TagController extends Controller
      */
     public function update(UpdateTag $request, Tag $tag)
     {
-        $data = $request->all();
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('public/images/tag');
-            $path = Storage::url($path);
-            $data['image'] = $path;
+        $data = $request->only(['name', 'description']);
+        if ($request->has('name') && !empty($data['name'])) {
+            $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
         }
         $tag->update($data);
         return new TagResource($tag);
@@ -96,7 +89,7 @@ class TagController extends Controller
     }
 
     public function articles(Tag $tag) {
-        $articles = $tag->articles()->paginate(10);
+        $articles = $tag->articles()->withAuthor()->paginate(10);
         return ArticleResource::collection($articles);
     }
 

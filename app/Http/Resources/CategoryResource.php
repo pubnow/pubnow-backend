@@ -14,13 +14,20 @@ class CategoryResource extends JsonResource
      */
     public function toArray($request)
     {
+        $following = false;
+        $logged = $request->user();
+        if ($logged && $this->followers()->find($logged->id)) {
+            $following = true;
+        }
         return [
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
             'description' => $this->description,
-            'image' => $this->image,
+            'image' => $this->photo ? $this->photo->url : '',
             'articles' => ArticleOnlyResource::collection($this->articles),
+            'articlesCount' => $this->articles_count,
+            'following' => $following,
             'publishedAt' => $this->created_at->diffForHumans(),
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,

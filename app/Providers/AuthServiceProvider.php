@@ -20,6 +20,7 @@ class AuthServiceProvider extends ServiceProvider
         'App\Models\Comment' => 'App\Policies\CommentPolicy',
         'App\Models\Role' => 'App\Policies\RolePolicy',
         'App\Models\Organization' => 'App\Policies\OrganizationPolicy',
+        'App\Models\Series' => 'App\Policies\SeriesPolicy',
         'App\Models\InviteRequest' => 'App\Policies\InviteRequestPolicy',
         'App\Models\Feedback' => 'App\Policies\FeedbackPolicy',
     ];
