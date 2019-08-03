@@ -33,6 +33,9 @@ Route::group(['namespace' => 'Api'], function () {
     Route::get('users/{user}/following-organizations', 'UserController@followingOrganizations');
     Route::get('users/{user}/followers', 'UserController@followers');
 
+    Route::get('users/{user}/following-categories', 'UserController@followingCategories');
+    Route::get('users/{user}/following-tags', 'UserController@followingTags');
+
     Route::get('users/bookmarks', 'UserController@bookmarks');
     Route::get('users/{user}/articles', 'UserController@articles');
     Route::put('users/change-password', 'UserController@changePassword');
@@ -42,14 +45,14 @@ Route::group(['namespace' => 'Api'], function () {
     Route::get('categories/{category}/followers', 'CategoryController@followers');
     Route::post('categories/{category}/follow', 'CategoryController@follow');
     Route::delete('categories/{category}/follow', 'CategoryController@unfollow');
-    Route::get('categories/{user}/articles', 'CategoryController@articles');
+    Route::get('categories/{category}/articles', 'CategoryController@articles');
     Route::resource('categories', 'CategoryController')->except(['create', 'edit']);
 
     // Tag
     Route::get('tags/{tag}/followers', 'TagController@followers');
     Route::post('tags/{tag}/follow', 'TagController@follow');
     Route::delete('tags/{tag}/follow', 'TagController@unfollow');
-    Route::get('tags/{user}/articles', 'TagController@articles');
+    Route::get('tags/{tag}/articles', 'TagController@articles');
     Route::resource('tags', 'TagController')->except(['create', 'edit']);
 
     // Article
