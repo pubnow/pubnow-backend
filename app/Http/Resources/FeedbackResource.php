@@ -20,6 +20,7 @@ class FeedbackResource extends JsonResource
             'email' => $this->email,
             'reference' => $this->reference,
             'content' => $this->content,
+            'article_id' => $this->article->id,
             'user' => new UserResource($this->user),
         ];
     }

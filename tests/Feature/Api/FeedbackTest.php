@@ -78,6 +78,28 @@ class FeedbackTest extends TestCase
         $response->assertStatus(200);
     }
 
+    // test: get article feedback, đã đăng nhập as admin => 200
+    public function test_get_article_feedback_as_admin()
+    {
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
+        $feedbackFake = factory(Feedback::class)->make();
+        $feedback = factory(Feedback::class, 3)->create([
+            'article_id' => $article->id,
+            'username' => $this->user->username,
+            'email' => $this->user->email,
+            'reference' => $feedbackFake->reference,
+            'content' => $feedbackFake->content,
+        ]);
+        $response = $this->actingAs($this->admin)->json('GET', '/api/feedback');
+        $articleFeedback = $article->feedback;
+        $response->assertStatus(200);
+        $response->assertJsonCount(3, 'data');
+    }
+
     // test: create a feedback, chưa đăng nhập + k truyền username || email
     public function test_create_a_feedback_unauthorize_invalid_params()
     {
@@ -207,5 +229,27 @@ class FeedbackTest extends TestCase
         $feedback = factory(Feedback::class)->create();
         $response = $this->json('DELETE', '/api/feedback/'.$feedback->id);
         $response->assertStatus(401);
+    }
+
+    // test: create a feedback nhưng user và article đó đã tạo rồi
+    public function test_create_a_feedback_but_same_user_article()
+    {
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
+        $feedbackFake = factory(Feedback::class)->make();
+        $this->actingAs($this->user)->json('POST', '/api/feedback', [
+            'article_id' => $article->id,
+            'reference' => $feedbackFake->reference,
+            'content' => $feedbackFake->content,
+        ]);
+        $response = $this->actingAs($this->user)->json('POST', '/api/feedback', [
+            'article_id' => $article->id,
+            'reference' => $feedbackFake->reference,
+            'content' => $feedbackFake->content,
+        ]);
+        $response->assertStatus(500);
     }
 }
