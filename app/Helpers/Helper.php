@@ -25,3 +25,13 @@ if (!function_exists('thumbnail')) {
         return '';
     }
 }
+
+if (!function_exists('reading_time')) {
+    function reading_time($string)
+    {
+        $content = preg_replace('/(<([^>]+)>)/', '', $string);
+        $word = str_word_count($content);
+        $reading_time = floor($word / 220);
+        return floor($word / 220);
+    }
+}

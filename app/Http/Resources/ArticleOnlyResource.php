@@ -35,6 +35,7 @@ class ArticleOnlyResource extends JsonResource
             'category' => new CategoryOnlyResource($this->category),
             'tags' => TagOnlyResource::collection($this->tags),
             'seen_count' => $this->seen_count,
+            'reading_time' => reading_time($this->content),
             'thumbnail' => thumbnail($this->content),
             'claps' => $this->claps()->sum('count'),
             'comments_count' => $this->comments()->count(),
