@@ -3,12 +3,17 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Feedback;
+use App\Models\Feedback;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class FeedbackPolicy
 {
     use HandlesAuthorization;
+
+    public function index(User $user)
+    {
+        return $user->isAdmin();
+    }
     
     /**
      * Determine whether the user can view any feedback.
@@ -53,7 +58,7 @@ class FeedbackPolicy
      */
     public function update(User $user, Feedback $feedback)
     {
-        return $user->isAdmin() || ($user->id === $feedback->user_id);
+        return $user->isAdmin();
     }
 
     /**

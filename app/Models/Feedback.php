@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\UsesUuid;
 use Illuminate\Database\Eloquent\Model;
 
 class Feedback extends Model
 {
+    use UsesUuid;
+
     protected $fillable = [
-        'username', 'email', 'reference', 'content'
+        'username', 'email', 'reference', 'content', 'article_id'
     ];
 
     public function user() {

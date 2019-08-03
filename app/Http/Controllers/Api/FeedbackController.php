@@ -12,7 +12,7 @@ class FeedbackController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['store', 'update']);
+        $this->middleware(['auth'])->except(['store']);
         $this->authorizeResource(Feedback::class);
     }
     /**
@@ -22,6 +22,7 @@ class FeedbackController extends Controller
      */
     public function index()
     {
+        $this->authorize('index', Feedback::class);
         $feedback = Feedback::orderByDesc('created_at')->paginate(10);
         return FeedbackResource::collection($feedback);
     }
@@ -35,7 +36,7 @@ class FeedbackController extends Controller
     public function store(CreateFeedback $request)
     {
         $user = auth()->user();
-        $data = $request->only('reference', 'content', 'username', 'email');
+        $data = $request->only('reference', 'content', 'username', 'email', 'article_id');
         // nếu mà chưa đăng nhập, thì bắt nó nhập tên và email
         if (!$user) {
             if ((!array_key_exists("username", $data) || !array_key_exists("email", $data))) {
@@ -45,8 +46,8 @@ class FeedbackController extends Controller
                     ]
                 ], 500);
             } else {
-                $feedback = Feedback::firstOrCreate([
-                    'article_id' => $request->id,
+                $feedback = Feedback::create([
+                    'article_id' => $data['article_id'],
                     'reference' => $data['reference'],
                     'content' => $data['content'],
                     'username' => $data['username'],
@@ -55,11 +56,13 @@ class FeedbackController extends Controller
                 return new FeedbackResource($feedback);
             }
         }
-        // còn đã đăng nhập rồi thì username và email lấy lun
-        $isExit = Feedback::where(['user_id' => $user->id, 'article_id' => $request->id])->first();
+        $isExit = Feedback::where(['user_id' => $user->id, 'article_id' => $data['article_id']])->first();
+        if ($isExit) {
+            return response()->json('Bad request', 500);
+        }
         if (!$isExit && $user) {
             $feedback = $user->feedback()->create([
-                'article_id' => $request->id,
+                'article_id' => $data['article_id'],
                 'reference' => $data['reference'],
                 'content' => $data['content'],
                 'username' => $user->name,
@@ -89,7 +92,9 @@ class FeedbackController extends Controller
      */
     public function update(Request $request, Feedback $feedback)
     {
-        //
+        $data = $request->only('reference', 'content');
+        $feedback->update($data);
+        return new FeedbackResource($feedback);
     }
 
     /**

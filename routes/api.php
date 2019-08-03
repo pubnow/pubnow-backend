@@ -58,7 +58,6 @@ Route::group(['namespace' => 'Api'], function () {
     Route::get('articles/featured', 'ArticleController@featured');
     Route::post('articles/{id}/bookmark', 'BookmarkController@store');
     Route::delete('articles/{id}/bookmark', 'BookmarkController@destroy');
-    Route::post('articles/{id}/feedback', 'FeedbackController@store');
     Route::resource('articles', 'ArticleController')->except(['create', 'edit']);
 
     // Role
@@ -102,6 +101,6 @@ Route::group(['namespace' => 'Api'], function () {
     Route::resource('invite-requests', 'InviteRequestController')->except('create', 'edit', 'show');
 
     // feedback
-    Route::resource('feedback', 'FeedbackController')->except(['create', 'update', 'edit']);
+    Route::resource('feedback', 'FeedbackController');
 
 });
