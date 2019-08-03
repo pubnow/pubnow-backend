@@ -282,8 +282,8 @@ class ArticleTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 '*' => [
-                    'id', 'slug', 'title', 'content', 'excerpt', 'seen_count', 'thumbnail', 'clapped', 'bookmarked',
-                    'author', 'category', 'tags', 'claps', 'publishedAt', 'createdAt', 'updatedAt'
+                    'id', 'slug', 'title', 'excerpt', 'reading_time', 'seen_count', 'thumbnail', 'clapped', 'bookmarked',
+                    'author', 'category', 'tags', 'claps', 'publishedAt', 'createdAt', 'updatedAt', 'draft', 'private'
                 ]
             ]
         ]);
@@ -304,8 +304,8 @@ class ArticleTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 '*' => [
-                    'id', 'slug', 'title', 'content', 'excerpt', 'seen_count', 'thumbnail', 'clapped', 'bookmarked',
-                    'author', 'category', 'tags', 'claps', 'publishedAt', 'createdAt', 'updatedAt'
+                    'id', 'slug', 'title', 'excerpt', 'seen_count', 'reading_time', 'thumbnail', 'clapped', 'bookmarked',
+                    'author', 'category', 'tags', 'claps', 'publishedAt', 'createdAt', 'updatedAt', 'draft', 'private'
                 ]
             ]
         ]);
