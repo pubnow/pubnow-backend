@@ -7,8 +7,10 @@ use App\Http\Requests\Api\User\UpdateUser;
 use App\Http\Requests\Api\User\CreateUser;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\BookmarkResource;
+use App\Http\Resources\CategoryOnlyResource;
 use App\Http\Resources\InviteRequestResource;
 use App\Http\Resources\OrganizationResource;
+use App\Http\Resources\TagOnlyResource;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UserWithFollowingUsersResource;
 use App\Http\Resources\UserWithFollowingCategoriesResource;
@@ -26,7 +28,8 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show', 'articles', 'followers', 'followingUsers', 'followingOrganizations']);
+        $this->middleware(['auth'])
+            ->except(['index', 'show', 'articles', 'followers', 'followingUsers', 'followingOrganizations', 'followingTags', 'followingCategories']);
         $this->authorizeResource(User::class);
     }
     /**
@@ -77,7 +80,7 @@ class UserController extends Controller
      */
     public function update(UpdateUser $request, User $user)
     {
-        if ($request->has('email') || $request->has('username')) {
+        if ($request->has('email') || $request->has( 'username')) {
             return response()->json([
                 'errors' => [
                     'message' => 'cannot update username or email',
@@ -85,12 +88,14 @@ class UserController extends Controller
             ], 403);
         }
         $data = $request->all();
-        if ($request->has('role_id') && !$request->user()->isAdmin()) {
-            return response()->json([
-                'errors' => [
-                    'message' => 'user cannot update own role',
-                ]
-            ], 403);
+        if ($request->has('role_id')) {
+            if (!$request->user()->isAdmin()) {
+                return response()->json([
+                    'errors' => [
+                        'message' => 'User cannot update own role',
+                    ]
+                ], 403);
+            }
         }
         if ($request->has('password') && !$request->user()->isAdmin()) {
             return response()->json([
@@ -193,5 +198,15 @@ class UserController extends Controller
     // Get organizations who be followed by this user
     public function followingOrganizations(User $user) {
         return OrganizationResource::collection($user->followingOrganizations);
+    }
+
+    public function followingTags(Request $request, User $user) {
+        $tags = $user->followingTags;
+        return TagOnlyResource::collection($tags);
+    }
+
+    public function followingCategories(Request $request, User $user) {
+        $categories = $user->followingCategories;
+        return CategoryOnlyResource::collection($categories);
     }
 }

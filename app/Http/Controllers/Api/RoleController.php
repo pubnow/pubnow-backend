@@ -32,6 +32,15 @@ class RoleController extends Controller
     }
 
     public function update(UpdateRole $request, Role $role) {
+        $role_name = $role->name;
+        if ($role_name === 'admin' || $role_name === 'member') {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Cannot update role admin and member',
+                ]
+            ], 422);
+        }
+
         $role->update($request->all());
         return new RoleResource($role);
     }
