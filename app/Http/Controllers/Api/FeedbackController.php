@@ -22,7 +22,8 @@ class FeedbackController extends Controller
      */
     public function index()
     {
-        return FeedbackResource::collection(Feedback::all());
+        $feedback = Feedback::orderByDesc('created_at')->paginate(10);
+        return FeedbackResource::collection($feedback);
     }
 
     /**
@@ -44,13 +45,14 @@ class FeedbackController extends Controller
                     ]
                 ], 500);
             } else {
-                return new FeedbackResource(Feedback::firstOrNew([
+                $feedback = Feedback::firstOrCreate([
                     'article_id' => $request->id,
                     'reference' => $data['reference'],
                     'content' => $data['content'],
                     'username' => $data['username'],
                     'email' => $data['email']
-                ]));
+                ]);
+                return new FeedbackResource($feedback);
             }
         }
         // còn đã đăng nhập rồi thì username và email lấy lun

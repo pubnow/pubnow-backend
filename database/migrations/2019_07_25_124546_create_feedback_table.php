@@ -20,6 +20,7 @@ class CreateFeedbackTable extends Migration
             $table->string('reference');
             $table->text('content');
 
+            $table->uuid('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users')
                 ->onUpdate('cascade')->onDelete('cascade');
             $table->uuid('article_id');
