@@ -129,4 +129,11 @@ class OrganizationController extends Controller
         $user->followingOrganizations()->detach($organization);
         return new UserWithFollowingOrganizationsResource($user);
     }
+
+    public function featuredMembers(Organization $organization) {
+        $members = $organization->members->sortBy(function ($member) use ($organization) {
+            return $member->articles->where('organization_id', $organization->id)->count();
+        })->reverse()->take(5);
+        return UserResource::collection($members);
+    }
 }
