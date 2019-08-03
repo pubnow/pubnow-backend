@@ -28,9 +28,8 @@ class Tag extends Model
         return 'slug';
     }
 
-    public function articles()
-    {
-        return $this->belongsToMany('App\Models\Article');
+    public function articles() {
+        return $this->belongsToMany(Article::class, 'article_tag');
     }
 
     public function followers()
