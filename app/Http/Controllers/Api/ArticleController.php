@@ -153,41 +153,6 @@ class ArticleController extends Controller
         return ArticleOnlyResource::collection($articles);
     }
 
-    private function filterShowArticle()
-    {
-        $user = auth()->user();
-        $articles = Article::where('draft', false);
-        // chưa đăng nhập trả về những bài non-draft và non-private
-        if (!$user) {
-            $userArticles = $articles
-                ->where('organization_id', null)
-                ->where('private', false);
-            $organizationArticles = $articles
-                ->where('organization_id', '<>', null)
-                ->where('organization_private', false);
-            $articles = $userArticles->union($organizationArticles)
-                ->orderByDesc('created_at')
-                ->paginate(10);
-            return $articles;
-        }
-        // đã đăng nhập thì trả về những bài non-draft và bài its private
-        // lấy những bài private nhưng đúng tác giả
-        $userPrivateArticles = $user->articles()->where('organization_id', null)->where('private', true);
-        $userNonPrivateArticles = $articles->where('organization_id', null)->where('private', false);
-
-        $organizationPrivateArticles = $user->organizations()->articles()->where('organization_private', true);
-        $organizationNonPrivateArticles = $articles->where('organization_id', '<>', null)->where('organization_private', false);
-
-        $articles = $userNonPrivateArticles
-            ->union($userPrivateArticles)
-            ->union($organizationPrivateArticles)
-            ->union($organizationNonPrivateArticles);
-        $articles = $articles
-            ->orderByDesc('created_at')
-            ->paginate(10);
-        return $articles;
-    }
-
     public function featured() {
         $articles = Article::withAuthor()->with('claps')->with('comments')->get()->sortBy(function ($article) {
             return $article->claps->sum('count') + $article->comments->count();
