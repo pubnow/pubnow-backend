@@ -34,8 +34,12 @@ class BookmarkController extends Controller
     {
         $userId =$request->user()->id;
         $articleId = $request->id;
-        $bookmark = Bookmark::where(['user_id' => $userId, 'article_id' => $articleId]);
-        dd($bookmark);
+        $bookmark = Bookmark::where(['user_id' => $userId, 'article_id' => $articleId])->first();
+        if (!$bookmark) {
+            return response()->json([
+                "errors" => "Bookmark does not exist."
+            ], 500);
+        }
         $bookmark->delete();
         return response()->json(null, 204);
     }

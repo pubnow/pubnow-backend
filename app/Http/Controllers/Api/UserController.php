@@ -11,6 +11,7 @@ use App\Http\Resources\BookmarkResource;
 use App\Http\Resources\CategoryOnlyResource;
 use App\Http\Resources\InviteRequestResource;
 use App\Http\Resources\OrganizationResource;
+use App\Http\Resources\SeriesResource;
 use App\Http\Resources\TagOnlyResource;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UserWithFollowingUsersResource;
@@ -209,5 +210,17 @@ class UserController extends Controller
     public function followingCategories(Request $request, User $user) {
         $categories = $user->followingCategories;
         return CategoryOnlyResource::collection($categories);
+    }
+
+    public function series(Request $request)
+    {
+        $series = $request->user()->series()->paginate(10);
+        return SeriesResource::collection($series);
+    }
+
+    public function allArticles(Request $request)
+    {
+        $articles = $request->user()->articles()->paginate(10);
+        return ArticleOnlyResource::collection($articles);
     }
 }
