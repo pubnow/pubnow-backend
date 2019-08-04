@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Api\Category;
+namespace App\Http\Requests\Api\Series;
 
 use App\Http\Requests\Api\ApiRequest;
 
-class CreateCategory extends ApiRequest
+class CreateSeries extends ApiRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -14,8 +14,9 @@ class CreateCategory extends ApiRequest
     public function rules()
     {
         return [
-            'name' => 'required|max:60|unique:categories,name',
-            'image_id'   => 'sometimes|uuid|exists:images,id',
+            'title' => 'required|min:10',
+            'content' => 'required|string',
+            'articles' => 'sometimes|array'
         ];
     }
 }

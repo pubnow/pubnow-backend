@@ -101,7 +101,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function articles()
     {
-        return $this->hasMany(Article::class);
+        return $this->hasMany(Article::class, 'user_id', 'id');
     }
 
     public function comments()
@@ -127,6 +127,11 @@ class User extends Authenticatable implements JWTSubject
     public function images()
     {
         return $this->hasMany(Image::class)->latest();
+    }
+
+    public function series()
+    {
+        return $this->hasMany(Series::class);
     }
 
     // Users who followed this user

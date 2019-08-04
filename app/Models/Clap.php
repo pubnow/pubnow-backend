@@ -18,12 +18,13 @@ class Clap extends Model
         'user_id', 'article_id', 'count'
     ];
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo('App\Models\User');
     }
 
-    public function article() {
+    public function article()
+    {
         return $this->belongsTo('App\Models\Article');
     }
-
 }

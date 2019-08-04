@@ -10,6 +10,8 @@ use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\Category;
+use App\Models\Tag;
 
 class UserTest extends TestCase
 {
@@ -492,7 +494,7 @@ class UserTest extends TestCase
     }
 
     // --- Following Organizations
-    // Test get list followers
+    // Test get list following organizations
     public function test_can_get_list_following_organizations() {
         $user = factory(User::class)->create();
         $organizations = factory(Organization::class, 5)->create([
@@ -518,4 +520,51 @@ class UserTest extends TestCase
         });
     }
 
+    // --- Following Categories
+    // Test get list following categories
+    public function test_can_get_list_following_categories() {
+        $categories = factory(Category::class, 5)->create();
+
+        $categories->each(function ($category) {
+            $this->user->followingCategories()->attach($category);
+        });
+
+        $response = $this->json('GET', 'api/users/'.$this->user->username.'/following-categories');
+
+        $response->assertStatus(200);
+
+        $response->assertJsonCount(count($categories), 'data');
+
+        $categories->each(function ($category) use ($response) {
+            $response->assertJsonFragment([
+                'name' => $category->name,
+                'slug' => $category->slug,
+                'description' => $category->description,
+            ]);
+        });
+    }
+
+    // --- Following Tags
+    // Test get list following tags
+    public function test_can_get_list_following_tags() {
+        $tags = factory(Tag::class, 5)->create();
+
+        $tags->each(function ($tag) {
+            $this->user->followingTags()->attach($tag);
+        });
+
+        $response = $this->json('GET', 'api/users/'.$this->user->username.'/following-tags');
+
+        $response->assertStatus(200);
+
+        $response->assertJsonCount(count($tags), 'data');
+
+        $tags->each(function ($tag) use ($response) {
+            $response->assertJsonFragment([
+                'name' => $tag->name,
+                'slug' => $tag->slug,
+                'description' => $tag->description,
+            ]);
+        });
+    }
 }

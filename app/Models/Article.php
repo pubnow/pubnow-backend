@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\WithAuthor;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Concerns\UsesUuid;
 use Laravel\Scout\Searchable;
@@ -10,6 +11,7 @@ class Article extends Model
 {
     use UsesUuid;
     use Searchable;
+    use WithAuthor;
 
     public static function boot() {
         parent::boot();
@@ -41,6 +43,16 @@ class Article extends Model
         $array = $this->toArray();
 
         return array('title' => $array['title'], 'content' => $array['content']);
+    }
+
+    private function isPublished()
+    {
+        return !$this->draft && !$this->private;
+    }
+
+    public function shouldBeSearchable()
+    {
+        return $this->isPublished();
     }
 
     /**
@@ -76,6 +88,11 @@ class Article extends Model
     public function claps()
     {
         return $this->hasMany(Clap::class);
+    }
+
+    public function series()
+    {
+        return $this->belongsToMany(Series::class, 'series_article');
     }
 
     public function usersBookmarked() {
