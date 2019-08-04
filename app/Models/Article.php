@@ -98,4 +98,9 @@ class Article extends Model
     public function usersBookmarked() {
         return $this->belongsToMany(User::class, 'bookmarks');
     }
+
+    public function feedback()
+    {
+        return $this->hasMany(Feedback::class);
+    }
 }

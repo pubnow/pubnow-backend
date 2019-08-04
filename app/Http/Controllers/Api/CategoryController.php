@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\Category\UpdateCategory;
+use App\Http\Resources\ArticleOnlyResource;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\CategoryOnlyResource;
 use App\Http\Resources\UserResource;
@@ -88,7 +89,7 @@ class CategoryController extends Controller
 
     public function articles(Category $category) {
         $articles = $category->articles()->withAuthor()->paginate(10);
-        return ArticleResource::collection($articles);
+        return ArticleOnlyResource::collection($articles);
     }
 
     public function follow(Request $request, Category $category) {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\Tag\UpdateTag;
+use App\Http\Resources\ArticleOnlyResource;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\TagOnlyResource;
 use App\Http\Resources\UserResource;
@@ -90,7 +91,7 @@ class TagController extends Controller
 
     public function articles(Tag $tag) {
         $articles = $tag->articles()->withAuthor()->paginate(10);
-        return ArticleResource::collection($articles);
+        return ArticleOnlyResource::collection($articles);
     }
 
     public function follow(Request $request, Tag $tag) {

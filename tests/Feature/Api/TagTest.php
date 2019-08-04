@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Article;
+use App\Models\Category;
 use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -12,7 +14,7 @@ use App\Models\Tag;
 class TagTest extends TestCase
 {
     protected $admin;
-    protected $user;
+    protected $member;
 
     public function setUp(): void
     {
@@ -286,6 +288,33 @@ class TagTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
+    }
+
+    // --- Articles
+    // Get list articles of tag
+    public function test_can_get_list_articles_of_tag() {
+        $category = factory(Category::class)->create();
+        $tag = factory(Tag::class)->create();
+        $articles = factory(Article::class, 10)->create([
+            'user_id' => $this->member->id,
+            'category_id' => $category->id,
+        ]);
+        $articles->each(function ($article) use ($tag) {
+            $tag->articles()->attach($article);
+        });
+
+        $response = $this->json('GET', '/api/tags/'.$tag->slug.'/articles');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(count($articles), 'data');
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id', 'slug', 'title', 'excerpt', 'reading_time', 'seen_count', 'thumbnail', 'clapped', 'bookmarked',
+                    'author', 'category', 'tags', 'claps', 'publishedAt', 'createdAt', 'updatedAt', 'draft', 'private'
+                ]
+            ]
+        ]);
     }
     // ----
 }

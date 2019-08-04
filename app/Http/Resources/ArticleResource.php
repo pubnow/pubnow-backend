@@ -33,6 +33,7 @@ class ArticleResource extends JsonResource
             'content' => $this->content,
             'excerpt' => excerpt($this->content, 200),
             'seen_count' => $this->seen_count,
+            'reading_time' => reading_time($this->content),
             'thumbnail' => thumbnail($this->content),
             'author' => new UserResource($this->author),
             'category' => new CategoryOnlyResource($this->category),

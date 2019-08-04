@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\Series\CreateSeries;
+use App\Http\Resources\ArticleOnlyResource;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\SeriesResource;
 use App\Models\Article;
@@ -117,6 +118,6 @@ class SeriesController extends Controller
 
     public function articles(Series $series) {
         $articles = $series->articles;
-        return ArticleResource::collection($articles);
+        return ArticleOnlyResource::collection($articles);
     }
 }
