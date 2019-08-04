@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\Api\User\ChangePassword;
 use App\Http\Requests\Api\User\UpdateUser;
 use App\Http\Requests\Api\User\CreateUser;
+use App\Http\Resources\ArticleOnlyResource;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\BookmarkResource;
 use App\Http\Resources\CategoryOnlyResource;
@@ -139,7 +140,7 @@ class UserController extends Controller
     public function articles(Request $request, User $user)
     {
         $articles = $user->articles()->withAuthor()->paginate(10);
-        return ArticleResource::collection($articles);
+        return ArticleOnlyResource::collection($articles);
     }
 
     public function bookmarks(Request $request)
