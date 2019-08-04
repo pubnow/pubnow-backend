@@ -130,10 +130,16 @@ class OrganizationController extends Controller
         return new UserWithFollowingOrganizationsResource($user);
     }
 
-    public function featuredMembers(Organization $organization) {
-        $members = $organization->members->sortBy(function ($member) use ($organization) {
+    public function statistic(Organization $organization) {
+        $featuredMember = $organization->members->sortBy(function ($member) use ($organization) {
             return $member->articles->where('organization_id', $organization->id)->count();
-        })->reverse()->take(5);
-        return UserResource::collection($members);
+        })->reverse()->take(1);
+
+        $featuredArticle = $organization->articles->sortBy(function ($article) use ($organization) {
+            return $article->claps->sum('count') + $article->comments->count();
+        })->reverse()->take(1);
+
+        $articlesByCategories = $organization->articles->groupBy('category_id');
+        dd($articlesByCategories);
     }
 }
