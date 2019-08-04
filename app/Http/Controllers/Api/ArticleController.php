@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\Api\Article\UpdateArticle;
 use App\Http\Requests\Api\Bookmark\CreateBookmark;
 use App\Http\Resources\BookmarkResource;
+use App\Http\Resources\ClapResource;
 use App\Http\Resources\CommentResource;
 use App\Models\Article;
 use App\Models\Bookmark;
+use App\Models\Clap;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -168,5 +170,29 @@ class ArticleController extends Controller
     public function comments(Article $article) {
         $comments = $article->comments()->where('parent_id', null)->get();
         return CommentResource::collection($comments);
+    }
+
+    public function clap(Request $request, Article $article) {
+        $user = $request->user();
+        $clap = Clap::firstOrNew([
+            'user_id' => $user->id,
+            'article_id' => $article->id,
+        ]);
+        if ($clap->count !== null) {
+            $clap->update([
+                'count' => $clap->count + 1,
+            ]);
+        } else {
+            $clap->count = 1;
+            $clap->save();
+        }
+        return new ClapResource($clap);
+    }
+
+    public function unclap(Request $request, Article $article) {
+        $user = $request->user();
+        $clap = Clap::where('user_id', $user->id)->where('article_id', $article->id)->firstOrFail();
+        $clap->delete();
+        return response()->json(null, 204);
     }
 }
