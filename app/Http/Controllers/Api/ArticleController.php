@@ -8,6 +8,7 @@ use App\Http\Resources\BookmarkResource;
 use App\Http\Resources\CommentResource;
 use App\Models\Article;
 use App\Models\Bookmark;
+use App\Models\Organization;
 use App\Models\Tag;
 use http\Client\Curl\User;
 use Illuminate\Http\Request;
@@ -42,11 +43,24 @@ class ArticleController extends Controller
     public function store(CreateArticle $request)
     {
         $user = $request->user();
-        $data = $request->only('title', 'content', 'category_id', 'draft', 'private');
+
+        if ($request->has('organization_id')) {
+            $organization = Organization::find($request->get('organization_id'));
+            if (!$organization->members->find($user->id)) {
+                return response()->json([
+                    'errors' => [
+                        'message' => 'Not member of organization'
+                    ]
+                ], 403);
+            }
+        }
+
+        $data = $request->only('title', 'content', 'category_id', 'draft', 'private', 'organization_id', 'organization_private');
         $article = $user->articles()->create(array_merge($data, [
             'seen_count' => 0,
             'slug' => str_slug($data['title']) . '-' . base_convert(time(), 10, 36),
         ]));
+
         $inputTags = $request->input('tags');
         if ($inputTags && !empty($inputTags)) {
             $tags = array_map(function ($name) {

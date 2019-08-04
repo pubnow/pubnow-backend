@@ -19,7 +19,7 @@ class CreateArticle extends ApiRequest
             'category_id' => 'required|uuid|exists:categories,id',
             'organization_id' => 'sometimes|uuid|exists:organizations,id',
             'organization_private' => 'sometimes|boolean',
-            'tag_list' => 'sometimes|array'
+            'tags' => 'sometimes|array'
         ];
     }
 }

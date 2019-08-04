@@ -21,7 +21,7 @@ class OrganizationController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show', 'members', 'followers']);
+        $this->middleware(['auth'])->except(['index', 'show', 'members', 'followers', 'articles']);
         $this->authorizeResource(Organization::class);
     }
     /**
@@ -132,16 +132,7 @@ class OrganizationController extends Controller
     }
 
     public function articles(Request $request, Organization $organization) {
-        $articles = $organization->articles();
-        $nonPrivateArticles = $articles->where('organization_private', false);
-        $user = $request->user();
-        if (!$user) {
-            $articles = $nonPrivateArticles;
-        } else {
-            if (!$organization->members()->find($user->id)) {
-                $articles = $nonPrivateArticles;
-            }
-        }
+        $articles = $organization->articles()->withAuthor();
         $articles = $articles->orderByDesc('created_at')->paginate(10);
         return ArticleOnlyResource::collection($articles);
     }

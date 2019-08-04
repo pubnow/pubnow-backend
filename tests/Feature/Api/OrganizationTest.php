@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Article;
+use App\Models\Category;
 use App\Models\InviteRequest;
 use App\Models\Organization;
 use App\Models\User;
@@ -527,6 +529,33 @@ class OrganizationTest extends TestCase
                 'email' => $user->email
             ]);
         });
+    }
+
+    // Test get list organization articles
+    public function test_can_get_list_articles() {
+        $category = factory(Category::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id
+        ]);
+        $articles = factory(Article::class, 5)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id,
+        ]);
+
+        $response = $this->json('GET', 'api/organizations/'.$organization->id.'/articles');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(count($articles), 'data');
+
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id', 'slug', 'title', 'excerpt', 'seen_count', 'thumbnail', 'clapped', 'bookmarked',
+                    'author', 'category', 'tags', 'claps', 'publishedAt', 'createdAt', 'updatedAt'
+                ]
+            ]
+        ]);
     }
 
 }

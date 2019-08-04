@@ -86,6 +86,7 @@ Route::group(['namespace' => 'Api'], function () {
     Route::get('organizations/{organization}/followers', 'OrganizationController@followers');
 
     Route::get('organizations/{organization}/members', 'OrganizationController@members');
+    Route::get('organizations/{organization}/articles', 'OrganizationController@articles');
     Route::resource('organizations', 'OrganizationController')->except(['create', 'edit']);
 
     // Images
