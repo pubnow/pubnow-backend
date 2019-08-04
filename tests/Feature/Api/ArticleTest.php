@@ -7,8 +7,10 @@ use App\Models\Bookmark;
 use App\Models\Category;
 use App\Models\Clap;
 use App\Models\Comment;
+use App\Models\Organization;
 use App\Models\Tag;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -26,15 +28,23 @@ class ArticleTest extends TestCase
         $this->user = factory(User::class)->create();
     }
 
-    // ------
+    // ---- Create
     // TODO: Tao article, neu da login, -> ok
     public function test_can_create_article_if_logged_in() {
         $category = factory(Category::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id
+        ]);
+        $organization->members()->attach($this->user, [
+            'id' => DB::raw('gen_random_uuid()'),
+            'status' => 'accepted'
+        ]);
         $article = factory(Article::class)->make();
         $response = $this->actingAs($this->user)->json('POST', '/api/articles', [
             'title' => $article->title,
             'content' => $article->content,
             'category_id' => $category->id,
+            'organization_id' => $organization->id
         ]);
 
         $response->assertStatus(201);
@@ -42,6 +52,40 @@ class ArticleTest extends TestCase
             'title' => $article->title,
             'content' => $article->content,
         ]);
+    }
+    // TODO: Tao article, neu da login, organization khong ton tai -> 422
+    public function test_can_create_article_if_logged_in_organization_not_exists() {
+        $category = factory(Category::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id
+        ]);
+        $organization_id = $organization->id;
+        $organization->delete();
+        $article = factory(Article::class)->make();
+        $response = $this->actingAs($this->user)->json('POST', '/api/articles', [
+            'title' => $article->title,
+            'content' => $article->content,
+            'category_id' => $category->id,
+            'organization_id' => $organization_id
+        ]);
+
+        $response->assertStatus(422);
+    }
+    // TODO: Tao article, neu da login, organization ton tai, khong phai thanh vien cua organization -> 403
+    public function test_can_create_article_if_logged_in_not_organization_member() {
+        $category = factory(Category::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id
+        ]);
+        $article = factory(Article::class)->make();
+        $response = $this->actingAs($this->user)->json('POST', '/api/articles', [
+            'title' => $article->title,
+            'content' => $article->content,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id
+        ]);
+
+        $response->assertStatus(403);
     }
     // TODO: Tag article, chua login -> 403
     public function test_cannot_create_article_if_not_logged_in() {
@@ -77,7 +121,8 @@ class ArticleTest extends TestCase
 
         $response->assertStatus(422);
     }
-    // ----
+
+    // ---- Get one
     // TODO: Xem 1 article, ton tai -> ok
     public function test_can_view_an_exists_article() {
         $category = factory(Category::class)->create();
@@ -133,7 +178,8 @@ class ArticleTest extends TestCase
 
         $response->assertStatus(404);
     }
-    // ----
+
+    // ---- Update
     // TODO: Sua 1 article, ton tai + user la admin -> ok
     public function test_can_edit_an_exists_article_with_admin_logged_in()
     {
