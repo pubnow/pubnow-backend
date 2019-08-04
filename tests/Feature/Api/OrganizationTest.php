@@ -4,9 +4,12 @@ namespace Tests\Feature\Api;
 
 use App\Models\Article;
 use App\Models\Category;
+use App\Models\Clap;
+use App\Models\Comment;
 use App\Models\InviteRequest;
 use App\Models\Organization;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -556,6 +559,160 @@ class OrganizationTest extends TestCase
                 ]
             ]
         ]);
+    }
+
+    // --- Get statistic
+    // Test get list organization articles
+    public function test_can_get_organization_statistic() {
+        $category = factory(Category::class)->create();
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id
+        ]);
+        $organization->members()->attach($user, [
+            'id' => DB::raw('gen_random_uuid()'),
+            'status' => 'accepted'
+        ]);
+        $articles = factory(Article::class, 5)->create([
+            'user_id' => $user->id,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id,
+        ]);
+
+        Clap::create([
+            'user_id' => $user->id,
+            'article_id' => $articles[0]->id,
+            'count' => 5
+        ]);
+
+        Comment::create([
+            'user_id' => $user->id,
+            'article_id' => $articles[0]->id,
+            'content' => 'abc'
+        ]);
+
+        $start = date('Y-m-d');
+        $end_date = strtotime("1 day", strtotime($start));
+        $end = date("Y-m-d", $end_date);
+
+        $response = $this->actingAs($this->user)->json('GET', 'api/organizations/'.$organization->id.'/statistic', [
+            'start' => $start,
+            'end' => $end
+        ]);
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            'data' => [
+                'featured_member' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'username' => $user->username,
+                    'email' => $user->email,
+                ],
+                'featured_article' => [
+                    'id' => $articles[0]->id,
+                    'title' => $articles[0]->title,
+                    'slug' => $articles[0]->slug,
+                ],
+                'articles_by_category' => [
+                    [
+                        'category' => [
+                            'id' => $category->id,
+                        ],
+                        'count' => count($articles)
+                    ]
+                ],
+                'articles_by_day' => [
+                    [
+                        'date' => $start,
+                        'count' => count($articles)
+                    ]
+                ]
+            ]
+        ]);
+    }
+
+    // Test get list organization articles, not logged in
+    public function test_cannot_get_organization_statistic_if_not_logged_in() {
+        $category = factory(Category::class)->create();
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id
+        ]);
+        $organization->members()->attach($user, [
+            'id' => DB::raw('gen_random_uuid()'),
+            'status' => 'accepted'
+        ]);
+        $articles = factory(Article::class, 5)->create([
+            'user_id' => $user->id,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id,
+        ]);
+
+        Clap::create([
+            'user_id' => $user->id,
+            'article_id' => $articles[0]->id,
+            'count' => 5
+        ]);
+
+        Comment::create([
+            'user_id' => $user->id,
+            'article_id' => $articles[0]->id,
+            'content' => 'abc'
+        ]);
+
+        $start = date('Y-m-d');
+        $end_date = strtotime("1 day", strtotime($start));
+        $end = date("Y-m-d", $end_date);
+
+        $response = $this->json('GET', 'api/organizations/'.$organization->id.'/statistic', [
+            'start' => $start,
+            'end' => $end
+        ]);
+
+        $response->assertStatus(401);
+    }
+
+    // Test get list organization articles, logged in, not owner
+    public function test_cannot_get_organization_statistic_if_not_owner() {
+        $category = factory(Category::class)->create();
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id
+        ]);
+        $organization->members()->attach($user, [
+            'id' => DB::raw('gen_random_uuid()'),
+            'status' => 'accepted'
+        ]);
+        $articles = factory(Article::class, 5)->create([
+            'user_id' => $user->id,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id,
+        ]);
+
+        Clap::create([
+            'user_id' => $user->id,
+            'article_id' => $articles[0]->id,
+            'count' => 5
+        ]);
+
+        Comment::create([
+            'user_id' => $user->id,
+            'article_id' => $articles[0]->id,
+            'content' => 'abc'
+        ]);
+
+        $start = date('Y-m-d');
+        $end_date = strtotime("1 day", strtotime($start));
+        $end = date("Y-m-d", $end_date);
+
+        $response = $this->actingAs($user)->json('GET', 'api/organizations/'.$organization->id.'/statistic', [
+            'start' => $start,
+            'end' => $end
+        ]);
+
+        $response->assertStatus(403);
     }
 
 }

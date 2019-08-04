@@ -10,8 +10,10 @@ use App\Http\Resources\ArticleOnlyResource;
 use App\Http\Resources\InviteRequestResource;
 use App\Http\Resources\OrganizationMemberResource;
 use App\Http\Resources\OrganizationResource;
+use App\Http\Resources\OrganizationStatisticResource;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UserWithFollowingOrganizationsResource;
+use App\Models\Category;
 use App\Models\Organization;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -131,18 +133,46 @@ class OrganizationController extends Controller
         return new UserWithFollowingOrganizationsResource($user);
     }
 
-    public function statistic(Organization $organization)
+    public function statistic(Request $request, Organization $organization)
     {
+        $this->authorize('statistic', $organization);
         $featuredMember = $organization->members->sortBy(function ($member) use ($organization) {
             return $member->articles->where('organization_id', $organization->id)->count();
-        })->reverse()->take(1);
+        })->reverse()->first();
 
         $featuredArticle = $organization->articles->sortBy(function ($article) use ($organization) {
             return $article->claps->sum('count') + $article->comments->count();
-        })->reverse()->take(1);
+        })->reverse()->first();
 
-        $articlesByCategories = $organization->articles->groupBy('category_id');
-        dd($articlesByCategories);
+        $articlesByCategories = $organization->articles()
+            ->select('category_id', DB::raw('count(*) as count'))
+            ->groupBy('category_id')
+            ->orderBy('count', 'DESC')
+            ->get();
+        $roundChartData = collect($articlesByCategories)->map(function ($articlesByCategory) {
+            $category = Category::find($articlesByCategory->category_id);
+            return [
+                'category' => $category,
+                'count' => $articlesByCategory->count
+            ];
+        });
+        $start = date($request->input('start'));
+        $end_date = strtotime("1 day", strtotime($request->input('end')));
+        $end = date("Y-m-d", $end_date);
+        $articlesByDay = $organization->articles()
+            ->whereBetween('created_at', [$start, $end])
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+        return response()->json([
+            'data' => [
+                'featured_member' => new UserResource($featuredMember),
+                'featured_article' => new ArticleOnlyResource($featuredArticle),
+                'articles_by_category' => $roundChartData,
+                'articles_by_day' => $articlesByDay
+            ]
+        ], 200);
     }
 
     public function articles(Request $request, Organization $organization) {
