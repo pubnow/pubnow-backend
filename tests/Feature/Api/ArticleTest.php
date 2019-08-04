@@ -609,6 +609,54 @@ class ArticleTest extends TestCase
         $response->assertJsonCount(2, 'data');
     }
 
+    // TODO: Lấy bài viết theo category mà có filter draft và private
+    public function test_get_category_articles_filter_draft_private()
+    {
+        $category = factory(Category::class)->create();
+        $otherCategory = factory(Category::class)->create();
+        factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'draft' => false,
+            'private' => false
+        ]);
+        factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'draft' => false,
+            'private' => false
+        ]);
+        factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'draft' => false,
+            'private' => false
+        ]);
+        // những bài không tính
+        factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'draft' => true,
+            'private' => false
+        ]);
+        factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'draft' => true,
+            'private' => true
+        ]);
+        factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $otherCategory->id,
+            'draft' => false,
+            'private' => true
+        ]);
+        $response = $this->json('GET', '/api/categories/' . $category->slug . '/articles');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(3, 'data');
+    }
+
     // --- Clap
     // Test clap a exists article, logged in -> 201
     public function test_can_clap_a_exists_article() {
@@ -771,5 +819,45 @@ class ArticleTest extends TestCase
         $response = $this->actingAs($this->user)->json('DELETE', 'api/articles/'.$article->slug.'/clap');
 
         $response->assertStatus(404);
+    }
+
+    // TODO: Xem 1 private article nhưng đ phải thằng tạo
+    public function test_view_an_private_article_not_author() {
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'private' => true
+        ]);
+        $fakeUser = factory(User::class)->create();
+        $response = $this->actingAs($fakeUser)->json('GET', '/api/articles/'.$article->slug);
+
+        $response->assertStatus(401);
+    }
+
+    // TODO: Xem 1 private article đúng là thằng tạo
+    public function test_view_an_private_article_right_author() {
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'private' => true
+        ]);
+        $response = $this->actingAs($this->user)->json('GET', '/api/articles/'.$article->slug);
+
+        $response->assertStatus(200);
+    }
+
+    // TODO: Xem 1 private article là thằng admin
+    public function test_view_an_private_article_admin() {
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'private' => true
+        ]);
+        $response = $this->actingAs($this->admin)->json('GET', '/api/articles/'.$article->slug);
+
+        $response->assertStatus(200);
     }
 }

@@ -30,11 +30,12 @@ class BookmarkController extends Controller
         }
     }
 
-    public function destroy(Request $request)
+    public function destroy(CreateBookmark $request)
     {
         $userId =$request->user()->id;
         $articleId = $request->id;
         $bookmark = Bookmark::where(['user_id' => $userId, 'article_id' => $articleId]);
+        dd($bookmark);
         $bookmark->delete();
         return response()->json(null, 204);
     }
