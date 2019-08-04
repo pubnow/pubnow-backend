@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Organization\CreateOrganization;
 use App\Http\Requests\Api\Organization\FollowOrganization;
 use App\Http\Requests\Api\Organization\UpdateOrganization;
+use App\Http\Resources\ArticleOnlyResource;
 use App\Http\Resources\InviteRequestResource;
 use App\Http\Resources\OrganizationMemberResource;
 use App\Http\Resources\OrganizationResource;
@@ -20,7 +21,7 @@ class OrganizationController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show', 'members', 'followers']);
+        $this->middleware(['auth'])->except(['index', 'show', 'members', 'followers', 'articles']);
         $this->authorizeResource(Organization::class);
     }
     /**
@@ -130,7 +131,8 @@ class OrganizationController extends Controller
         return new UserWithFollowingOrganizationsResource($user);
     }
 
-    public function statistic(Organization $organization) {
+    public function statistic(Organization $organization)
+    {
         $featuredMember = $organization->members->sortBy(function ($member) use ($organization) {
             return $member->articles->where('organization_id', $organization->id)->count();
         })->reverse()->take(1);
@@ -141,5 +143,11 @@ class OrganizationController extends Controller
 
         $articlesByCategories = $organization->articles->groupBy('category_id');
         dd($articlesByCategories);
+    }
+
+    public function articles(Request $request, Organization $organization) {
+        $articles = $organization->articles()->withAuthor();
+        $articles = $articles->orderByDesc('created_at')->paginate(10);
+        return ArticleOnlyResource::collection($articles);
     }
 }

@@ -17,7 +17,9 @@ class CreateArticle extends ApiRequest
             'title' => 'required|min:10',
             'content' => 'required|string',
             'category_id' => 'required|uuid|exists:categories,id',
-            'tag_list' => 'sometimes|array'
+            'organization_id' => 'sometimes|uuid|exists:organizations,id',
+            'organization_private' => 'sometimes|boolean',
+            'tags' => 'sometimes|array'
         ];
     }
 }

@@ -36,6 +36,7 @@ class ArticleResource extends JsonResource
             'reading_time' => reading_time($this->content),
             'thumbnail' => thumbnail($this->content),
             'author' => new UserResource($this->author),
+            'organization' => new OrganizationResource($this->organization),
             'category' => new CategoryOnlyResource($this->category),
             'tags' => TagOnlyResource::collection($this->tags),
             'claps' => $this->claps()->sum('count'),
