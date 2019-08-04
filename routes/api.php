@@ -61,6 +61,8 @@ Route::group(['namespace' => 'Api'], function () {
     Route::get('articles/featured', 'ArticleController@featured');
     Route::post('articles/{id}/bookmark', 'BookmarkController@store');
     Route::delete('articles/{id}/bookmark', 'BookmarkController@destroy');
+    Route::post('articles/{article}/clap', 'ArticleController@clap');
+    Route::delete('articles/{article}/clap', 'ArticleController@unclap');
     Route::resource('articles', 'ArticleController')->except(['create', 'edit']);
 
     // Role
@@ -103,4 +105,8 @@ Route::group(['namespace' => 'Api'], function () {
     Route::post('invite-requests/{inviteRequest}/accept', 'InviteRequestController@accept');
     Route::post('invite-requests/{inviteRequest}/deny', 'InviteRequestController@deny');
     Route::resource('invite-requests', 'InviteRequestController')->except('create', 'edit', 'show');
+
+    // feedback
+    Route::resource('feedback', 'FeedbackController');
+
 });

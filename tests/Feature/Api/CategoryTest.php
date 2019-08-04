@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Article;
 use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -14,7 +15,7 @@ use App\Models\User;
 class CategoryTest extends TestCase
 {
     protected $admin;
-    protected $user;
+    protected $member;
 
     public function setUp(): void
     {
@@ -288,6 +289,29 @@ class CategoryTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
+    }
+
+    // --- Articles
+    // Get list articles of category
+    public function test_can_get_list_articles_of_categories() {
+        $category = factory(Category::class)->create();
+        $articles = factory(Article::class, 10)->create([
+            'user_id' => $this->member->id,
+            'category_id' => $category->id,
+        ]);
+
+        $response = $this->json('GET', '/api/categories/'.$category->slug.'/articles');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(count($articles), 'data');
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id', 'slug', 'title', 'excerpt', 'reading_time', 'seen_count', 'thumbnail', 'clapped', 'bookmarked',
+                    'author', 'category', 'tags', 'claps', 'publishedAt', 'createdAt', 'updatedAt', 'draft', 'private'
+                ]
+            ]
+        ]);
     }
 
     //----

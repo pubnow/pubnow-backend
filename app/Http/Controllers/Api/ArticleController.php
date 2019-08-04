@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\Article\UpdateArticle;
 use App\Http\Requests\Api\Bookmark\CreateBookmark;
+use App\Http\Resources\ArticleOnlyResource;
 use App\Http\Resources\BookmarkResource;
+use App\Http\Resources\ClapResource;
 use App\Http\Resources\CommentResource;
 use App\Models\Article;
 use App\Models\Bookmark;
 use App\Models\Organization;
+use App\Models\Clap;
 use App\Models\Tag;
 use http\Client\Curl\User;
 use Illuminate\Http\Request;
@@ -31,7 +34,7 @@ class ArticleController extends Controller
     public function index()
     {
         $articles = Article::withAuthor()->orderByDesc('created_at')->paginate(10);
-        return ArticleResource::collection($articles);
+        return ArticleOnlyResource::collection($articles);
     }
 
     /**
@@ -147,7 +150,7 @@ class ArticleController extends Controller
     public function popular()
     {
         $articles = Article::withAuthor()->orderBy('seen_count', 'desc')->take(5)->get();
-        return ArticleResource::collection($articles);
+        return ArticleOnlyResource::collection($articles);
     }
 
     private function filterShowArticle()
@@ -189,11 +192,35 @@ class ArticleController extends Controller
         $articles = Article::withAuthor()->with('claps')->with('comments')->get()->sortBy(function ($article) {
             return $article->claps->sum('count') + $article->comments->count();
         })->reverse()->take(5);
-        return ArticleResource::collection($articles);
+        return ArticleOnlyResource::collection($articles);
     }
 
     public function comments(Article $article) {
         $comments = $article->comments()->where('parent_id', null)->get();
         return CommentResource::collection($comments);
+    }
+
+    public function clap(Request $request, Article $article) {
+        $user = $request->user();
+        $clap = Clap::firstOrNew([
+            'user_id' => $user->id,
+            'article_id' => $article->id,
+        ]);
+        if ($clap->count !== null) {
+            $clap->update([
+                'count' => $clap->count + 1,
+            ]);
+        } else {
+            $clap->count = 1;
+            $clap->save();
+        }
+        return new ClapResource($clap);
+    }
+
+    public function unclap(Request $request, Article $article) {
+        $user = $request->user();
+        $clap = Clap::where('user_id', $user->id)->where('article_id', $article->id)->firstOrFail();
+        $clap->delete();
+        return response()->json(null, 204);
     }
 }

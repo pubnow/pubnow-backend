@@ -99,7 +99,13 @@ class Article extends Model
         return $this->belongsToMany(User::class, 'bookmarks');
     }
 
-    public function organization() {
+    public function organization()
+    {
         return $this->belongsTo(Organization::class);
+    }
+
+    public function feedback()
+    {
+        return $this->hasMany(Feedback::class);
     }
 }
