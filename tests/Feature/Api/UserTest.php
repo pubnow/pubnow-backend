@@ -2,8 +2,11 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Article;
+use App\Models\Clap;
 use App\Models\InviteRequest;
 use App\Models\Organization;
+use App\Models\Role;
 use App\Models\User;
 use Faker\Factory;
 use Illuminate\Http\UploadedFile;
@@ -566,5 +569,193 @@ class UserTest extends TestCase
                 'description' => $tag->description,
             ]);
         });
+    }
+
+    // --- Filter user
+    // -- Get admin members
+    // Test get admin members, admin -> ok
+    public function test_can_get_admin_members_admin_logged_in() {
+        $users = factory(User::class, 5)->create();
+
+        $response = $this->actingAs($this->admin)->json('GET', 'api/users/admin-members');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+        $response->assertJsonFragment([
+            'name' => $this->admin->name,
+            'username' => $this->admin->username,
+            'bio' => $this->admin->bio,
+        ]);
+    }
+
+    // Test get admin members, not logged in -> 401
+    public function test_cannot_get_admin_members_not_logged_in() {
+        $users = factory(User::class, 5)->create();
+
+        $response = $this->json('GET', 'api/users/admin-members');
+
+        $response->assertStatus(401);
+    }
+
+    // Test get admin members, user -> 403
+    public function test_cannot_get_admin_members_not_admin_logged_in() {
+        $users = factory(User::class, 5)->create();
+
+        $response = $this->actingAs($this->user)->json('GET', 'api/users/admin-members');
+
+        $response->assertStatus(403);
+    }
+
+    // -- Get new members
+    // Test get new members, admin -> ok
+    public function test_can_get_new_members_admin_logged_in() {
+        $users = factory(User::class, 5)->create();
+
+        $response = $this->actingAs($this->admin)->json('GET', 'api/users/new-members');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(7, 'data');
+        $response->assertJsonFragment([
+            'name' => $this->admin->name,
+            'username' => $this->admin->username,
+            'bio' => $this->admin->bio,
+        ]);
+    }
+
+    // Test get new members, not logged in -> 401
+    public function test_cannot_get_new_members_not_logged_in() {
+        $users = factory(User::class, 5)->create();
+
+        $response = $this->json('GET', 'api/users/new-members');
+
+        $response->assertStatus(401);
+    }
+
+    // Test get new members, not admin -> 403
+    public function test_cannot_get_new_members_not_admin_logged_in() {
+        $users = factory(User::class, 5)->create();
+
+        $response = $this->actingAs($this->user)->json('GET', 'api/users/new-members');
+
+        $response->assertStatus(403);
+    }
+
+    // -- Get featured authors
+    // Test get featured authors, admin -> ok
+    public function test_can_get_featured_members_admin_logged_in() {
+        $users = factory(User::class, 5)->create();
+
+        $category = factory(Category::class)->create();
+        factory(Article::class, 2)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id
+        ]);
+
+        $response = $this->actingAs($this->admin)->json('GET', 'api/users/featured-authors');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(5, 'data');
+        $response->assertJsonFragment([
+            'name' => $this->user->name,
+            'username' => $this->user->username,
+            'bio' => $this->user->bio,
+        ]);
+    }
+
+    // Test get featured authors, not logged in -> 401
+    public function test_cannot_get_featured_members_not_logged_in() {
+        $users = factory(User::class, 5)->create();
+
+        $category = factory(Category::class)->create();
+        factory(Article::class, 2)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id
+        ]);
+
+        $response = $this->json('GET', 'api/users/featured-authors');
+
+        $response->assertStatus(401);
+    }
+
+    // Test get featured authors, admin -> ok
+    public function test_cannot_get_featured_members_not_admin_logged_in() {
+        $users = factory(User::class, 5)->create();
+
+        $category = factory(Category::class)->create();
+        factory(Article::class, 2)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id
+        ]);
+
+        $response = $this->actingAs($this->user)->json('GET', 'api/users/featured-authors');
+
+        $response->assertStatus(403);
+    }
+
+    // -- Get active members
+    // Test get active members, admin -> ok
+    public function test_can_get_active_members_admin_logged_in() {
+        $users = factory(User::class, 5)->create();
+
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id
+        ]);
+        Clap::create([
+            'user_id' => $this->user->id,
+            'article_id' => $article->id,
+            'count' => 3
+        ]);
+
+        $response = $this->actingAs($this->admin)->json('GET', 'api/users/active-members');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(5, 'data');
+        $response->assertJsonFragment([
+            'name' => $this->user->name,
+            'username' => $this->user->username,
+            'bio' => $this->user->bio,
+        ]);
+    }
+
+    // Test get active members, not logged in -> 401
+    public function test_cannot_get_active_members_not_logged_in() {
+        $users = factory(User::class, 5)->create();
+
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id
+        ]);
+        Clap::create([
+            'user_id' => $this->user->id,
+            'article_id' => $article->id,
+            'count' => 3
+        ]);
+
+        $response = $this->json('GET', 'api/users/active-members');
+
+        $response->assertStatus(401);
+    }
+
+    // Test get active members, not admin -> 403
+    public function test_cannot_get_active_members_not_admin_logged_in() {
+        $users = factory(User::class, 5)->create();
+
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id
+        ]);
+        Clap::create([
+            'user_id' => $this->user->id,
+            'article_id' => $article->id,
+            'count' => 3
+        ]);
+
+        $response = $this->actingAs($this->user)->json('GET', 'api/users/active-members');
+
+        $response->assertStatus(403);
     }
 }

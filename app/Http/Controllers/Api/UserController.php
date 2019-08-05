@@ -212,8 +212,9 @@ class UserController extends Controller
         return CategoryOnlyResource::collection($categories);
     }
 
-    public function adminMembers()
+    public function adminMembers(Request $request)
     {
+        $this->authorize('filterUsers', User::class);
         $role_admin = Role::where('name', 'admin')->first();
         $users = User::where('role_id', $role_admin->id)->get();
         return UserResource::collection($users);
@@ -221,11 +222,13 @@ class UserController extends Controller
 
     public function newMembers()
     {
+        $this->authorize('filterUsers', User::class);
         $users = User::where( 'created_at', '>', Carbon::now()->subDays(7))->get();
         return UserResource::collection($users);
     }
 
     public function featuredAuthors() {
+        $this->authorize('filterUsers', User::class);
         $users = User::with('articles')->get()->sortBy(function ($user) {
             return $user->articles->count();
         })->reverse()->take(5);
@@ -233,6 +236,7 @@ class UserController extends Controller
     }
 
     public function activeMembers() {
+        $this->authorize('filterUsers', User::class);
         $users = User::with('claps')->with('comments')->get()->sortBy(function ($user) {
             return $user->claps->sum('count') + $user->comments->count();
         })->reverse()->take(5);
