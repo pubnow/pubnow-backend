@@ -15,11 +15,13 @@ class ArticleResource extends JsonResource
     public function toArray($request)
     {
         $clapped = false;
+        $user_claps = 0;
         $bookmarked = false;
         $logged = $request->user();
         if ($logged) {
-            if ($this->claps()->where('user_id', $logged->id)->first()) {
+            if ($clap = $this->claps()->where('user_id', $logged->id)->first()) {
                 $clapped = true;
+                $user_claps = $clap->count;
             }
 
             if ($this->usersBookmarked()->find($logged->id)) {
@@ -41,6 +43,7 @@ class ArticleResource extends JsonResource
             'tags' => TagOnlyResource::collection($this->tags),
             'claps' => $this->claps()->sum('count'),
             'clapped' => $clapped,
+            'user_claps' => $user_claps,
             'bookmarked' => $bookmarked,
             'publishedAt' => $this->created_at->diffForHumans(),
             'createdAt' => $this->created_at,
