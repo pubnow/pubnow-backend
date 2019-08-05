@@ -24,10 +24,13 @@ class OrganizationResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'owner' => new UserResource($this->user),
+            'members_count' => $this->members()->count(),
             'following' => $following,
             'description' => $this->description,
             'logo' => $this->image ? $this->image->url : '',
-            'active' => $this->active
+            'active' => $this->active,
+            'publishedAt' => $this->created_at->diffForHumans(),
+            'createdAt' => $this->created_at,
         ];
     }
 }

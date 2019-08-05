@@ -48,6 +48,7 @@ class OrganizationController extends Controller
         $data = $request->except('active');
         $data['owner'] = $user->id;
         $data['active'] = 0;
+        $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
         $organization = Organization::create($data);
         $organization->followers()->attach($user);
         $organization->members()->attach($user, [
@@ -84,6 +85,9 @@ class OrganizationController extends Controller
             ], 403);
         }
         $data = $request->all();
+        if ($request->has('name') && !empty($data['name'])) {
+            $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
+        }
         $organization->update($data);
         return new OrganizationResource($organization);
     }
