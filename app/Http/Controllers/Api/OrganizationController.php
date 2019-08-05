@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Organization\CreateOrganization;
 use App\Http\Requests\Api\Organization\FollowOrganization;
+use App\Http\Requests\Api\Organization\OrganizationStatistic;
 use App\Http\Requests\Api\Organization\UpdateOrganization;
 use App\Http\Resources\ArticleOnlyResource;
 use App\Http\Resources\InviteRequestResource;
@@ -133,7 +134,7 @@ class OrganizationController extends Controller
         return new UserWithFollowingOrganizationsResource($user);
     }
 
-    public function statistic(Request $request, Organization $organization)
+    public function statistic(OrganizationStatistic $request, Organization $organization)
     {
         $this->authorize('statistic', $organization);
         $featuredMember = $organization->members->sortBy(function ($member) use ($organization) {

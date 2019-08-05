@@ -562,7 +562,7 @@ class OrganizationTest extends TestCase
     }
 
     // --- Get statistic
-    // Test get list organization articles
+    // Test get organization statistic -> ok
     public function test_can_get_organization_statistic() {
         $category = factory(Category::class)->create();
         $user = factory(User::class)->create();
@@ -633,7 +633,7 @@ class OrganizationTest extends TestCase
         ]);
     }
 
-    // Test get list organization articles, not logged in
+    // Test get organization statistic, not logged in -> 401
     public function test_cannot_get_organization_statistic_if_not_logged_in() {
         $category = factory(Category::class)->create();
         $user = factory(User::class)->create();
@@ -674,7 +674,7 @@ class OrganizationTest extends TestCase
         $response->assertStatus(401);
     }
 
-    // Test get list organization articles, logged in, not owner
+    // Test get organization statistic, logged in, not owner -> 403
     public function test_cannot_get_organization_statistic_if_not_owner() {
         $category = factory(Category::class)->create();
         $user = factory(User::class)->create();
@@ -713,6 +713,83 @@ class OrganizationTest extends TestCase
         ]);
 
         $response->assertStatus(403);
+    }
+
+    // Test get organization statistic, missing start date -> 422
+    public function test_cannot_get_organization_statistic_if_missing_start() {
+        $category = factory(Category::class)->create();
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id
+        ]);
+        $organization->members()->attach($user, [
+            'id' => DB::raw('gen_random_uuid()'),
+            'status' => 'accepted'
+        ]);
+        $articles = factory(Article::class, 5)->create([
+            'user_id' => $user->id,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id,
+        ]);
+
+        Clap::create([
+            'user_id' => $user->id,
+            'article_id' => $articles[0]->id,
+            'count' => 5
+        ]);
+
+        Comment::create([
+            'user_id' => $user->id,
+            'article_id' => $articles[0]->id,
+            'content' => 'abc'
+        ]);
+
+        $start = date('Y-m-d');
+        $end_date = strtotime("1 day", strtotime($start));
+        $end = date("Y-m-d", $end_date);
+
+        $response = $this->actingAs($this->user)->json('GET', 'api/organizations/'.$organization->id.'/statistic', [
+            'end' => $end
+        ]);
+
+        $response->assertStatus(422);
+    }
+
+    // Test get organization statistic, start date not a date
+    public function test_cannot_get_organization_statistic_if_start_is_not_date() {
+        $category = factory(Category::class)->create();
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id
+        ]);
+        $organization->members()->attach($user, [
+            'id' => DB::raw('gen_random_uuid()'),
+            'status' => 'accepted'
+        ]);
+        $articles = factory(Article::class, 5)->create([
+            'user_id' => $user->id,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id,
+        ]);
+
+        Clap::create([
+            'user_id' => $user->id,
+            'article_id' => $articles[0]->id,
+            'count' => 5
+        ]);
+
+        Comment::create([
+            'user_id' => $user->id,
+            'article_id' => $articles[0]->id,
+            'content' => 'abc'
+        ]);
+
+        $response = $this->actingAs($this->user)->json('GET', 'api/organizations/'.$organization->id.'/statistic', [
+            'start' => 'abc',
+            'end' => 'abc'
+        ]);
+
+        $response->assertStatus(422);
     }
 
 }
