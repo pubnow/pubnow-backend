@@ -22,7 +22,6 @@ class AuthServiceProvider extends ServiceProvider
         'App\Models\Organization' => 'App\Policies\OrganizationPolicy',
         'App\Models\Series' => 'App\Policies\SeriesPolicy',
         'App\Models\InviteRequest' => 'App\Policies\InviteRequestPolicy',
-        'App\Models\Feedback' => 'App\Policies\FeedbackPolicy',
     ];
 
     /**

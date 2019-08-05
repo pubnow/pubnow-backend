@@ -37,7 +37,7 @@ class BookmarkTest extends TestCase
         $response = $this->actingAs($this->user)->json('POST', '/api/articles/'.$article->id.'/bookmark');
         $response->assertStatus(201);
         $response->assertJsonFragment([
-            'content' => $article->content,
+            'id' => $article->id,
         ]);
     }
 
@@ -50,11 +50,10 @@ class BookmarkTest extends TestCase
             'category_id' => $category->id,
         ]);
         $response = $this->json('POST', '/api/articles/'.$article->id.'/bookmark');
-//        dd($response);
         $response->assertStatus(401);
     }
 
-    // test: remove bookmark => 204
+    // test: remove bookmark đúng người tạo => 204
     public function test_remove_bookmark()
     {
         $category = factory(Category::class)->create();
@@ -62,15 +61,44 @@ class BookmarkTest extends TestCase
             'user_id' => $this->user->id,
             'category_id' => $category->id,
         ]);
+        factory(Bookmark::class)->create([
+            'user_id' => $this->user->id,
+            'article_id' => $article->id,
+        ]);
         $response = $this->actingAs($this->user)->json('DELETE', '/api/articles/'.$article->id.'/bookmark');
         $response->assertStatus(204);
     }
 
-    // test: tạo bookmark khi bài viết không tồn tại => 500
-    public function test_add_bookmark_with_wrong_article_id()
+    // test: remove bookmark sai người tạo || sai article => 403
+    public function test_remove_bookmark_wrong_creator()
     {
-        $fake = '293b47f4-a01b-427d-ae43-d61092f021fa';
-        $response = $this->actingAs($this->user)->json('POST', '/api/articles/'.$fake.'/bookmark');
-        $response->assertStatus(500);
+        $otherUser = factory(User::class)->create();
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
+        factory(Bookmark::class)->create([
+            'user_id' => $this->user->id,
+            'article_id' => $article->id,
+        ]);
+        $response = $this->actingAs($otherUser)->json('DELETE', '/api/articles/'.$article->id.'/bookmark');
+        $response->assertStatus(403);
+    }
+
+    // test: remove bookmark chưa đăng nhâp => 401
+    public function test_remove_bookmark_unauthorize()
+    {
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
+        factory(Bookmark::class)->create([
+            'user_id' => $this->user->id,
+            'article_id' => $article->id,
+        ]);
+        $response = $this->json('DELETE', '/api/articles/'.$article->id.'/bookmark');
+        $response->assertStatus(401);
     }
 }
