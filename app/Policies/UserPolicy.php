@@ -92,11 +92,6 @@ class UserPolicy
         return false;
     }
 
-    public function allArticles($params)
-    {
-        return $params[1]->isAdmin() || ($params[0]->user()->id === $params[1]->id);
-    }
-
     public function filterUsers(User $user)
     {
         return $user->isAdmin();
