@@ -63,26 +63,8 @@ class OrganizationPolicy
     {
         return $user->isAdmin() || ($user->id === $organization->owner);
     }
-    /**
-     * Determine whether the user can restore the organization.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Organization  $organization
-     * @return mixed
-     */
-    public function restore(User $user, Organization $organization)
-    {
-        return $user->isAdmin() || ($user->id === $organization->owner);
-    }
-    /**
-     * Determine whether the user can permanently delete the organization.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Organization  $organization
-     * @return mixed
-     */
-    public function forceDelete(User $user, Organization $organization)
-    {
-        return $user->isAdmin() || ($user->id === $organization->owner);
+
+    public function statistic(User $user, Organization $organization) {
+        return $user->id === $organization->owner;
     }
 }

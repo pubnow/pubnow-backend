@@ -21,6 +21,7 @@ use App\Models\Category;
 use App\Models\Role;
 use App\Models\Tag;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
@@ -222,5 +223,36 @@ class UserController extends Controller
     {
         $articles = $request->user()->articles()->paginate(10);
         return ArticleOnlyResource::collection($articles);
+    }
+
+    public function adminMembers(Request $request)
+    {
+        $this->authorize('filterUsers', User::class);
+        $role_admin = Role::where('name', 'admin')->first();
+        $users = User::where('role_id', $role_admin->id)->get();
+        return UserResource::collection($users);
+    }
+
+    public function newMembers()
+    {
+        $this->authorize('filterUsers', User::class);
+        $users = User::where( 'created_at', '>', Carbon::now()->subDays(7))->get();
+        return UserResource::collection($users);
+    }
+
+    public function featuredAuthors() {
+        $this->authorize('filterUsers', User::class);
+        $users = User::with('articles')->get()->sortBy(function ($user) {
+            return $user->articles->count();
+        })->reverse()->take(5);
+        return UserResource::collection($users);
+    }
+
+    public function activeMembers() {
+        $this->authorize('filterUsers', User::class);
+        $users = User::with('claps')->with('comments')->get()->sortBy(function ($user) {
+            return $user->claps->sum('count') + $user->comments->count();
+        })->reverse()->take(5);
+        return UserResource::collection($users);
     }
 }

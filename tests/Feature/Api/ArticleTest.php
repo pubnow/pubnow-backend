@@ -140,8 +140,8 @@ class ArticleTest extends TestCase
             'bookmarked' => false,
         ]);
     }
-    // TODO: Xem 1 article, clapped, bookmarked
 
+    // TODO: Xem 1 article, clapped, bookmarked
     public function test_can_view_an_exists_article_clapped_bookmarked() {
         $category = factory(Category::class)->create();
         $article = factory(Article::class)->create([
@@ -164,6 +164,7 @@ class ArticleTest extends TestCase
             'title' => $article->title,
             'content' => $article->content,
             'clapped' => true,
+            'user_claps' => 1,
             'bookmarked' => true,
         ]);
     }
