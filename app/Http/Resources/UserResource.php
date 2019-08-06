@@ -27,7 +27,7 @@ class UserResource extends JsonResource
             'isAdmin' => $this->isAdmin(),
             'bio' => $this->bio,
             'following' => $following,
-            'avatar' => $this->image ? $this->image->url : '',
+            'avatar' => $this->avatar_url,
             'role' => new RoleResource($this->role),
         ];
     }

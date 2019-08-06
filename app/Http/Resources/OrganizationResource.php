@@ -28,7 +28,7 @@ class OrganizationResource extends JsonResource
             'members_count' => $this->members()->count(),
             'following' => $following,
             'description' => $this->description,
-            'logo' => $this->image ? $this->image->url : '',
+            'logo' => $this->logo_url,
             'active' => $this->active,
             'publishedAt' => $this->created_at->diffForHumans(),
             'createdAt' => $this->created_at,
