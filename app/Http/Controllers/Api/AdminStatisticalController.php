@@ -23,7 +23,7 @@ class AdminStatisticalController extends Controller
     {
         $this->authorize('showStatistic', User::class);
         $params = $request->only(['start_date', 'end_date']);
-        if(!$params || !array_key_exists("username", $params) || !array_key_exists("end_date", $params)) {
+        if(!$params || !array_key_exists("start_date", $params) || !array_key_exists("end_date", $params)) {
             return response()->json([
                 "errors" => "Bad request."
             ], 403);
@@ -112,8 +112,8 @@ class AdminStatisticalController extends Controller
     {
         $users = User::all();
         $highlight = $users->sortBy(function ($user) use ($users) {
-            dd($user->articles->count());
-            return $user->articles->sum('count');
+            dd($user->articles->sum('seen_count'));
+            return $user->articles->count();
 //                + $user->articles->claps->sum('count') + $user->articles->comments->sum('count');
         })->reverse()->first();
         return $highlight;
