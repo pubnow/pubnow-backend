@@ -26,7 +26,7 @@ class OrganizationTest extends TestCase
         $this->admin = User::where(['username' => 'admin'])->first();
         $this->user = factory(User::class)->create();
     }
-    // --- Get all
+    // --- TODO:Get all
     // Test can get all Organizations -> ok
     public function test_can_get_list_organizations() {
         $organizations = factory(Organization::class, 5)->create([
@@ -49,7 +49,7 @@ class OrganizationTest extends TestCase
         });
     }
 
-    // --- Get one
+    // --- TODO:Get one
     public function test_can_get_an_organization() {
         $organization = factory(Organization::class)->create([
             'owner' => $this->user->id,
@@ -87,7 +87,7 @@ class OrganizationTest extends TestCase
         ]);
     }
 
-    // --- Create
+    // --- TODO:Create
     // Test can create a organization -> 201
     public function test_can_create_an_organization_if_logged_in() {
         $organization = factory(Organization::class)->make();
@@ -160,7 +160,7 @@ class OrganizationTest extends TestCase
         $response->assertStatus(422);
     }
 
-    // --- Update
+    // --- TODO:Update
     // Test update a organization, logged in, owner -> 200
     public function test_can_update_an_organization_if_logged_in() {
         $created = factory(Organization::class)->create([
@@ -304,7 +304,7 @@ class OrganizationTest extends TestCase
         $response->assertStatus(422);
     }
 
-    // --- Delete
+    // --- TODO:Delete
     // Test delete organization, logged in, owner
     public function test_can_delete_organization_if_logged_in_and_admin() {
         $created = factory(Organization::class)->create([
@@ -327,7 +327,6 @@ class OrganizationTest extends TestCase
         $response->assertStatus(204);
     }
 
-
     // Test delete organization, logged in, owner
     public function test_cannot_delete_organization_if_not_logged_in() {
         $created = factory(Organization::class)->create([
@@ -338,7 +337,6 @@ class OrganizationTest extends TestCase
 
         $response->assertStatus(401);
     }
-
 
     // Test delete organization, logged in, owner
     public function test_cannot_delete_organization_if_logged_in_but_not_owner() {
@@ -352,7 +350,92 @@ class OrganizationTest extends TestCase
         $response->assertStatus(403);
     }
 
-    // --- Get list members
+    // --- TODO:Get list articles
+    // Test get list articles, active, not logged in
+    public function test_can_get_list_articles() {
+        $category = factory(Category::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id,
+            'active' => true
+        ]);
+        $articles = factory(Article::class, 5)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id,
+        ]);
+        $privateArticles = factory(Article::class, 5)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id,
+            'organization_private' => true
+        ]);
+
+        $response = $this->json('GET', 'api/organizations/'.$organization->slug.'/articles');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(count($articles), 'data');
+
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id', 'slug', 'title', 'excerpt', 'seen_count', 'thumbnail', 'clapped', 'bookmarked',
+                    'author', 'category', 'tags', 'claps', 'publishedAt', 'createdAt', 'updatedAt'
+                ]
+            ]
+        ]);
+    }
+
+    // Test get list articles, active, logged in as member
+    public function test_can_get_list_articles_logged_in_as_member() {
+        $category = factory(Category::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id,
+            'active' => true
+        ]);
+        InviteRequest::create([
+            'user_id' => $this->user->id,
+            'organization_id' => $organization->id,
+            'status' => 'pending'
+        ]);
+        $articles = factory(Article::class, 5)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id,
+        ]);
+        $privateArticles = factory(Article::class, 5)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id,
+            'organization_private' => true
+        ]);
+
+        $response = $this->actingAs($this->user)->json('GET', 'api/organizations/'.$organization->slug.'/articles');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(count($articles) + count($privateArticles), 'data');
+
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id', 'slug', 'title', 'excerpt', 'seen_count', 'thumbnail', 'clapped', 'bookmarked',
+                    'author', 'category', 'tags', 'claps', 'publishedAt', 'createdAt', 'updatedAt'
+                ]
+            ]
+        ]);
+    }
+
+    // Test get list articles, not active
+    public function test_cannot_get_list_articles_if_not_active() {
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id
+        ]);
+
+        $response = $this->json('GET', 'api/organizations/'.$organization->slug.'/articles');
+
+        $response->assertStatus(422);
+    }
+
+    // --- TODO:Get list members
     // Test get list members, active
     public function test_can_get_list_members() {
         $organization = factory(Organization::class)->create([
@@ -386,7 +469,7 @@ class OrganizationTest extends TestCase
         $response->assertStatus(422);
     }
 
-    // --- Follow Organization
+    // --- TODO:Follow Organization
     // Test follow organization, logged in, organization exists
     public function test_user_can_follow_an_exists_organization() {
         $user = factory(User::class)->create();
@@ -467,7 +550,7 @@ class OrganizationTest extends TestCase
         $response->assertStatus(422);
     }
 
-    // --- Unfollow organization
+    // --- TODO:Unfollow organization
     // Test unfollow organization, logged in, organization exists, followed
     public function test_user_can_unfollow_a_followed_organization() {
         $user = factory(User::class)->create();
@@ -552,7 +635,7 @@ class OrganizationTest extends TestCase
         $response->assertStatus(422);
     }
 
-    // --- Followers
+    // --- TODO:Followers
     // Test get list followers
     public function test_can_get_list_followers() {
         $users = factory(User::class, 5)->create();
@@ -590,35 +673,7 @@ class OrganizationTest extends TestCase
         $response->assertStatus(422);
     }
 
-    // Test get list organization articles
-    public function test_can_get_list_articles() {
-        $category = factory(Category::class)->create();
-        $organization = factory(Organization::class)->create([
-            'owner' => $this->user->id,
-            'active' => true
-        ]);
-        $articles = factory(Article::class, 5)->create([
-            'user_id' => $this->user->id,
-            'category_id' => $category->id,
-            'organization_id' => $organization->id,
-        ]);
-
-        $response = $this->json('GET', 'api/organizations/'.$organization->slug.'/articles');
-
-        $response->assertStatus(200);
-        $response->assertJsonCount(count($articles), 'data');
-
-        $response->assertJsonStructure([
-            'data' => [
-                '*' => [
-                    'id', 'slug', 'title', 'excerpt', 'seen_count', 'thumbnail', 'clapped', 'bookmarked',
-                    'author', 'category', 'tags', 'claps', 'publishedAt', 'createdAt', 'updatedAt'
-                ]
-            ]
-        ]);
-    }
-
-    // --- Get statistic
+    // --- TODO:Get statistic
     // Test get organization statistic -> ok
     public function test_can_get_organization_statistic() {
         $category = factory(Category::class)->create();
