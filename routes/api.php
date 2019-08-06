@@ -67,8 +67,8 @@ Route::group(['namespace' => 'Api'], function () {
     Route::get('articles/{article}/comments', 'ArticleController@comments');
     Route::get('articles/popular', 'ArticleController@popular');
     Route::get('articles/featured', 'ArticleController@featured');
-    Route::post('articles/{id}/bookmark', 'BookmarkController@store');
-    Route::delete('articles/{id}/bookmark', 'BookmarkController@destroy');
+    Route::post('articles/{article}/bookmark', 'BookmarkController@store');
+    Route::delete('articles/{article}/bookmark', 'BookmarkController@destroy');
     Route::post('articles/{article}/clap', 'ArticleController@clap');
     Route::delete('articles/{article}/clap', 'ArticleController@unclap');
     Route::resource('articles', 'ArticleController')->except(['create', 'edit']);
@@ -117,5 +117,4 @@ Route::group(['namespace' => 'Api'], function () {
 
     // feedback
     Route::resource('feedback', 'FeedbackController');
-
 });
