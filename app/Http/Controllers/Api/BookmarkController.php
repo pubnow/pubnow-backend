@@ -17,35 +17,25 @@ class BookmarkController extends Controller
         $this->middleware(['auth']);
     }
 
-    public function store(CreateBookmark $request)
+    public function store(CreateBookmark $request, Article $article)
     {
         $user = auth()->user();
-        // check có tồn tại bài viết hay không
-        $article = Article::where('id', $request->id)->first();
-        if (!$article) {
-            return response()->json(["errors" => "The article id does not exist."], 500);
-        }
         // check xem record này đã được tạo chưa
-        $isExit = Bookmark::where(['user_id' => $user->id, 'article_id' => $request->id])->first();
+        $isExist = Bookmark::where(['user_id' => $user->id, 'article_id' => $article->id])->first();
 
-        if (!$isExit) {
+        if (!$isExist) {
             $bookmark = $user->bookmarks()->create([
-                'article_id' => $request->id,
+                'article_id' => $article->id,
             ]);
             return new BookmarkResource($bookmark);
         }
     }
 
-    public function destroy(CreateBookmark $request)
+    public function destroy(CreateBookmark $request, Article $article)
     {
         $user = auth()->user();
-        // check có tồn tại bài viết hay không
-        $article = Article::where('id', $request->id)->first();
-        if (!$article) {
-            return response()->json(["errors" => "The article id does not exist."], 500);
-        }
         // check xem record này đã được tạo chưa
-        $bookmark = Bookmark::where(['user_id' => $user->id, 'article_id' => $request->id])->first();
+        $bookmark = Bookmark::where(['user_id' => $user->id, 'article_id' => $article->id])->first();
         if (!$bookmark) {
             return response()->json(["errors" => "The bookmark does not exist."], 403);
         }
