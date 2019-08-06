@@ -53,6 +53,19 @@ class BookmarkTest extends TestCase
         $response->assertStatus(401);
     }
 
+    // test: tạo bookmark. khi đã đăng nhập nhưng article k tồn tại => 500
+    public function test_check_create_bookmark_not_exist_article()
+    {
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
+        $fakeArticleID = "f453a0a1-e52b-44bc-b189-c63154884a71";
+        $response = $this->actingAs($this->user)->json('POST', '/api/articles/'.$fakeArticleID.'/bookmark');
+        $response->assertStatus(500);
+    }
+
     // test: remove bookmark đúng người tạo => 204
     public function test_remove_bookmark()
     {
@@ -69,7 +82,7 @@ class BookmarkTest extends TestCase
         $response->assertStatus(204);
     }
 
-    // test: remove bookmark sai người tạo || sai article => 403
+    // test: remove bookmark sai người tạo => 403
     public function test_remove_bookmark_wrong_creator()
     {
         $otherUser = factory(User::class)->create();
@@ -84,6 +97,23 @@ class BookmarkTest extends TestCase
         ]);
         $response = $this->actingAs($otherUser)->json('DELETE', '/api/articles/'.$article->id.'/bookmark');
         $response->assertStatus(403);
+    }
+
+    // test: remove bookmark co dang nhap article không tồn tại => 500
+    public function test_remove_bookmark_not_exist_article()
+    {
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
+        $fakeArticleID = "f453a0a1-e52b-44bc-b189-c63154884a71";
+        factory(Bookmark::class)->create([
+            'user_id' => $this->user->id,
+            'article_id' => $article->id,
+        ]);
+        $response = $this->actingAs($this->user)->json('DELETE', '/api/articles/'.$fakeArticleID.'/bookmark');
+        $response->assertStatus(500);
     }
 
     // test: remove bookmark chưa đăng nhâp => 401

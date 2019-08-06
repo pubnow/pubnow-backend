@@ -20,8 +20,14 @@ class BookmarkController extends Controller
     public function store(CreateBookmark $request)
     {
         $user = auth()->user();
+        // check có tồn tại bài viết hay không
+        $article = Article::where('id', $request->id)->first();
+        if (!$article) {
+            return response()->json(["errors" => "The article id does not exist."], 500);
+        }
         // check xem record này đã được tạo chưa
         $isExit = Bookmark::where(['user_id' => $user->id, 'article_id' => $request->id])->first();
+
         if (!$isExit) {
             $bookmark = $user->bookmarks()->create([
                 'article_id' => $request->id,
@@ -33,10 +39,15 @@ class BookmarkController extends Controller
     public function destroy(CreateBookmark $request)
     {
         $user = auth()->user();
+        // check có tồn tại bài viết hay không
+        $article = Article::where('id', $request->id)->first();
+        if (!$article) {
+            return response()->json(["errors" => "The article id does not exist."], 500);
+        }
         // check xem record này đã được tạo chưa
         $bookmark = Bookmark::where(['user_id' => $user->id, 'article_id' => $request->id])->first();
         if (!$bookmark) {
-            return response()->json(["errors" => "Forbidden"], 403);
+            return response()->json(["errors" => "The bookmark does not exist."], 403);
         }
         if ($user->isAdmin() || ($user->id === $bookmark->user->id)) {
             $bookmark->delete();
