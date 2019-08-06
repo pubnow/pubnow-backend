@@ -22,7 +22,7 @@ class BookmarkController extends Controller
         $user = auth()->user();
         // check xem record này đã được tạo chưa
         $isExit = Bookmark::where(['user_id' => $user->id, 'article_id' => $request->id])->first();
-        if (!$isExit && $user) {
+        if (!$isExit) {
             $bookmark = $user->bookmarks()->create([
                 'article_id' => $request->id,
             ]);
@@ -30,12 +30,17 @@ class BookmarkController extends Controller
         }
     }
 
-    public function destroy(Request $request)
+    public function destroy(CreateBookmark $request)
     {
-        $userId =$request->user()->id;
-        $articleId = $request->id;
-        $bookmark = Bookmark::where(['user_id' => $userId, 'article_id' => $articleId]);
-        $bookmark->delete();
-        return response()->json(null, 204);
+        $user = auth()->user();
+        // check xem record này đã được tạo chưa
+        $bookmark = Bookmark::where(['user_id' => $user->id, 'article_id' => $request->id])->first();
+        if (!$bookmark) {
+            return response()->json(["errors" => "Forbidden"], 403);
+        }
+        if ($user->isAdmin() || ($user->id === $bookmark->user->id)) {
+            $bookmark->delete();
+            return response()->json(null, 204);
+        }
     }
 }

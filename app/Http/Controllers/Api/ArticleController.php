@@ -90,11 +90,25 @@ class ArticleController extends Controller
     public function show(Article $article)
     {
         if ($article->private) {
-            return response()->json([
-                'message' => [
-                    'Unauthorized',
-                ]
-            ], 401);
+            $can = true;
+            if (!auth()->user()) {
+                $can = false;
+            } else {
+                if (auth()->user()->isAdmin()) {
+                    $can = true;
+                } else {
+                    if (!($article->author->id === auth()->user()->id)) {
+                        $can = false;
+                    }
+                }
+            }
+            if(!$can) {
+                return response()->json([
+                    'message' => [
+                        'Unauthorized',
+                    ]
+                ], 401);
+            }
         }
         $article->update([
             'seen_count' => $article->seen_count + 1

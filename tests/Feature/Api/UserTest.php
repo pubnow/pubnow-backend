@@ -7,6 +7,7 @@ use App\Models\Clap;
 use App\Models\InviteRequest;
 use App\Models\Organization;
 use App\Models\Role;
+use App\Models\Series;
 use App\Models\User;
 use Faker\Factory;
 use Illuminate\Http\UploadedFile;
@@ -757,5 +758,93 @@ class UserTest extends TestCase
         $response = $this->actingAs($this->user)->json('GET', 'api/users/active-members');
 
         $response->assertStatus(403);
+    }
+
+    // Test get user series => 200
+    public function test_get_user_series_logged_in() {
+        $user = factory(User::class)->create();
+        $otherUser = factory(User::class)->create();
+        $series = factory(Series::class)->make();
+        factory(Series::class, 4)->create([
+            'user_id' => $user->id,
+            'title' => $series->title,
+            'content' => $series->content,
+        ]);
+        factory(Series::class, 2)->create([
+            'user_id' => $otherUser->id,
+            'title' => $series->title,
+            'content' => $series->content,
+        ]);
+        $response = $this->actingAs($user)->json('GET', 'api/users/series');
+        $response->assertStatus(200);
+        $response->assertJsonCount(4, 'data');
+    }
+
+    // Test get user series, not log in => 401
+    public function test_get_user_series_not_creator() {
+        $user = factory(User::class)->create();
+        $series = factory(Series::class)->make();
+        factory(Series::class, 4)->create([
+            'user_id' => $user->id,
+            'title' => $series->title,
+            'content' => $series->content,
+        ]);
+        $response = $this->json('GET', 'api/users/series');
+        $response->assertStatus(401);
+    }
+
+    // Test get user all articles with draft, private => 200
+    public function test_get_user_all_articles() {
+        $category = factory(Category::class)->create();
+        factory(Article::class, 3)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id
+        ]);
+        factory(Article::class, 2)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'draft' => true,
+        ]);
+        factory(Article::class, 2)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'private' => true,
+        ]);
+        factory(Article::class, 1)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'draft' => true,
+            'private' => true,
+        ]);
+        $response = $this->actingAs($this->user)->json('GET', 'api/users/articles');
+        $response->assertStatus(200);
+        $response->assertJsonCount(8, 'data');
+    }
+
+    // Test get user all articles with draft, private => 200
+    public function test_get_user_all_articles_unauthorize() {
+        $category = factory(Category::class)->create();
+        factory(Article::class, 3)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id
+        ]);
+        factory(Article::class, 2)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'draft' => true,
+        ]);
+        factory(Article::class, 2)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'private' => true,
+        ]);
+        factory(Article::class, 1)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'draft' => true,
+            'private' => true,
+        ]);
+        $response = $this->json('GET', 'api/users/articles');
+        $response->assertStatus(401);
     }
 }

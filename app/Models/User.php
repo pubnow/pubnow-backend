@@ -38,6 +38,8 @@ class User extends Authenticatable implements JWTSubject
         'bio', 'image_id', 'role_id',
     ];
 
+    public $append = ['avatar_url'];
+
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -64,6 +66,11 @@ class User extends Authenticatable implements JWTSubject
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = (password_get_info($value)['algo'] === 0) ? bcrypt($value) : $value;
+    }
+
+    public function getAvatarUrlAttribute()
+    {
+        return $this->image ? $this->image->url : 'https://i.imgur.com/DoPMECx.jpg';
     }
 
     /**
@@ -140,7 +147,8 @@ class User extends Authenticatable implements JWTSubject
     }
 
     // Users who followed this user
-    public function followers() {
+    public function followers()
+    {
         return $this->belongsToMany(User::class, 'user_follow_users', 'followed', 'user_id');
     }
 
@@ -155,15 +163,18 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(Image::class, 'id', 'image_id');
     }
 
-    public function inviteRequests() {
+    public function inviteRequests()
+    {
         return $this->belongsToMany(Organization::class, 'invite_requests')->whereRaw("invite_requests.status = 'pending'");
     }
 
-    public function organizations() {
+    public function organizations()
+    {
         return $this->belongsToMany(Organization::class, 'invite_requests')->whereRaw("invite_requests.status = 'accepted'");
     }
 
-    public function followingOrganizations() {
+    public function followingOrganizations()
+    {
         return $this->belongsToMany(Organization::class, 'user_follow_organizations');
     }
 
