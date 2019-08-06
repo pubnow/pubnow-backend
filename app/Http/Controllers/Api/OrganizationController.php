@@ -104,15 +104,36 @@ class OrganizationController extends Controller
     }
 
     public function members(Request $request, Organization $organization) {
+        if (!$organization->active) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Organization not activated',
+                ]
+            ], 422);
+        }
         return OrganizationMemberResource::collection($organization->members);
     }
 
     // Get users who followed this user
     public function followers(Organization $organization) {
+        if (!$organization->active) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Organization not activated',
+                ]
+            ], 422);
+        }
         return UserResource::collection($organization->followers);
     }
 
     public function follow(Request $request, Organization $organization) {
+        if (!$organization->active) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Organization not activated',
+                ]
+            ], 422);
+        }
         $user = $request->user();
         if ($user->followingOrganizations()->find($organization->id)) {
             return response()->json([
@@ -126,6 +147,13 @@ class OrganizationController extends Controller
     }
 
     public function unfollow(Request $request, Organization $organization) {
+        if (!$organization->active) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Organization not activated',
+                ]
+            ], 422);
+        }
         $user = $request->user();
         if (!$user->followingOrganizations()->find($organization->id)) {
             return response()->json([
@@ -140,7 +168,15 @@ class OrganizationController extends Controller
 
     public function statistic(OrganizationStatistic $request, Organization $organization)
     {
+        if (!$organization->active) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Organization not activated',
+                ]
+            ], 422);
+        }
         $this->authorize('statistic', $organization);
+
         $featuredMember = $organization->members->sortBy(function ($member) use ($organization) {
             return $member->articles->where('organization_id', $organization->id)->count();
         })->reverse()->first();
@@ -172,6 +208,8 @@ class OrganizationController extends Controller
             ->get();
         return response()->json([
             'data' => [
+                'members_count' => $organization->members->count(),
+                'articles_count' => $organization->articles->count(),
                 'featured_member' => new UserResource($featuredMember),
                 'featured_article' => new ArticleOnlyResource($featuredArticle),
                 'articles_by_category' => $roundChartData,
@@ -181,6 +219,13 @@ class OrganizationController extends Controller
     }
 
     public function articles(Request $request, Organization $organization) {
+        if (!$organization->active) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Organization not activated',
+                ]
+            ], 422);
+        }
         $articles = $organization->articles()->where('organization_private', false);
         if ($request->user()) {
             $user = $request->user();
