@@ -181,7 +181,13 @@ class OrganizationController extends Controller
     }
 
     public function articles(Request $request, Organization $organization) {
-        $articles = $organization->articles()->withAuthor();
+        $articles = $organization->articles()->where('organization_private', false);
+        if ($request->user()) {
+            $user = $request->user();
+            if ($organization->members()->find($user->id)) {
+                $articles = $articles->union($organization->articles()->where('organization_private', true));
+            }
+        }
         $articles = $articles->orderByDesc('created_at')->paginate(10);
         return ArticleOnlyResource::collection($articles);
     }
