@@ -14,7 +14,9 @@ use App\Http\Resources\OrganizationResource;
 use App\Http\Resources\OrganizationStatisticResource;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UserWithFollowingOrganizationsResource;
+use App\Models\Article;
 use App\Models\Category;
+use App\Models\InviteRequest;
 use App\Models\Organization;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -51,8 +53,9 @@ class OrganizationController extends Controller
         $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
         $organization = Organization::create($data);
         $organization->followers()->attach($user);
-        $organization->members()->attach($user, [
-            'id' => DB::raw('gen_random_uuid()'),
+        InviteRequest::create([
+            'user_id' => $user->id,
+            'organization_id' => $organization->id,
             'status' => 'accepted'
         ]);
         return new OrganizationResource($organization);
@@ -154,6 +157,7 @@ class OrganizationController extends Controller
             ->groupBy('category_id')
             ->orderBy('count', 'DESC')
             ->get();
+
         $roundChartData = collect($articlesByCategories)->map(function ($articlesByCategory) {
             $category = Category::find($articlesByCategory->category_id);
             return [
@@ -173,7 +177,7 @@ class OrganizationController extends Controller
         return response()->json([
             'data' => [
                 'featured_member' => new UserResource($featuredMember),
-                'featured_article' => new ArticleOnlyResource($featuredArticle),
+                'featured_article' => $featuredArticle ? new ArticleOnlyResource($featuredArticle) : null,
                 'articles_by_category' => $roundChartData,
                 'articles_by_day' => $articlesByDay
             ]

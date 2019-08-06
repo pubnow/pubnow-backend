@@ -51,8 +51,8 @@ class Organization extends Model
     public function members()
     {
         return $this->belongsToMany(User::class, 'invite_requests')
-            ->whereRaw("invite_requests.status = 'pending' or invite_requests.status = 'accepted'")
-            ->withPivot(['status']);
+            ->withPivot(['status'])
+            ->wherePivot('status', '<>', 'denied');
     }
 
     public function followers()
