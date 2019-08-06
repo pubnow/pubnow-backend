@@ -62,8 +62,8 @@ class BookmarkTest extends TestCase
             'category_id' => $category->id,
         ]);
         $fakeArticleID = "f453a0a1-e52b-44bc-b189-c63154884a71";
-        $response = $this->json('POST', '/api/articles/'.$fakeArticleID.'/bookmark');
-        $response->assertStatus(401);
+        $response = $this->actingAs($this->user)->json('POST', '/api/articles/'.$fakeArticleID.'/bookmark');
+        $response->assertStatus(500);
     }
 
     // test: remove bookmark đúng người tạo => 204
