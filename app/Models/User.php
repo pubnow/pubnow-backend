@@ -109,6 +109,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Comment::class);
     }
 
+    public function claps()
+    {
+        return $this->hasMany(Clap::class);
+    }
+
     public function followingTags()
     {
         return $this->belongsToMany(Tag::class, 'user_follow_tags');

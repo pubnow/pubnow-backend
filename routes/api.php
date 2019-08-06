@@ -39,6 +39,12 @@ Route::group(['namespace' => 'Api'], function () {
     Route::get('users/bookmarks', 'UserController@bookmarks');
     Route::get('users/{user}/articles', 'UserController@articles');
     Route::put('users/change-password', 'UserController@changePassword');
+
+    Route::get('users/admin-members', 'UserController@adminMembers');
+    Route::get('users/new-members', 'UserController@newMembers');
+    Route::get('users/featured-authors', 'UserController@featuredAuthors');
+    Route::get('users/active-members', 'UserController@activeMembers');
+
     Route::resource('users', 'UserController')->except(['create', 'edit']);
 
     // Category
@@ -88,6 +94,8 @@ Route::group(['namespace' => 'Api'], function () {
     Route::get('organizations/{organization}/followers', 'OrganizationController@followers');
 
     Route::get('organizations/{organization}/members', 'OrganizationController@members');
+    Route::get('organizations/{organization}/statistic', 'OrganizationController@statistic');
+    Route::get('organizations/{organization}/articles', 'OrganizationController@articles');
     Route::resource('organizations', 'OrganizationController')->except(['create', 'edit']);
 
     // Images

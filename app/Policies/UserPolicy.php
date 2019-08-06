@@ -91,4 +91,9 @@ class UserPolicy
     {
         return false;
     }
+
+    public function filterUsers(User $user)
+    {
+        return $user->isAdmin();
+    }
 }

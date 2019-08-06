@@ -17,7 +17,7 @@ class UpdateArticle extends ApiRequest
             'title' => 'sometimes|min:10',
             'content' => 'sometimes|string',
             'category_id' => 'sometimes|uuid|exists:categories,id',
-            'tag_list' => 'sometimes|array'
+            'tags' => 'sometimes|array'
         ];
     }
 }

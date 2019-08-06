@@ -29,7 +29,7 @@ class Article extends Model
      * @var array
      */
     protected $fillable = [
-        'title', 'content', 'slug', 'user_id',
+        'title', 'content', 'slug', 'user_id', 'organization_id', 'organization_private',
         'category_id', 'seen_count', 'excerpt', 'thumbnail', 'draft', 'private'
     ];
 
@@ -97,6 +97,11 @@ class Article extends Model
 
     public function usersBookmarked() {
         return $this->belongsToMany(User::class, 'bookmarks');
+    }
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
     }
 
     public function feedback()

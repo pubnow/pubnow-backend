@@ -5,12 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Organization\CreateOrganization;
 use App\Http\Requests\Api\Organization\FollowOrganization;
+use App\Http\Requests\Api\Organization\OrganizationStatistic;
 use App\Http\Requests\Api\Organization\UpdateOrganization;
+use App\Http\Resources\ArticleOnlyResource;
 use App\Http\Resources\InviteRequestResource;
 use App\Http\Resources\OrganizationMemberResource;
 use App\Http\Resources\OrganizationResource;
+use App\Http\Resources\OrganizationStatisticResource;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UserWithFollowingOrganizationsResource;
+use App\Models\Category;
 use App\Models\Organization;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +24,7 @@ class OrganizationController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show', 'members', 'followers']);
+        $this->middleware(['auth'])->except(['index', 'show', 'members', 'followers', 'articles']);
         $this->authorizeResource(Organization::class);
     }
     /**
@@ -44,6 +48,7 @@ class OrganizationController extends Controller
         $data = $request->except('active');
         $data['owner'] = $user->id;
         $data['active'] = 0;
+        $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
         $organization = Organization::create($data);
         $organization->followers()->attach($user);
         $organization->members()->attach($user, [
@@ -80,6 +85,9 @@ class OrganizationController extends Controller
             ], 403);
         }
         $data = $request->all();
+        if ($request->has('name') && !empty($data['name'])) {
+            $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
+        }
         $organization->update($data);
         return new OrganizationResource($organization);
     }
@@ -128,5 +136,53 @@ class OrganizationController extends Controller
         }
         $user->followingOrganizations()->detach($organization);
         return new UserWithFollowingOrganizationsResource($user);
+    }
+
+    public function statistic(OrganizationStatistic $request, Organization $organization)
+    {
+        $this->authorize('statistic', $organization);
+        $featuredMember = $organization->members->sortBy(function ($member) use ($organization) {
+            return $member->articles->where('organization_id', $organization->id)->count();
+        })->reverse()->first();
+
+        $featuredArticle = $organization->articles->sortBy(function ($article) use ($organization) {
+            return $article->claps->sum('count') + $article->comments->count();
+        })->reverse()->first();
+
+        $articlesByCategories = $organization->articles()
+            ->select('category_id', DB::raw('count(*) as count'))
+            ->groupBy('category_id')
+            ->orderBy('count', 'DESC')
+            ->get();
+        $roundChartData = collect($articlesByCategories)->map(function ($articlesByCategory) {
+            $category = Category::find($articlesByCategory->category_id);
+            return [
+                'category' => $category,
+                'count' => $articlesByCategory->count
+            ];
+        });
+        $start = date($request->input('start'));
+        $end_date = strtotime("1 day", strtotime($request->input('end')));
+        $end = date("Y-m-d", $end_date);
+        $articlesByDay = $organization->articles()
+            ->whereBetween('created_at', [$start, $end])
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+        return response()->json([
+            'data' => [
+                'featured_member' => new UserResource($featuredMember),
+                'featured_article' => new ArticleOnlyResource($featuredArticle),
+                'articles_by_category' => $roundChartData,
+                'articles_by_day' => $articlesByDay
+            ]
+        ], 200);
+    }
+
+    public function articles(Request $request, Organization $organization) {
+        $articles = $organization->articles()->withAuthor();
+        $articles = $articles->orderByDesc('created_at')->paginate(10);
+        return ArticleOnlyResource::collection($articles);
     }
 }

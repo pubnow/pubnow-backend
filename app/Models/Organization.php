@@ -14,8 +14,19 @@ class Organization extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'owner', 'description', 'image_id', 'active',
+        'name', 'email', 'owner', 'description', 'image_id', 'active', 'slug',
     ];
+
+    /**
+     * Get the key name for route model binding.
+     *
+     * @return string
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'owner', 'id');
@@ -38,5 +49,9 @@ class Organization extends Model
     public function followers()
     {
         return $this->belongsToMany(User::class, 'user_follow_organizations');
+    }
+
+    public function articles() {
+        return $this->hasMany(Article::class);
     }
 }

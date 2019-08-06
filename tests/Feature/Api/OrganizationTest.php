@@ -2,9 +2,14 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Article;
+use App\Models\Category;
+use App\Models\Clap;
+use App\Models\Comment;
 use App\Models\InviteRequest;
 use App\Models\Organization;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -50,7 +55,7 @@ class OrganizationTest extends TestCase
             'owner' => $this->user->id,
         ]);
 
-        $response = $this->json('GET', '/api/organizations/'.$organization->id);
+        $response = $this->json('GET', '/api/organizations/'.$organization->slug);
 
         $response->assertStatus(200);
 
@@ -70,7 +75,7 @@ class OrganizationTest extends TestCase
 
         $organization->followers()->attach($this->user);
 
-        $response = $this->actingAs($this->user)->json('GET', '/api/organizations/'.$organization->id);
+        $response = $this->actingAs($this->user)->json('GET', '/api/organizations/'.$organization->slug);
 
         $response->assertStatus(200);
 
@@ -163,7 +168,7 @@ class OrganizationTest extends TestCase
         ]);
         $organization = factory(Organization::class)->make();
 
-        $response = $this->actingAs($this->user)->json('PUT', '/api/organizations/'.$created->id, [
+        $response = $this->actingAs($this->user)->json('PUT', '/api/organizations/'.$created->slug, [
             'name' => $organization->name,
             'email' => $organization->email,
             'description' => $organization->description,
@@ -184,7 +189,7 @@ class OrganizationTest extends TestCase
         ]);
         $organization = factory(Organization::class)->make();
 
-        $response = $this->actingAs($this->admin)->json('PUT', '/api/organizations/'.$created->id, [
+        $response = $this->actingAs($this->admin)->json('PUT', '/api/organizations/'.$created->slug, [
             'name' => $organization->name,
             'email' => $organization->email,
             'description' => $organization->description,
@@ -206,7 +211,7 @@ class OrganizationTest extends TestCase
         ]);
         $organization = factory(Organization::class)->make();
 
-        $response = $this->actingAs($this->user)->json('PUT', '/api/organizations/'.$created->id, [
+        $response = $this->actingAs($this->user)->json('PUT', '/api/organizations/'.$created->slug, [
             'name' => $organization->name,
             'email' => $organization->email,
             'description' => $organization->description,
@@ -223,7 +228,7 @@ class OrganizationTest extends TestCase
         ]);
         $organization = factory(Organization::class)->make();
 
-        $response = $this->json('PUT', '/api/organizations/'.$created->id, [
+        $response = $this->json('PUT', '/api/organizations/'.$created->slug, [
             'name' => $organization->name,
             'email' => $organization->email,
             'description' => $organization->description,
@@ -241,7 +246,7 @@ class OrganizationTest extends TestCase
         ]);
         $organization = factory(Organization::class)->make();
 
-        $response = $this->actingAs($user)->json('PUT', '/api/organizations/'.$created->id, [
+        $response = $this->actingAs($user)->json('PUT', '/api/organizations/'.$created->slug, [
             'name' => $organization->name,
             'email' => $organization->email,
             'description' => $organization->description,
@@ -255,11 +260,11 @@ class OrganizationTest extends TestCase
         $created = factory(Organization::class)->create([
             'owner' => $this->user->id,
         ]);
-        $id = $created->id;
+        $slug = $created->slug;
         $created->delete();
         $organization = factory(Organization::class)->make();
 
-        $response = $this->actingAs($this->user)->json('PUT', '/api/organizations/'.$id, [
+        $response = $this->actingAs($this->user)->json('PUT', '/api/organizations/'.$slug, [
             'email' => $organization->email,
             'description' => $organization->description,
         ]);
@@ -274,7 +279,7 @@ class OrganizationTest extends TestCase
         ]);
         $organization = factory(Organization::class)->make();
 
-        $response = $this->actingAs($this->user)->json('PUT', '/api/organizations/'.$createds[0]->id, [
+        $response = $this->actingAs($this->user)->json('PUT', '/api/organizations/'.$createds[0]->slug, [
             'name' => $createds[1]->name,
             'email' => $organization->email,
             'description' => $organization->description,
@@ -290,7 +295,7 @@ class OrganizationTest extends TestCase
         ]);
         $organization = factory(Organization::class)->make();
 
-        $response = $this->actingAs($this->user)->json('PUT', '/api/organizations/'.$created->id, [
+        $response = $this->actingAs($this->user)->json('PUT', '/api/organizations/'.$created->slug, [
             'name' => $organization->name,
             'email' => 'abc',
             'description' => $organization->description,
@@ -306,7 +311,7 @@ class OrganizationTest extends TestCase
             'owner' => $this->user->id,
         ]);
 
-        $response = $this->actingAs($this->admin)->json('DELETE', '/api/organizations/'.$created->id);
+        $response = $this->actingAs($this->admin)->json('DELETE', '/api/organizations/'.$created->slug);
 
         $response->assertStatus(204);
     }
@@ -317,7 +322,7 @@ class OrganizationTest extends TestCase
             'owner' => $this->user->id,
         ]);
 
-        $response = $this->actingAs($this->user)->json('DELETE', '/api/organizations/'.$created->id);
+        $response = $this->actingAs($this->user)->json('DELETE', '/api/organizations/'.$created->slug);
 
         $response->assertStatus(204);
     }
@@ -329,7 +334,7 @@ class OrganizationTest extends TestCase
             'owner' => $this->user->id,
         ]);
 
-        $response = $this->json('DELETE', '/api/organizations/'.$created->id);
+        $response = $this->json('DELETE', '/api/organizations/'.$created->slug);
 
         $response->assertStatus(401);
     }
@@ -342,7 +347,7 @@ class OrganizationTest extends TestCase
             'owner' => $this->user->id,
         ]);
 
-        $response = $this->actingAs($user)->json('DELETE', '/api/organizations/'.$created->id);
+        $response = $this->actingAs($user)->json('DELETE', '/api/organizations/'.$created->slug);
 
         $response->assertStatus(403);
     }
@@ -362,7 +367,7 @@ class OrganizationTest extends TestCase
             ]);
         });
 
-        $response = $this->json('GET', 'api/organizations/'.$organization->id.'/members');
+        $response = $this->json('GET', 'api/organizations/'.$organization->slug.'/members');
 
         $response->assertStatus(200);
 
@@ -377,7 +382,7 @@ class OrganizationTest extends TestCase
             'owner' => $user->id
         ]);
 
-        $response = $this->actingAs($this->user)->json('POST', 'api/organizations/'.$organization->id.'/follow');
+        $response = $this->actingAs($this->user)->json('POST', 'api/organizations/'.$organization->slug.'/follow');
 
         $response->assertStatus(200);
 
@@ -403,7 +408,7 @@ class OrganizationTest extends TestCase
             'owner' => $user->id
         ]);
 
-        $response = $this->json('POST', 'api/organizations/'.$organization->id.'/follow');
+        $response = $this->json('POST', 'api/organizations/'.$organization->slug.'/follow');
 
         $response->assertStatus(401);
     }
@@ -414,10 +419,10 @@ class OrganizationTest extends TestCase
         $organization = factory(Organization::class)->create([
             'owner' => $user->id
         ]);
-        $id = $organization->id;
+        $slug = $organization->slug;
         $organization->delete();
 
-        $response = $this->actingAs($this->user)->json('POST', 'api/organizations/'.$id.'/follow');
+        $response = $this->actingAs($this->user)->json('POST', 'api/organizations/'.$slug.'/follow');
 
         $response->assertStatus(404);
     }
@@ -430,7 +435,7 @@ class OrganizationTest extends TestCase
         ]);
         $this->user->followingOrganizations()->attach($organization);
 
-        $response = $this->actingAs($this->user)->json('POST', 'api/organizations/'.$organization->id.'/follow');
+        $response = $this->actingAs($this->user)->json('POST', 'api/organizations/'.$organization->slug.'/follow');
 
         $response->assertStatus(422);
     }
@@ -444,7 +449,7 @@ class OrganizationTest extends TestCase
         ]);
         $this->user->followingOrganizations()->attach($organization);
 
-        $response = $this->actingAs($this->user)->json('DELETE', 'api/organizations/'.$organization->id.'/follow');
+        $response = $this->actingAs($this->user)->json('DELETE', 'api/organizations/'.$organization->slug.'/follow');
 
         $response->assertStatus(200);
 
@@ -471,7 +476,7 @@ class OrganizationTest extends TestCase
         ]);
         $this->user->followingOrganizations()->attach($organization);
 
-        $response = $this->json('DELETE', 'api/organizations/'.$organization->id.'/follow');
+        $response = $this->json('DELETE', 'api/organizations/'.$organization->slug.'/follow');
 
 
         $response->assertStatus(401);
@@ -483,10 +488,10 @@ class OrganizationTest extends TestCase
         $organization = factory(Organization::class)->create([
             'owner' => $user->id
         ]);
-        $id = $organization->id;
+        $slug = $organization->slug;
         $organization->delete();
 
-        $response = $this->actingAs($this->user)->json('DELETE', 'api/organizations/'.$id.'/follow');
+        $response = $this->actingAs($this->user)->json('DELETE', 'api/organizations/'.$slug.'/follow');
 
         $response->assertStatus(404);
     }
@@ -498,7 +503,7 @@ class OrganizationTest extends TestCase
             'owner' => $user->id
         ]);
 
-        $response = $this->actingAs($this->user)->json('DELETE', 'api/organizations/'.$organization->id.'/follow');
+        $response = $this->actingAs($this->user)->json('DELETE', 'api/organizations/'.$organization->slug.'/follow');
 
         $response->assertStatus(422);
     }
@@ -515,7 +520,7 @@ class OrganizationTest extends TestCase
             $organization->followers()->attach($user);
         });
 
-        $response = $this->json('GET', 'api/organizations/'.$organization->id.'/followers');
+        $response = $this->json('GET', 'api/organizations/'.$organization->slug.'/followers');
 
         $response->assertStatus(200);
         $response->assertJsonCount(count($users), 'data');
@@ -527,6 +532,264 @@ class OrganizationTest extends TestCase
                 'email' => $user->email
             ]);
         });
+    }
+
+    // Test get list organization articles
+    public function test_can_get_list_articles() {
+        $category = factory(Category::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id
+        ]);
+        $articles = factory(Article::class, 5)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id,
+        ]);
+
+        $response = $this->json('GET', 'api/organizations/'.$organization->slug.'/articles');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(count($articles), 'data');
+
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id', 'slug', 'title', 'excerpt', 'seen_count', 'thumbnail', 'clapped', 'bookmarked',
+                    'author', 'category', 'tags', 'claps', 'publishedAt', 'createdAt', 'updatedAt'
+                ]
+            ]
+        ]);
+    }
+
+    // --- Get statistic
+    // Test get organization statistic -> ok
+    public function test_can_get_organization_statistic() {
+        $category = factory(Category::class)->create();
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id
+        ]);
+        $organization->members()->attach($user, [
+            'id' => DB::raw('gen_random_uuid()'),
+            'status' => 'accepted'
+        ]);
+        $articles = factory(Article::class, 5)->create([
+            'user_id' => $user->id,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id,
+        ]);
+
+        Clap::create([
+            'user_id' => $user->id,
+            'article_id' => $articles[0]->id,
+            'count' => 5
+        ]);
+
+        Comment::create([
+            'user_id' => $user->id,
+            'article_id' => $articles[0]->id,
+            'content' => 'abc'
+        ]);
+
+        $start = date('Y-m-d');
+        $end_date = strtotime("1 day", strtotime($start));
+        $end = date("Y-m-d", $end_date);
+
+        $response = $this->actingAs($this->user)->json('GET', 'api/organizations/'.$organization->slug.'/statistic', [
+            'start' => $start,
+            'end' => $end
+        ]);
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            'data' => [
+                'featured_member' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'username' => $user->username,
+                    'email' => $user->email,
+                ],
+                'featured_article' => [
+                    'id' => $articles[0]->id,
+                    'title' => $articles[0]->title,
+                    'slug' => $articles[0]->slug,
+                ],
+                'articles_by_category' => [
+                    [
+                        'category' => [
+                            'id' => $category->id,
+                        ],
+                        'count' => count($articles)
+                    ]
+                ],
+                'articles_by_day' => [
+                    [
+                        'date' => $start,
+                        'count' => count($articles)
+                    ]
+                ]
+            ]
+        ]);
+    }
+
+    // Test get organization statistic, not logged in -> 401
+    public function test_cannot_get_organization_statistic_if_not_logged_in() {
+        $category = factory(Category::class)->create();
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id
+        ]);
+        $organization->members()->attach($user, [
+            'id' => DB::raw('gen_random_uuid()'),
+            'status' => 'accepted'
+        ]);
+        $articles = factory(Article::class, 5)->create([
+            'user_id' => $user->id,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id,
+        ]);
+
+        Clap::create([
+            'user_id' => $user->id,
+            'article_id' => $articles[0]->id,
+            'count' => 5
+        ]);
+
+        Comment::create([
+            'user_id' => $user->id,
+            'article_id' => $articles[0]->id,
+            'content' => 'abc'
+        ]);
+
+        $start = date('Y-m-d');
+        $end_date = strtotime("1 day", strtotime($start));
+        $end = date("Y-m-d", $end_date);
+
+        $response = $this->json('GET', 'api/organizations/'.$organization->slug.'/statistic', [
+            'start' => $start,
+            'end' => $end
+        ]);
+
+        $response->assertStatus(401);
+    }
+
+    // Test get organization statistic, logged in, not owner -> 403
+    public function test_cannot_get_organization_statistic_if_not_owner() {
+        $category = factory(Category::class)->create();
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id
+        ]);
+        $organization->members()->attach($user, [
+            'id' => DB::raw('gen_random_uuid()'),
+            'status' => 'accepted'
+        ]);
+        $articles = factory(Article::class, 5)->create([
+            'user_id' => $user->id,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id,
+        ]);
+
+        Clap::create([
+            'user_id' => $user->id,
+            'article_id' => $articles[0]->id,
+            'count' => 5
+        ]);
+
+        Comment::create([
+            'user_id' => $user->id,
+            'article_id' => $articles[0]->id,
+            'content' => 'abc'
+        ]);
+
+        $start = date('Y-m-d');
+        $end_date = strtotime("1 day", strtotime($start));
+        $end = date("Y-m-d", $end_date);
+
+        $response = $this->actingAs($user)->json('GET', 'api/organizations/'.$organization->slug.'/statistic', [
+            'start' => $start,
+            'end' => $end
+        ]);
+
+        $response->assertStatus(403);
+    }
+
+    // Test get organization statistic, missing start date -> 422
+    public function test_cannot_get_organization_statistic_if_missing_start() {
+        $category = factory(Category::class)->create();
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id
+        ]);
+        $organization->members()->attach($user, [
+            'id' => DB::raw('gen_random_uuid()'),
+            'status' => 'accepted'
+        ]);
+        $articles = factory(Article::class, 5)->create([
+            'user_id' => $user->id,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id,
+        ]);
+
+        Clap::create([
+            'user_id' => $user->id,
+            'article_id' => $articles[0]->id,
+            'count' => 5
+        ]);
+
+        Comment::create([
+            'user_id' => $user->id,
+            'article_id' => $articles[0]->id,
+            'content' => 'abc'
+        ]);
+
+        $start = date('Y-m-d');
+        $end_date = strtotime("1 day", strtotime($start));
+        $end = date("Y-m-d", $end_date);
+
+        $response = $this->actingAs($this->user)->json('GET', 'api/organizations/'.$organization->slug.'/statistic', [
+            'end' => $end
+        ]);
+
+        $response->assertStatus(422);
+    }
+
+    // Test get organization statistic, start date not a date
+    public function test_cannot_get_organization_statistic_if_start_is_not_date() {
+        $category = factory(Category::class)->create();
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id
+        ]);
+        $organization->members()->attach($user, [
+            'id' => DB::raw('gen_random_uuid()'),
+            'status' => 'accepted'
+        ]);
+        $articles = factory(Article::class, 5)->create([
+            'user_id' => $user->id,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id,
+        ]);
+
+        Clap::create([
+            'user_id' => $user->id,
+            'article_id' => $articles[0]->id,
+            'count' => 5
+        ]);
+
+        Comment::create([
+            'user_id' => $user->id,
+            'article_id' => $articles[0]->id,
+            'content' => 'abc'
+        ]);
+
+        $response = $this->actingAs($this->user)->json('GET', 'api/organizations/'.$organization->slug.'/statistic', [
+            'start' => 'abc',
+            'end' => 'abc'
+        ]);
+
+        $response->assertStatus(422);
     }
 
 }
