@@ -353,9 +353,11 @@ class OrganizationTest extends TestCase
     }
 
     // --- Get list members
+    // Test get list members, active
     public function test_can_get_list_members() {
         $organization = factory(Organization::class)->create([
-            'owner' => $this->user->id
+            'owner' => $this->user->id,
+            'active' => true
         ]);
         $users = factory(User::class, 5)->create();
 
@@ -373,13 +375,24 @@ class OrganizationTest extends TestCase
 
         $response->assertJsonCount(count($users), 'data');
     }
+    // Test get list members, not active
+    public function test_cannot_get_list_members_if_not_active() {
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id,
+        ]);
+
+        $response = $this->json('GET', 'api/organizations/'.$organization->slug.'/members');
+
+        $response->assertStatus(422);
+    }
 
     // --- Follow Organization
     // Test follow organization, logged in, organization exists
     public function test_user_can_follow_an_exists_organization() {
         $user = factory(User::class)->create();
         $organization = factory(Organization::class)->create([
-            'owner' => $user->id
+            'owner' => $user->id,
+            'active' => true
         ]);
 
         $response = $this->actingAs($this->user)->json('POST', 'api/organizations/'.$organization->slug.'/follow');
@@ -400,12 +413,24 @@ class OrganizationTest extends TestCase
             ]
         ]);
     }
+    // Test follow organization, logged in, organization exists, not active
+    public function test_user_cannot_follow_an_exists_organization_not_active() {
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $user->id
+        ]);
+
+        $response = $this->actingAs($this->user)->json('POST', 'api/organizations/'.$organization->slug.'/follow');
+
+        $response->assertStatus(422);
+    }
 
     // Test follow organization, not logged in, organization exists
     public function test_guest_cannot_follow_an_exists_organization() {
         $user = factory(User::class)->create();
         $organization = factory(Organization::class)->create([
-            'owner' => $user->id
+            'owner' => $user->id,
+            'active' => true
         ]);
 
         $response = $this->json('POST', 'api/organizations/'.$organization->slug.'/follow');
@@ -417,7 +442,8 @@ class OrganizationTest extends TestCase
     public function test_user_cannot_follow_a_not_exists_organization() {
         $user = factory(User::class)->create();
         $organization = factory(Organization::class)->create([
-            'owner' => $user->id
+            'owner' => $user->id,
+            'active' => true
         ]);
         $slug = $organization->slug;
         $organization->delete();
@@ -431,7 +457,8 @@ class OrganizationTest extends TestCase
     public function test_user_can_follow_an_followed_organization() {
         $user = factory(User::class)->create();
         $organization = factory(Organization::class)->create([
-            'owner' => $user->id
+            'owner' => $user->id,
+            'active' => true
         ]);
         $this->user->followingOrganizations()->attach($organization);
 
@@ -445,7 +472,8 @@ class OrganizationTest extends TestCase
     public function test_user_can_unfollow_a_followed_organization() {
         $user = factory(User::class)->create();
         $organization = factory(Organization::class)->create([
-            'owner' => $user->id
+            'owner' => $user->id,
+            'active' => true
         ]);
         $this->user->followingOrganizations()->attach($organization);
 
@@ -468,11 +496,25 @@ class OrganizationTest extends TestCase
         ]);
     }
 
+    // Test unfollow organization, logged in, organization exists, not active
+    public function test_user_cannot_unfollow_a_followed_organization_not_active() {
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $user->id
+        ]);
+        $this->user->followingOrganizations()->attach($organization);
+
+        $response = $this->actingAs($this->user)->json('DELETE', 'api/organizations/'.$organization->slug.'/follow');
+
+        $response->assertStatus(422);
+    }
+
     // Test unfollow organization, not logged in, organization exists
     public function test_guest_cannot_unfollow_an_organization() {
         $user = factory(User::class)->create();
         $organization = factory(Organization::class)->create([
-            'owner' => $user->id
+            'owner' => $user->id,
+            'active' => true
         ]);
         $this->user->followingOrganizations()->attach($organization);
 
@@ -486,7 +528,8 @@ class OrganizationTest extends TestCase
     public function test_user_cannot_unfollow_a_not_exists_organization() {
         $user = factory(User::class)->create();
         $organization = factory(Organization::class)->create([
-            'owner' => $user->id
+            'owner' => $user->id,
+            'active' => true
         ]);
         $slug = $organization->slug;
         $organization->delete();
@@ -500,7 +543,8 @@ class OrganizationTest extends TestCase
     public function test_user_can_unfollow_a_not_followed_organization() {
         $user = factory(User::class)->create();
         $organization = factory(Organization::class)->create([
-            'owner' => $user->id
+            'owner' => $user->id,
+            'active' => true
         ]);
 
         $response = $this->actingAs($this->user)->json('DELETE', 'api/organizations/'.$organization->slug.'/follow');
@@ -513,7 +557,8 @@ class OrganizationTest extends TestCase
     public function test_can_get_list_followers() {
         $users = factory(User::class, 5)->create();
         $organization = factory(Organization::class)->create([
-            'owner' => $this->user->id
+            'owner' => $this->user->id,
+            'active' => true
         ]);
 
         $users->each(function ($user) use ($organization) {
@@ -534,11 +579,23 @@ class OrganizationTest extends TestCase
         });
     }
 
+    // Test get list followers, organization not active
+    public function test_cannot_get_list_followers_organization_not_active() {
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id,
+        ]);
+
+        $response = $this->json('GET', 'api/organizations/'.$organization->slug.'/followers');
+
+        $response->assertStatus(422);
+    }
+
     // Test get list organization articles
     public function test_can_get_list_articles() {
         $category = factory(Category::class)->create();
         $organization = factory(Organization::class)->create([
-            'owner' => $this->user->id
+            'owner' => $this->user->id,
+            'active' => true
         ]);
         $articles = factory(Article::class, 5)->create([
             'user_id' => $this->user->id,
@@ -567,7 +624,8 @@ class OrganizationTest extends TestCase
         $category = factory(Category::class)->create();
         $user = factory(User::class)->create();
         $organization = factory(Organization::class)->create([
-            'owner' => $this->user->id
+            'owner' => $this->user->id,
+            'active' => true
         ]);
         $organization->members()->attach($user, [
             'id' => DB::raw('gen_random_uuid()'),
@@ -604,6 +662,8 @@ class OrganizationTest extends TestCase
 
         $response->assertJson([
             'data' => [
+                'members_count' => 1,
+                'articles_count' => 5,
                 'featured_member' => [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -633,12 +693,33 @@ class OrganizationTest extends TestCase
         ]);
     }
 
+    // Test get organization statistic, organization not active -> 422
+    public function test_cannot_get_organization_statistic_organization_not_active() {
+        $category = factory(Category::class)->create();
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id
+        ]);
+
+        $start = date('Y-m-d');
+        $end_date = strtotime("1 day", strtotime($start));
+        $end = date("Y-m-d", $end_date);
+
+        $response = $this->actingAs($this->user)->json('GET', 'api/organizations/'.$organization->slug.'/statistic', [
+            'start' => $start,
+            'end' => $end
+        ]);
+
+        $response->assertStatus(422);
+    }
+
     // Test get organization statistic, not logged in -> 401
     public function test_cannot_get_organization_statistic_if_not_logged_in() {
         $category = factory(Category::class)->create();
         $user = factory(User::class)->create();
         $organization = factory(Organization::class)->create([
-            'owner' => $this->user->id
+            'owner' => $this->user->id,
+            'active' => true
         ]);
         $organization->members()->attach($user, [
             'id' => DB::raw('gen_random_uuid()'),
@@ -679,7 +760,8 @@ class OrganizationTest extends TestCase
         $category = factory(Category::class)->create();
         $user = factory(User::class)->create();
         $organization = factory(Organization::class)->create([
-            'owner' => $this->user->id
+            'owner' => $this->user->id,
+            'active' => true
         ]);
         $organization->members()->attach($user, [
             'id' => DB::raw('gen_random_uuid()'),
@@ -720,7 +802,8 @@ class OrganizationTest extends TestCase
         $category = factory(Category::class)->create();
         $user = factory(User::class)->create();
         $organization = factory(Organization::class)->create([
-            'owner' => $this->user->id
+            'owner' => $this->user->id,
+            'active' => true
         ]);
         $organization->members()->attach($user, [
             'id' => DB::raw('gen_random_uuid()'),
@@ -760,7 +843,8 @@ class OrganizationTest extends TestCase
         $category = factory(Category::class)->create();
         $user = factory(User::class)->create();
         $organization = factory(Organization::class)->create([
-            'owner' => $this->user->id
+            'owner' => $this->user->id,
+            'active' => true
         ]);
         $organization->members()->attach($user, [
             'id' => DB::raw('gen_random_uuid()'),

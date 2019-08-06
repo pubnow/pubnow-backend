@@ -33,7 +33,8 @@ class ArticleTest extends TestCase
     public function test_can_create_article_if_logged_in() {
         $category = factory(Category::class)->create();
         $organization = factory(Organization::class)->create([
-            'owner' => $this->user->id
+            'owner' => $this->user->id,
+            'active' => true
         ]);
         $organization->members()->attach($this->user, [
             'id' => DB::raw('gen_random_uuid()'),
@@ -75,7 +76,8 @@ class ArticleTest extends TestCase
     public function test_can_create_article_if_logged_in_not_organization_member() {
         $category = factory(Category::class)->create();
         $organization = factory(Organization::class)->create([
-            'owner' => $this->user->id
+            'owner' => $this->user->id,
+            'active' => true
         ]);
         $article = factory(Article::class)->make();
         $response = $this->actingAs($this->user)->json('POST', '/api/articles', [
@@ -86,6 +88,26 @@ class ArticleTest extends TestCase
         ]);
 
         $response->assertStatus(403);
+    }
+    // TODO: Tao article, neu da login, organization ton tai, organization chua active -> 422
+    public function test_can_create_article_if_organization_not_active() {
+        $category = factory(Category::class)->create();
+        $organization = factory(Organization::class)->create([
+            'owner' => $this->user->id,
+        ]);
+        $organization->members()->attach($this->user, [
+            'id' => DB::raw('gen_random_uuid()'),
+            'status' => 'accepted'
+        ]);
+        $article = factory(Article::class)->make();
+        $response = $this->actingAs($this->user)->json('POST', '/api/articles', [
+            'title' => $article->title,
+            'content' => $article->content,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id
+        ]);
+
+        $response->assertStatus(422);
     }
     // TODO: Tag article, chua login -> 403
     public function test_cannot_create_article_if_not_logged_in() {
