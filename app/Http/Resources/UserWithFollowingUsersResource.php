@@ -21,7 +21,7 @@ class UserWithFollowingUsersResource extends JsonResource
             'email' => $this->email,
             'isAdmin' => $this->isAdmin(),
             'bio' => $this->bio,
-            'avatar' => $this->avatar,
+            'avatar' => $this->avatar_url,
             'role' => new RoleResource($this->role),
             'followingUsers' => UserResource::collection($this->followingUsers)
         ];

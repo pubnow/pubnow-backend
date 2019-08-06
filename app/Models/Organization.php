@@ -17,6 +17,13 @@ class Organization extends Model
         'name', 'email', 'owner', 'description', 'image_id', 'active', 'slug',
     ];
 
+    public $append = ['logo_url'];
+
+    public function getLogoUrlAttribute()
+    {
+        return $this->image ? $this->image->url : 'https://i.imgur.com/DoPMECx.jpg';
+    }
+
     /**
      * Get the key name for route model binding.
      *
@@ -36,14 +43,16 @@ class Organization extends Model
     {
         return $this->hasOne(Image::class, 'id', 'image_id');
     }
-    public function memberRequests() {
+    public function memberRequests()
+    {
         return $this->hasMany(InviteRequest::class)->whereRaw("invite_requests.status = 'pending' or invite_requests.status = 'accepted'");
     }
 
-    public function members() {
+    public function members()
+    {
         return $this->belongsToMany(User::class, 'invite_requests')
-            ->whereRaw("invite_requests.status = 'pending' or invite_requests.status = 'accepted'")
-            ->withPivot(['status']);
+            ->withPivot(['status'])
+            ->wherePivot('status', '<>', 'denied');
     }
 
     public function followers()
@@ -51,7 +60,8 @@ class Organization extends Model
         return $this->belongsToMany(User::class, 'user_follow_organizations');
     }
 
-    public function articles() {
+    public function articles()
+    {
         return $this->hasMany(Article::class);
     }
 }
