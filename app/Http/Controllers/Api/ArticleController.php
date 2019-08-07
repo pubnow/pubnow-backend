@@ -46,9 +46,15 @@ class ArticleController extends Controller
     public function store(CreateArticle $request)
     {
         $user = $request->user();
-
         if ($request->has('organization_id')) {
             $organization = Organization::find($request->get('organization_id'));
+            if (!$organization->active) {
+                return response()->json([
+                    'errors' => [
+                        'message' => 'Organization not activated',
+                    ]
+                ], 422);
+            }
             if (!$organization->members->find($user->id)) {
                 return response()->json([
                     'errors' => [
@@ -102,7 +108,7 @@ class ArticleController extends Controller
                     }
                 }
             }
-            if(!$can) {
+            if (!$can) {
                 return response()->json([
                     'message' => [
                         'Unauthorized',
@@ -167,19 +173,22 @@ class ArticleController extends Controller
         return ArticleOnlyResource::collection($articles);
     }
 
-    public function featured() {
+    public function featured()
+    {
         $articles = Article::withAuthor()->with('claps')->with('comments')->get()->sortBy(function ($article) {
             return $article->claps->sum('count') + $article->comments->count();
         })->reverse()->take(5);
         return ArticleOnlyResource::collection($articles);
     }
 
-    public function comments(Article $article) {
+    public function comments(Article $article)
+    {
         $comments = $article->comments()->where('parent_id', null)->get();
         return CommentResource::collection($comments);
     }
 
-    public function clap(Request $request, Article $article) {
+    public function clap(Request $request, Article $article)
+    {
         $user = $request->user();
         $clap = Clap::firstOrNew([
             'user_id' => $user->id,
@@ -196,7 +205,8 @@ class ArticleController extends Controller
         return new ClapResource($clap);
     }
 
-    public function unclap(Request $request, Article $article) {
+    public function unclap(Request $request, Article $article)
+    {
         $user = $request->user();
         $clap = Clap::where('user_id', $user->id)->where('article_id', $article->id)->firstOrFail();
         $clap->delete();

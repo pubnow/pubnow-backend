@@ -6,7 +6,8 @@ use App\Http\Resources\ArticleOnlyResource;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
-use App\Http\Resources\ArticleResource;
+use App\Models\User;
+use App\Http\Resources\UserResource;
 
 class SearchController extends Controller
 {
@@ -14,5 +15,11 @@ class SearchController extends Controller
     {
         $articles = Article::search($request->keyword)->get();
         return ArticleOnlyResource::collection($articles);
+    }
+
+    public function user(Request $request)
+    {
+        $users = User::search($request->keyword)->get();
+        return UserResource::collection($users);
     }
 }
