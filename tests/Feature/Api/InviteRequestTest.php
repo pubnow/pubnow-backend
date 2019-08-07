@@ -22,8 +22,9 @@ class InviteRequestTest extends TestCase
         $this->admin = User::where(['username' => 'admin'])->first();
         $this->user = factory(User::class)->create();
         $this->organization = factory(Organization::class)->create([
-        'owner' => $this->user->id,
-    ]);
+            'owner' => $this->user->id,
+            'active' => true
+        ]);
     }
 
     // --- Get list
@@ -134,13 +135,27 @@ class InviteRequestTest extends TestCase
         ]);
     }
 
-    // Test create invite request, organization owner, invite request exists, denied
+    // Test create invite request, organization owner, invite request exists, pending
     public function test_cannot_create_invite_request_if_invite_request_exists_and_not_denied() {
         $user = factory(User::class)->create();
         $inviteRequest = InviteRequest::create([
             'user_id' => $user->id,
             'organization_id' => $this->organization->id,
             'status' => 'pending'
+        ]);
+
+        $response = $this->actingAs($this->user)->json('POST', 'api/invite-requests', [
+            'user_id' => $user->id,
+            'organization_id' => $this->organization->id
+        ]);
+
+        $response->assertStatus(422);
+    }
+    // Test create invite request, organization owner, organization not active
+    public function test_can_create_invite_request_organization_not_active() {
+        $user = factory(User::class)->create();
+        $this->organization->update([
+            'active' => false
         ]);
 
         $response = $this->actingAs($this->user)->json('POST', 'api/invite-requests', [

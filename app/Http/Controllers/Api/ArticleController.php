@@ -46,9 +46,15 @@ class ArticleController extends Controller
     public function store(CreateArticle $request)
     {
         $user = $request->user();
-
         if ($request->has('organization_id')) {
             $organization = Organization::find($request->get('organization_id'));
+            if (!$organization->active) {
+                return response()->json([
+                    'errors' => [
+                        'message' => 'Organization not activated',
+                    ]
+                ], 422);
+            }
             if (!$organization->members->find($user->id)) {
                 return response()->json([
                     'errors' => [

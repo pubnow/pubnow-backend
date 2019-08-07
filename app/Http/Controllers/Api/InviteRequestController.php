@@ -37,6 +37,13 @@ class InviteRequestController extends Controller
     {
         $data = $request->all();
         $organization = Organization::find($request->input('organization_id'));
+        if (!$organization->active) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Organization not activated',
+                ]
+            ], 422);
+        }
         if ($request->user()->id !== $organization->owner) {
             return response()->json([
                 'errors' => [
