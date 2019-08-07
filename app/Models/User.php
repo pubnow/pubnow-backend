@@ -179,7 +179,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function inviteRequests()
     {
-        return $this->belongsToMany(Organization::class, 'invite_requests')->whereRaw("invite_requests.status = 'pending'");
+        return $this->hasMany(InviteRequest::class)->where('status', 'pending');
     }
 
     public function organizations()
