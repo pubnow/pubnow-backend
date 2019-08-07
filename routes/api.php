@@ -118,4 +118,7 @@ Route::group(['namespace' => 'Api'], function () {
 
     // feedback
     Route::resource('feedback', 'FeedbackController');
+
+    // admin statistical
+    Route::get('admin/statistic', 'AdminStatisticalController@statisticalUserRegister');
 });

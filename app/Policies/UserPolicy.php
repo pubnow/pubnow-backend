@@ -96,4 +96,9 @@ class UserPolicy
     {
         return $user->isAdmin();
     }
+
+    public function showStatistic(User $user)
+    {
+        return $user->isAdmin();
+    }
 }
