@@ -45,17 +45,6 @@ class InviteRequestPolicy
         return true;
     }
     /**
-     * Determine whether the user can update the join group request.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\InviteRequest  $inviteRequest
-     * @return mixed
-     */
-    public function update(User $user, InviteRequest $inviteRequest)
-    {
-        return $user->id === $inviteRequest->user_id;
-    }
-    /**
      * Determine whether the user can delete the join group request.
      *
      * @param  \App\Models\User  $user
@@ -66,26 +55,8 @@ class InviteRequestPolicy
     {
         return $user->id === $inviteRequest->organization->owner;
     }
-    /**
-     * Determine whether the user can restore the join group request.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\InviteRequest  $inviteRequest
-     * @return mixed
-     */
-    public function restore(User $user, InviteRequest $inviteRequest)
-    {
-        return false;
-    }
-    /**
-     * Determine whether the user can permanently delete the join group request.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\InviteRequest  $joinGroupRequest
-     * @return mixed
-     */
-    public function forceDelete(User $user, InviteRequest $inviteRequest)
-    {
-        return $user->id === $inviteRequest->organization->owner;
+
+    public function reply(User $user, InviteRequest $inviteRequest) {
+        return $user->id === $inviteRequest->user_id;
     }
 }
