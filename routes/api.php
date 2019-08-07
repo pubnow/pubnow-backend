@@ -114,7 +114,7 @@ Route::group(['namespace' => 'Api'], function () {
     // Invite request
     Route::post('invite-requests/{inviteRequest}/accept', 'InviteRequestController@accept');
     Route::post('invite-requests/{inviteRequest}/deny', 'InviteRequestController@deny');
-    Route::resource('invite-requests', 'InviteRequestController')->except('create', 'edit', 'show');
+    Route::resource('invite-requests', 'InviteRequestController')->except('create', 'edit', 'update', 'show');
 
     // feedback
     Route::resource('feedback', 'FeedbackController');

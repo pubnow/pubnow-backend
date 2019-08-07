@@ -220,9 +220,108 @@ class InviteRequestTest extends TestCase
         $response->assertStatus(422);
     }
 
-    // --- Update
-    // Test update invite request, user is invited
-    public function test_can_update_invite_request() {
+    // --- Accept
+    // Test accept invite request, user is invited
+    public function test_can_accept_invite_request() {
+        $user = factory(User::class)->create();
+        $inviteRequest = InviteRequest::create([
+            'user_id' => $user->id,
+            'organization_id' => $this->organization->id,
+            'status' => 'pending'
+        ]);
+
+        $response = $this->actingAs($user)->json('PUT', 'api/invite-requests/'.$inviteRequest->id.'/accept');
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            'data' => [
+                'status' => 'accepted',
+                'organization' => [
+                    'id' => $this->organization->id,
+                ],
+                'user' => [
+                    'id' => $user->id
+                ],
+            ]
+        ]);
+    }
+
+    // Test accept invite request, not logged in
+    public function test_cannot_accept_invite_request_if_not_logged_in() {
+        $user = factory(User::class)->create();
+        $inviteRequest = InviteRequest::create([
+            'user_id' => $user->id,
+            'organization_id' => $this->organization->id,
+            'status' => 'pending'
+        ]);
+
+        $response = $this->json('PUT', 'api/invite-requests/'.$inviteRequest->id.'/accept');
+
+        $response->assertStatus(401);
+    }
+
+    // Test accept invite request, not organization owner
+    public function test_cannot_accept_invite_request_if_not_invited_user() {
+        $user = factory(User::class)->create();
+        $inviteRequest = InviteRequest::create([
+            'user_id' => $user->id,
+            'organization_id' => $this->organization->id,
+            'status' => 'pending'
+        ]);
+
+        $response = $this->actingAs($this->user)->json('PUT', 'api/invite-requests/'.$inviteRequest->id.'/accept');
+
+        $response->assertStatus(403);
+    }
+
+    // Test accept invite request, invited user, status is not accepted or denied
+    public function test_cannot_accept_invite_request_if_status_is_wrong() {
+        $user = factory(User::class)->create();
+        $inviteRequest = InviteRequest::create([
+            'user_id' => $user->id,
+            'organization_id' => $this->organization->id,
+            'status' => 'pending'
+        ]);
+
+        $response = $this->actingAs($user)->json('PUT', 'api/invite-requests/'.$inviteRequest->id.'/accept');
+
+        $response->assertStatus(422);
+    }
+
+    // Test accept invite request, logged in, invite request not exists
+    public function test_cannot_accept_invite_request_if_invite_request_not_exists() {
+        $user = factory(User::class)->create();
+        $inviteRequest = InviteRequest::create([
+            'user_id' => $user->id,
+            'organization_id' => $this->organization->id,
+            'status' => 'pending'
+        ]);
+        $id = $inviteRequest->id;
+        $inviteRequest->delete();
+
+        $response = $this->actingAs($user)->json('PUT', 'api/invite-requests/'.$id.'/accept');
+
+        $response->assertStatus(404);
+    }
+
+    // Test accept invite request, logged in, invite request is replied
+    public function test_cannot_accept_invite_request_if_invite_request_is_replied() {
+        $user = factory(User::class)->create();
+        $inviteRequest = InviteRequest::create([
+            'user_id' => $user->id,
+            'organization_id' => $this->organization->id,
+            'status' => 'accepted'
+        ]);
+
+        $response = $this->actingAs($user)->json('PUT', 'api/invite-requests/'.$inviteRequest->id.'/accept');
+
+        $response->assertStatus(422);
+    }
+
+    // --- Deny
+    // Test deny invite request, user is invited
+    public function test_can_deny_invite_request() {
         $user = factory(User::class)->create();
         $inviteRequest = InviteRequest::create([
             'user_id' => $user->id,
@@ -249,8 +348,8 @@ class InviteRequestTest extends TestCase
         ]);
     }
 
-    // Test update invite request, not logged in
-    public function test_cannot_update_invite_request_if_not_logged_in() {
+    // Test deny invite request, not logged in
+    public function test_cannot_deny_invite_request_if_not_logged_in() {
         $user = factory(User::class)->create();
         $inviteRequest = InviteRequest::create([
             'user_id' => $user->id,
@@ -258,15 +357,13 @@ class InviteRequestTest extends TestCase
             'status' => 'pending'
         ]);
 
-        $response = $this->json('PUT', 'api/invite-requests/'.$inviteRequest->id, [
-            'status' => 'accepted',
-        ]);
+        $response = $this->json('PUT', 'api/invite-requests/'.$inviteRequest->id.'/deny');
 
         $response->assertStatus(401);
     }
 
-    // Test update invite request, not organization owner
-    public function test_cannot_update_invite_request_if_not_invited_user() {
+    // Test deny invite request, not organization owner
+    public function test_cannot_deny_invite_request_if_not_invited_user() {
         $user = factory(User::class)->create();
         $inviteRequest = InviteRequest::create([
             'user_id' => $user->id,
@@ -274,15 +371,13 @@ class InviteRequestTest extends TestCase
             'status' => 'pending'
         ]);
 
-        $response = $this->actingAs($this->user)->json('PUT', 'api/invite-requests/'.$inviteRequest->id, [
-            'status' => 'accepted',
-        ]);
+        $response = $this->actingAs($this->user)->json('PUT', 'api/invite-requests/'.$inviteRequest->id.'/deny');
 
         $response->assertStatus(403);
     }
 
-    // Test update invite request, invited user, status is not accepted or denied
-    public function test_cannot_create_invite_request_if_status_is_wrong() {
+    // Test deny invite request, invited user, status is not accepted or denied
+    public function test_cannot_deny_invite_request_if_status_is_wrong() {
         $user = factory(User::class)->create();
         $inviteRequest = InviteRequest::create([
             'user_id' => $user->id,
@@ -290,15 +385,13 @@ class InviteRequestTest extends TestCase
             'status' => 'pending'
         ]);
 
-        $response = $this->actingAs($user)->json('PUT', 'api/invite-requests/'.$inviteRequest->id, [
-            'status' => 'abc',
-        ]);
+        $response = $this->actingAs($user)->json('PUT', 'api/invite-requests/'.$inviteRequest->id.'/deny');
 
         $response->assertStatus(422);
     }
 
-    // Test update invite request, logged in, invite request not exists
-    public function test_cannot_create_invite_request_if_invite_request_not_exists() {
+    // Test deny invite request, logged in, invite request not exists
+    public function test_cannot_deny_invite_request_if_invite_request_not_exists() {
         $user = factory(User::class)->create();
         $inviteRequest = InviteRequest::create([
             'user_id' => $user->id,
@@ -308,15 +401,13 @@ class InviteRequestTest extends TestCase
         $id = $inviteRequest->id;
         $inviteRequest->delete();
 
-        $response = $this->actingAs($user)->json('PUT', 'api/invite-requests/'.$id, [
-            'status' => 'accepted',
-        ]);
+        $response = $this->actingAs($user)->json('PUT', 'api/invite-requests/'.$id.'/deny');
 
         $response->assertStatus(404);
     }
 
-    // Test update invite request, logged in, invite request is replied
-    public function test_cannot_create_invite_request_if_invite_request_is_replied() {
+    // Test deny invite request, logged in, invite request is replied
+    public function test_cannot_deny_invite_request_if_invite_request_is_replied() {
         $user = factory(User::class)->create();
         $inviteRequest = InviteRequest::create([
             'user_id' => $user->id,
@@ -324,9 +415,7 @@ class InviteRequestTest extends TestCase
             'status' => 'accepted'
         ]);
 
-        $response = $this->actingAs($user)->json('PUT', 'api/invite-requests/'.$inviteRequest->id, [
-            'status' => 'accepted',
-        ]);
+        $response = $this->actingAs($user)->json('PUT', 'api/invite-requests/'.$inviteRequest->id.'/deny');
 
         $response->assertStatus(422);
     }

@@ -68,37 +68,7 @@ class InviteRequestController extends Controller
         }
         return new InviteRequestResource($inviteRequest);
     }
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\InviteRequest  $inviteRequest
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, InviteRequest $inviteRequest)
-    {
-        if ($inviteRequest->status === 'pending') {
-            $status = $request->input('status');
-            if ($status === 'accepted' || $status === 'denied') {
-                $inviteRequest->update([
-                    'status' => $request->input('status'),
-                ]);
-                return new InviteRequestResource($inviteRequest);
-            } else {
-                return response()->json([
-                    'Errors' => [
-                        'message' => 'Status must be accepted or denied'
-                    ]
-                ], 422);
-            }
-        } else {
-            return response()->json([
-                'Errors' => [
-                    'message' => 'Invite requests has been replied'
-                ]
-            ], 422);
-        }
-    }
+
     /**
      * Remove the specified resource from storage.
      *
@@ -109,5 +79,41 @@ class InviteRequestController extends Controller
     {
         $inviteRequest->delete();
         return response()->json(null, 204);
+    }
+
+    public function accept(Request $request, InviteRequest $inviteRequest)
+    {
+        $this->authorize('reply', $inviteRequest);
+
+        if ($inviteRequest->status === 'pending') {
+            $inviteRequest->update([
+                'status' => 'accepted',
+            ]);
+            return new InviteRequestResource($inviteRequest);
+        } else {
+            return response()->json([
+                'Errors' => [
+                    'message' => 'Invite requests has been replied'
+                ]
+            ], 422);
+        }
+    }
+
+    public function deny(Request $request, InviteRequest $inviteRequest)
+    {
+        $this->authorize('reply', $inviteRequest);
+
+        if ($inviteRequest->status === 'pending') {
+            $inviteRequest->update([
+                'status' => 'denied',
+            ]);
+            return new InviteRequestResource($inviteRequest);
+        } else {
+            return response()->json([
+                'Errors' => [
+                    'message' => 'Invite requests has been replied'
+                ]
+            ], 422);
+        }
     }
 }
