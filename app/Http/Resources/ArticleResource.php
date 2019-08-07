@@ -23,7 +23,6 @@ class ArticleResource extends JsonResource
                 $clapped = true;
                 $user_claps = $clap->count;
             }
-
             if ($this->usersBookmarked()->find($logged->id)) {
                 $bookmarked = true;
             }
