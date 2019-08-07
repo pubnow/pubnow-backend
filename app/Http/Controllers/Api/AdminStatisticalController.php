@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\AdminStatistical;
 use App\Http\Resources\AdminStatisticalResource;
+use App\Http\Resources\ArticleOnlyResource;
+use App\Http\Resources\ArticleResource;
 use App\Http\Resources\UserResource;
 use App\Models\Article;
 use App\Models\Category;
@@ -25,8 +27,8 @@ class AdminStatisticalController extends Controller
         $params = $request->only(['start_date', 'end_date']);
         if(!$params || !array_key_exists("start_date", $params) || !array_key_exists("end_date", $params)) {
             return response()->json([
-                "errors" => "Bad request."
-            ], 403);
+                "errors" => "Internal Server Error"
+            ], 500);
         }
         $from = date($params['start_date']);
         $to = date($params['end_date']);
@@ -49,16 +51,31 @@ class AdminStatisticalController extends Controller
             'data' => [
                 'from' => $from,
                 'to' => $to,
-                'newUsersCount' => $usersCount,
-                'allUsersCount' => $userCountAll,
-                'newTagsCount' => $tagsCount,
-                'allTagsCount' => $tagsCountAll,
-                'newArticlesCount' => $articlesCount,
-                'allArticlesCount' => $articlesCountAll,
-                'newCategoriesCount' => $categoryCount,
-                'allCategoriesCount' => $categoryCountAll,
-                'highlightMember' => new UserResource($highlightMember),
-                'highlightArticle' => $highlightArticle,
+                'users' => [
+                    'new' => $usersCount,
+                    'total' => $userCountAll
+                ],
+                'tags' => [
+                    'new' => $tagsCount,
+                    'total' => $tagsCountAll
+                ],
+                'articles' => [
+                    'new' => $articlesCount,
+                    'total' => $articlesCountAll
+                ],
+                'categories' => [
+                    'new' => $categoryCount,
+                    'total' => $categoryCountAll
+                ],
+                'featuredMember' => [
+                    'total_articles' => $highlightMember->articles->count(),
+                    'data' => new UserResource($highlightMember),
+                ],
+                'featuredArticle' => [
+                    'total_claps' => $highlightArticle->claps->sum('count'),
+                    'total_comments' => $highlightArticle->comments->count(),
+                    'data' => new ArticleOnlyResource($highlightArticle),
+                ],
             ]]);
     }
 
@@ -112,20 +129,17 @@ class AdminStatisticalController extends Controller
     {
         $users = User::all();
         $highlight = $users->sortBy(function ($user) use ($users) {
-            dd($user->articles->sum('seen_count'));
             return $user->articles->count();
-//                + $user->articles->claps->sum('count') + $user->articles->comments->sum('count');
         })->reverse()->first();
         return $highlight;
     }
 
     private function getHighlightArticle()
     {
-//        $articles = Article::all();
-//        $highlight = $articles->sortBy(function ($article) use ($articles) {
-//            return $article->claps->sum('count') + $article->comments->sum('count');
-//        })->reverse()->first();
-//        return $highlight;
-        return 'x';
+        $articles = Article::all();
+        $highlight = $articles->sortBy(function ($article) use ($articles) {
+            return $article->claps->sum('count') + $article->comments->count();
+        })->reverse()->first();
+        return $highlight;
     }
 }
