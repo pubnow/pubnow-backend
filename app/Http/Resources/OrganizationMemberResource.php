@@ -22,7 +22,7 @@ class OrganizationMemberResource extends JsonResource
             'isAdmin' => $this->isAdmin(),
             'status' => $this->pivot->status,
             'bio' => $this->bio,
-            'avatar' => $this->image ? $this->image->url : '',
+            'avatar' => $this->avatarUrl,
             'role' => new RoleResource($this->role),
         ];
     }

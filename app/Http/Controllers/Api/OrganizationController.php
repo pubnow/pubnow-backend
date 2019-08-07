@@ -106,7 +106,8 @@ class OrganizationController extends Controller
         return response()->json(null, 204);
     }
 
-    public function members(Request $request, Organization $organization) {
+    public function members(Request $request, Organization $organization)
+    {
         if (!$organization->active) {
             return response()->json([
                 'errors' => [
@@ -118,7 +119,8 @@ class OrganizationController extends Controller
     }
 
     // Get users who followed this user
-    public function followers(Organization $organization) {
+    public function followers(Organization $organization)
+    {
         if (!$organization->active) {
             return response()->json([
                 'errors' => [
@@ -129,7 +131,8 @@ class OrganizationController extends Controller
         return UserResource::collection($organization->followers);
     }
 
-    public function follow(Request $request, Organization $organization) {
+    public function follow(Request $request, Organization $organization)
+    {
         if (!$organization->active) {
             return response()->json([
                 'errors' => [
@@ -149,7 +152,8 @@ class OrganizationController extends Controller
         return new UserWithFollowingOrganizationsResource($user);
     }
 
-    public function unfollow(Request $request, Organization $organization) {
+    public function unfollow(Request $request, Organization $organization)
+    {
         if (!$organization->active) {
             return response()->json([
                 'errors' => [
@@ -222,7 +226,8 @@ class OrganizationController extends Controller
         ], 200);
     }
 
-    public function articles(Request $request, Organization $organization) {
+    public function articles(Request $request, Organization $organization)
+    {
         if (!$organization->active) {
             return response()->json([
                 'errors' => [

@@ -83,7 +83,7 @@ class UserController extends Controller
      */
     public function update(UpdateUser $request, User $user)
     {
-        if ($request->has('email') || $request->has( 'username')) {
+        if ($request->has('email') || $request->has('username')) {
             return response()->json([
                 'errors' => [
                     'message' => 'cannot update username or email',
@@ -151,7 +151,8 @@ class UserController extends Controller
         return BookmarkResource::collection($bookmark);
     }
 
-    public function inviteRequests(Request $request) {
+    public function inviteRequests(Request $request)
+    {
         $user = $request->user();
         return InviteRequestResource::collection($user->inviteRequests);
     }
@@ -162,7 +163,8 @@ class UserController extends Controller
         return OrganizationResource::collection($user->organizations);
     }
 
-    public function follow(Request $request, User $user) {
+    public function follow(Request $request, User $user)
+    {
         $follower = $request->user();
         if ($follower->followingUsers()->find($user->id)) {
             return response()->json([
@@ -175,7 +177,8 @@ class UserController extends Controller
         return new UserWithFollowingUsersResource($follower);
     }
 
-    public function unfollow(Request $request, User $user) {
+    public function unfollow(Request $request, User $user)
+    {
         $follower = $request->user();
         if (!$follower->followingUsers()->find($user->id)) {
             return response()->json([
@@ -189,26 +192,31 @@ class UserController extends Controller
     }
 
     // Get users who followed this user
-    public function followers(User $user) {
+    public function followers(User $user)
+    {
         return UserResource::collection($user->followers);
     }
 
     // Get users who be followed by this user
-    public function followingUsers(User $user) {
+    public function followingUsers(User $user)
+    {
         return UserResource::collection($user->followingUsers);
     }
 
     // Get organizations who be followed by this user
-    public function followingOrganizations(User $user) {
+    public function followingOrganizations(User $user)
+    {
         return OrganizationResource::collection($user->followingOrganizations);
     }
 
-    public function followingTags(Request $request, User $user) {
+    public function followingTags(Request $request, User $user)
+    {
         $tags = $user->followingTags;
         return TagOnlyResource::collection($tags);
     }
 
-    public function followingCategories(Request $request, User $user) {
+    public function followingCategories(Request $request, User $user)
+    {
         $categories = $user->followingCategories;
         return CategoryOnlyResource::collection($categories);
     }
@@ -236,11 +244,12 @@ class UserController extends Controller
     public function newMembers()
     {
         $this->authorize('filterUsers', User::class);
-        $users = User::where( 'created_at', '>', Carbon::now()->subDays(7))->get();
+        $users = User::where('created_at', '>', Carbon::now()->subDays(7))->get();
         return UserResource::collection($users);
     }
 
-    public function featuredAuthors() {
+    public function featuredAuthors()
+    {
         $this->authorize('filterUsers', User::class);
         $users = User::with('articles')->get()->sortBy(function ($user) {
             return $user->articles->count();
@@ -248,7 +257,8 @@ class UserController extends Controller
         return UserResource::collection($users);
     }
 
-    public function activeMembers() {
+    public function activeMembers()
+    {
         $this->authorize('filterUsers', User::class);
         $users = User::with('claps')->with('comments')->get()->sortBy(function ($user) {
             return $user->claps->sum('count') + $user->comments->count();
