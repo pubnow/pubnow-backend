@@ -13,10 +13,12 @@ class Article extends Model
     use Searchable;
     use WithAuthor;
 
-    public static function boot() {
+    public static function boot()
+    {
         parent::boot();
 
-        static::deleting(function($article) { // before delete() method call this
+        static::deleting(function ($article) {
+            // before delete() method call this
             $article->tags()->detach();
             $article->comments()->delete();
             $article->claps()->delete();
@@ -95,7 +97,8 @@ class Article extends Model
         return $this->belongsToMany(Series::class, 'series_article');
     }
 
-    public function usersBookmarked() {
+    public function usersBookmarked()
+    {
         return $this->belongsToMany(User::class, 'bookmarks');
     }
 

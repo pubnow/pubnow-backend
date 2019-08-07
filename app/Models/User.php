@@ -7,11 +7,13 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Models\Concerns\UsesUuid;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Laravel\Scout\Searchable;
 
 class User extends Authenticatable implements JWTSubject
 {
     use Notifiable;
     use UsesUuid;
+    use Searchable;
 
     public static function boot()
     {
@@ -57,6 +59,18 @@ class User extends Authenticatable implements JWTSubject
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        $array = $this->toArray();
+
+        return array('name' => $array['name'], 'username' => $array['username'], 'email' => $array['email']);
+    }
 
     /**
      * Set the password using bcrypt hash.
