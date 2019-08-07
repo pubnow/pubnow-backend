@@ -230,7 +230,7 @@ class InviteRequestTest extends TestCase
             'status' => 'pending'
         ]);
 
-        $response = $this->actingAs($user)->json('PUT', 'api/invite-requests/'.$inviteRequest->id.'/accept');
+        $response = $this->actingAs($user)->json('POST', 'api/invite-requests/'.$inviteRequest->id.'/accept');
 
         $response->assertStatus(200);
 
@@ -256,7 +256,7 @@ class InviteRequestTest extends TestCase
             'status' => 'pending'
         ]);
 
-        $response = $this->json('PUT', 'api/invite-requests/'.$inviteRequest->id.'/accept');
+        $response = $this->json('POST', 'api/invite-requests/'.$inviteRequest->id.'/accept');
 
         $response->assertStatus(401);
     }
@@ -270,7 +270,7 @@ class InviteRequestTest extends TestCase
             'status' => 'pending'
         ]);
 
-        $response = $this->actingAs($this->user)->json('PUT', 'api/invite-requests/'.$inviteRequest->id.'/accept');
+        $response = $this->actingAs($this->user)->json('POST', 'api/invite-requests/'.$inviteRequest->id.'/accept');
 
         $response->assertStatus(403);
     }
@@ -284,7 +284,7 @@ class InviteRequestTest extends TestCase
             'status' => 'pending'
         ]);
 
-        $response = $this->actingAs($user)->json('PUT', 'api/invite-requests/'.$inviteRequest->id.'/accept');
+        $response = $this->actingAs($user)->json('POST', 'api/invite-requests/'.$inviteRequest->id.'/accept');
 
         $response->assertStatus(422);
     }
@@ -300,7 +300,7 @@ class InviteRequestTest extends TestCase
         $id = $inviteRequest->id;
         $inviteRequest->delete();
 
-        $response = $this->actingAs($user)->json('PUT', 'api/invite-requests/'.$id.'/accept');
+        $response = $this->actingAs($user)->json('POST', 'api/invite-requests/'.$id.'/accept');
 
         $response->assertStatus(404);
     }
@@ -314,7 +314,7 @@ class InviteRequestTest extends TestCase
             'status' => 'accepted'
         ]);
 
-        $response = $this->actingAs($user)->json('PUT', 'api/invite-requests/'.$inviteRequest->id.'/accept');
+        $response = $this->actingAs($user)->json('POST', 'api/invite-requests/'.$inviteRequest->id.'/accept');
 
         $response->assertStatus(422);
     }
@@ -329,7 +329,7 @@ class InviteRequestTest extends TestCase
             'status' => 'pending'
         ]);
 
-        $response = $this->actingAs($user)->json('PUT', 'api/invite-requests/'.$inviteRequest->id, [
+        $response = $this->actingAs($user)->json('POST', 'api/invite-requests/'.$inviteRequest->id, [
             'status' => 'accepted',
         ]);
 
@@ -357,7 +357,7 @@ class InviteRequestTest extends TestCase
             'status' => 'pending'
         ]);
 
-        $response = $this->json('PUT', 'api/invite-requests/'.$inviteRequest->id.'/deny');
+        $response = $this->json('POST', 'api/invite-requests/'.$inviteRequest->id.'/deny');
 
         $response->assertStatus(401);
     }
@@ -371,7 +371,7 @@ class InviteRequestTest extends TestCase
             'status' => 'pending'
         ]);
 
-        $response = $this->actingAs($this->user)->json('PUT', 'api/invite-requests/'.$inviteRequest->id.'/deny');
+        $response = $this->actingAs($this->user)->json('POST', 'api/invite-requests/'.$inviteRequest->id.'/deny');
 
         $response->assertStatus(403);
     }
@@ -385,7 +385,7 @@ class InviteRequestTest extends TestCase
             'status' => 'pending'
         ]);
 
-        $response = $this->actingAs($user)->json('PUT', 'api/invite-requests/'.$inviteRequest->id.'/deny');
+        $response = $this->actingAs($user)->json('POST', 'api/invite-requests/'.$inviteRequest->id.'/deny');
 
         $response->assertStatus(422);
     }
@@ -401,7 +401,7 @@ class InviteRequestTest extends TestCase
         $id = $inviteRequest->id;
         $inviteRequest->delete();
 
-        $response = $this->actingAs($user)->json('PUT', 'api/invite-requests/'.$id.'/deny');
+        $response = $this->actingAs($user)->json('POST', 'api/invite-requests/'.$id.'/deny');
 
         $response->assertStatus(404);
     }
@@ -415,7 +415,7 @@ class InviteRequestTest extends TestCase
             'status' => 'accepted'
         ]);
 
-        $response = $this->actingAs($user)->json('PUT', 'api/invite-requests/'.$inviteRequest->id.'/deny');
+        $response = $this->actingAs($user)->json('POST', 'api/invite-requests/'.$inviteRequest->id.'/deny');
 
         $response->assertStatus(422);
     }
