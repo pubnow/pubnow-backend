@@ -149,7 +149,9 @@ class ArticleTest extends TestCase
     // TODO: Xem 1 article, ton tai -> ok
     public function test_can_view_an_exists_article() {
         $category = factory(Category::class)->create();
-        $organization = factory(Organization::class) ->create();
+        $organization = factory(Organization::class) ->create([
+            'owner' => $this->user,
+        ]);
         $article = factory(Article::class)->create([
             'user_id' => $this->user->id,
             'category_id' => $category->id,
