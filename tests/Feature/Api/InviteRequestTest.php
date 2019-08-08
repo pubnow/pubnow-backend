@@ -275,20 +275,6 @@ class InviteRequestTest extends TestCase
         $response->assertStatus(403);
     }
 
-    // Test accept invite request, invited user, status is not accepted or denied
-    public function test_cannot_accept_invite_request_if_status_is_wrong() {
-        $user = factory(User::class)->create();
-        $inviteRequest = InviteRequest::create([
-            'user_id' => $user->id,
-            'organization_id' => $this->organization->id,
-            'status' => 'pending'
-        ]);
-
-        $response = $this->actingAs($user)->json('POST', 'api/invite-requests/'.$inviteRequest->id.'/accept');
-
-        $response->assertStatus(422);
-    }
-
     // Test accept invite request, logged in, invite request not exists
     public function test_cannot_accept_invite_request_if_invite_request_not_exists() {
         $user = factory(User::class)->create();
@@ -329,9 +315,7 @@ class InviteRequestTest extends TestCase
             'status' => 'pending'
         ]);
 
-        $response = $this->actingAs($user)->json('POST', 'api/invite-requests/'.$inviteRequest->id, [
-            'status' => 'accepted',
-        ]);
+        $response = $this->actingAs($user)->json('POST', 'api/invite-requests/'.$inviteRequest->id.'/deny');
 
         $response->assertStatus(200);
 
@@ -374,20 +358,6 @@ class InviteRequestTest extends TestCase
         $response = $this->actingAs($this->user)->json('POST', 'api/invite-requests/'.$inviteRequest->id.'/deny');
 
         $response->assertStatus(403);
-    }
-
-    // Test deny invite request, invited user, status is not accepted or denied
-    public function test_cannot_deny_invite_request_if_status_is_wrong() {
-        $user = factory(User::class)->create();
-        $inviteRequest = InviteRequest::create([
-            'user_id' => $user->id,
-            'organization_id' => $this->organization->id,
-            'status' => 'pending'
-        ]);
-
-        $response = $this->actingAs($user)->json('POST', 'api/invite-requests/'.$inviteRequest->id.'/deny');
-
-        $response->assertStatus(422);
     }
 
     // Test deny invite request, logged in, invite request not exists
