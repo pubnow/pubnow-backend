@@ -44,7 +44,7 @@ class Article extends Model
     {
         $array = $this->toArray();
 
-        return array('title' => $array['title'], 'content' => $array['content']);
+        return array('title' => $array['title'], 'content' => strip_tags($array['content']));
     }
 
     private function isPublished()
