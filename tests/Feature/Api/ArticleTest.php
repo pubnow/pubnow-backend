@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\InviteRequest;
 
 class ArticleTest extends TestCase
 {
@@ -148,9 +149,13 @@ class ArticleTest extends TestCase
     // TODO: Xem 1 article, ton tai -> ok
     public function test_can_view_an_exists_article() {
         $category = factory(Category::class)->create();
+        $organization = factory(Organization::class) ->create([
+            'owner' => $this->user,
+        ]);
         $article = factory(Article::class)->create([
             'user_id' => $this->user->id,
             'category_id' => $category->id,
+            'organization_id' => $organization->id,
         ]);
         $response = $this->json('GET', '/api/articles/'.$article->slug);
 
@@ -190,6 +195,108 @@ class ArticleTest extends TestCase
             'bookmarked' => true,
         ]);
     }
+
+    // TODO: Xem 1 article, ton tai, organization private, owner logged in -> ok
+    public function test_can_view_an_exists_article_organization_private_owner() {
+        $category = factory(Category::class)->create();
+        $organization = factory(Organization::class) ->create([
+            'owner' => $this->user,
+        ]);
+        InviteRequest::create([
+            'user_id' => $this->user->id,
+            'organization_id' => $organization->id,
+            'status' => 'accepted'
+        ]);
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id,
+            'organization_private' => true
+        ]);
+        $response = $this->actingAs($this->user)->json('GET', '/api/articles/'.$article->slug);
+
+        $response->assertOk();
+        $response->assertJsonFragment([
+            'title' => $article->title,
+            'content' => $article->content,
+            'clapped' => false,
+            'bookmarked' => false,
+        ]);
+    }
+
+    // TODO: Xem 1 article, ton tai, organization private, admin logged in -> ok
+    public function test_can_view_an_exists_article_organization_private_admin() {
+        $category = factory(Category::class)->create();
+        $organization = factory(Organization::class) ->create([
+            'owner' => $this->user,
+        ]);
+        InviteRequest::create([
+            'user_id' => $this->user->id,
+            'organization_id' => $organization->id,
+            'status' => 'accepted'
+        ]);
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id,
+            'organization_private' => true
+        ]);
+        $response = $this->actingAs($this->admin)->json('GET', '/api/articles/'.$article->slug);
+
+        $response->assertOk();
+        $response->assertJsonFragment([
+            'title' => $article->title,
+            'content' => $article->content,
+            'clapped' => false,
+            'bookmarked' => false,
+        ]);
+    }
+
+    // TODO: Xem 1 article, ton tai, organization private, not logged in -> 401
+    public function test_can_view_an_exists_article_organization_private_not_logged_in() {
+        $category = factory(Category::class)->create();
+        $organization = factory(Organization::class) ->create([
+            'owner' => $this->user,
+        ]);
+        InviteRequest::create([
+            'user_id' => $this->user->id,
+            'organization_id' => $organization->id,
+            'status' => 'accepted'
+        ]);
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id,
+            'organization_private' => true
+        ]);
+        $response = $this->json('GET', '/api/articles/'.$article->slug);
+
+        $response->assertStatus(401);
+    }
+
+    // TODO: Xem 1 article, ton tai, organization private, not owner logged in -> 403
+    public function test_cannot_view_an_exists_article_organization_private_not_owner_or_admin() {
+        $category = factory(Category::class)->create();
+        $user = factory(User::class)->create();
+        $organization = factory(Organization::class) ->create([
+            'owner' => $this->user,
+        ]);
+        InviteRequest::create([
+            'user_id' => $this->user->id,
+            'organization_id' => $organization->id,
+            'status' => 'accepted'
+        ]);
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'organization_id' => $organization->id,
+            'organization_private' => true
+        ]);
+        $response = $this->actingAs($user)->json('GET', '/api/articles/'.$article->slug);
+
+        $response->assertStatus(403);
+    }
+
     // TODO: Xem 1 article, khong ton tai -> 404 not found
     public function test_cannot_view_a_not_exists_article() {
         $category = factory(Category::class)->create();

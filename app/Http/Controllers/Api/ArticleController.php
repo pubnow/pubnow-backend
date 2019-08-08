@@ -116,6 +116,24 @@ class ArticleController extends Controller
                 ], 401);
             }
         }
+        if ($article->organization_id && $article->organization_private) {
+            if (!auth()->user()) {
+                return response()->json([
+                    'message' => [
+                        'Unauthorized',
+                    ]
+                ], 401);
+            }
+            $user = auth()->user();
+            $organization = Organization::find($article->organization_id);
+            if (!$user->isAdmin() && !$organization->members->find($user->id)) {
+                return response()->json([
+                    'message' => [
+                        'Only organization member can read this article',
+                    ]
+                ], 403);
+            }
+        }
         $article->update([
             'seen_count' => $article->seen_count + 1
         ]);
