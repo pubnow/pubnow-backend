@@ -321,7 +321,7 @@ class InviteRequestTest extends TestCase
 
         $response->assertJson([
             'data' => [
-                'status' => 'accepted',
+                'status' => 'denied',
                 'organization' => [
                     'id' => $this->organization->id,
                 ],
