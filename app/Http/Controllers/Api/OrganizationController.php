@@ -184,13 +184,13 @@ class OrganizationController extends Controller
         }
         $this->authorize('statistic', $organization);
 
-        $featuredMember = $organization->members->sortBy(function ($member) use ($organization) {
+        $featuredMember = $organization->members()->wherePivot('status', 'accepted')->get()->sortBy(function ($member) use ($organization) {
             return $member->articles->where('organization_id', $organization->id)->count();
-        })->reverse()->first();
+        })->reverse()->take(3);
 
         $featuredArticle = $organization->articles->sortBy(function ($article) use ($organization) {
             return $article->claps->sum('count') + $article->comments->count();
-        })->reverse()->first();
+        })->reverse()->take(5);
 
         $articlesByCategories = $organization->articles()
             ->select('category_id', DB::raw('count(*) as count'))
@@ -218,8 +218,8 @@ class OrganizationController extends Controller
             'data' => [
                 'members_count' => $organization->members->count(),
                 'articles_count' => $organization->articles->count(),
-                'featured_member' => new UserResource($featuredMember),
-                'featured_article' => $featuredArticle ? new ArticleOnlyResource($featuredArticle) : null,
+                'featured_member' => UserResource::collection($featuredMember),
+                'featured_article' => ArticleOnlyResource::collection($featuredArticle),
                 'articles_by_category' => $roundChartData,
                 'articles_by_day' => $articlesByDay
             ]
