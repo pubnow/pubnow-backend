@@ -26,7 +26,9 @@ class OrganizationController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show', 'members', 'followers', 'articles']);
+        $this->middleware(['auth'])->except([
+            'index', 'show', 'members', 'followers', 'articles', 'popular', 'featured'
+        ]);
         $this->authorizeResource(Organization::class);
     }
     /**
