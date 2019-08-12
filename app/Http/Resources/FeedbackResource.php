@@ -25,6 +25,9 @@ class FeedbackResource extends JsonResource
             'resolve' => $this->resolve,
             'article' => new ArticleOnlyResource($this->article),
             'user' => new UserResource($this->user),
+            'publishedAt' => $this->created_at->diffForHumans(),
+            'createdAt' => $this->created_at,
+            'updatedAt' => $this->updated_at,
         ];
     }
 }
