@@ -20,6 +20,7 @@ $factory->define(Feedback::class, function (Faker $faker) {
         'email' => $faker->unique()->safeEmail,
         'username' => $faker->unique()->userName,
         'reference' => $faker->sentence,
+        'title' => $faker->sentence,
         'content' => $faker->paragraph,
         'type' => 0,
     ];

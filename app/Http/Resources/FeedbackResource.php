@@ -19,8 +19,11 @@ class FeedbackResource extends JsonResource
             'username' => $this->username,
             'email' => $this->email,
             'reference' => $this->reference,
+            'title' => $this->title,
             'content' => $this->content,
-            'article_id' => $this->article->id,
+            'type' => $this->type,
+            'resolve' => $this->resolve,
+            'article' => new ArticleOnlyResource($this->article),
             'user' => new UserResource($this->user),
         ];
     }

@@ -131,6 +131,7 @@ class FeedbackTest extends TestCase
             'article_id' => $article->id,
             'username' => $this->user->username,
             'email' => $this->user->email,
+            'title' => $feedback->title,
             'reference' => $feedback->reference,
             'content' => $feedback->content,
             'type' => 0,
@@ -139,6 +140,7 @@ class FeedbackTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonFragment([
             'reference' => $feedback->reference,
+
             'content' => $feedback->content,
         ]);
     }
@@ -156,6 +158,7 @@ class FeedbackTest extends TestCase
             'article_id' => $article->id,
             'username' => $this->user->username,
             'email' => $this->user->email,
+            'title' => $feedback->title,
             'reference' => $feedback->reference,
             'content' => $feedback->content,
             'type' => 0,
@@ -200,14 +203,12 @@ class FeedbackTest extends TestCase
         $feedback = factory(Feedback::class)->create();
         $editFeedback = factory(Feedback::class)->make();
         $response = $this->actingAs($this->admin)->json('PUT', '/api/feedback/' . $feedback->id, [
-            'reference' => $editFeedback->reference,
-            'content' => $editFeedback->content,
+            'resolve' => true,
         ]);
 
         $response->assertStatus(200);
         $response->assertJsonFragment([
-            'reference' => $editFeedback->reference,
-            'content' => $editFeedback->content,
+            'resolve' => true,
         ]);
     }
 

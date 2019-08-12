@@ -17,9 +17,11 @@ class CreateFeedback extends ApiRequest
             'article_id' => 'sometimes|uuid|exists:articles,id',
             'username' => 'required|string|min:3',
             'reference' => 'required|string',
+            'title' => 'required|string',
             'content' => 'required|string',
             'email' => 'required|email',
             'type' => 'required|integer',
+            'resolve' => 'sometimes|boolean',
         ];
     }
 }

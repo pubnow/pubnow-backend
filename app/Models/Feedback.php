@@ -10,7 +10,7 @@ class Feedback extends Model
     use UsesUuid;
 
     protected $fillable = [
-        'username', 'email', 'reference', 'content', 'article_id', 'type'
+        'username', 'email', 'reference', 'title', 'content', 'article_id', 'type', 'user_id', 'resolve'
     ];
 
     public function user()

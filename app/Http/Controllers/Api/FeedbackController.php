@@ -7,6 +7,7 @@ use App\Models\Feedback;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\Api\Feedback\CreateFeedback;
+use App\Http\Requests\Api\Feedback\UpdateFeedbackRequest;
 
 class FeedbackController extends Controller
 {
@@ -36,7 +37,7 @@ class FeedbackController extends Controller
     public function store(CreateFeedback $request)
     {
         $user = auth()->user();
-        $data = $request->only('reference', 'content', 'username', 'email', 'article_id', 'type');
+        $data = $request->only('reference', 'title', 'content', 'username', 'email', 'article_id', 'type', 'resolve');
         if ($user) {
             $data['user_id'] = $user->id;
         }
@@ -62,9 +63,9 @@ class FeedbackController extends Controller
      * @param  \App\Feedback  $feedback
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Feedback $feedback)
+    public function update(UpdateFeedbackRequest $request, Feedback $feedback)
     {
-        $data = $request->only('reference', 'content');
+        $data = $request->only('resolve');
         $feedback->update($data);
         return new FeedbackResource($feedback);
     }
