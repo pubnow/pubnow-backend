@@ -21,5 +21,6 @@ $factory->define(Feedback::class, function (Faker $faker) {
         'username' => $faker->unique()->userName,
         'reference' => $faker->sentence,
         'content' => $faker->paragraph,
+        'type' => 0,
     ];
 });

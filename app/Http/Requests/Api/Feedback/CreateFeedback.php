@@ -14,10 +14,12 @@ class CreateFeedback extends ApiRequest
     public function rules()
     {
         return [
-            'article_id' => 'uuid|exists:articles,id',
-            'username' => 'min:3',
+            'article_id' => 'sometimes|uuid|exists:articles,id',
+            'username' => 'required|string|min:3',
+            'reference' => 'required|string',
             'content' => 'required|string',
-            'email' => 'email|max:255',
+            'email' => 'required|email',
+            'type' => 'required|integer',
         ];
     }
 }

@@ -10,14 +10,16 @@ class Feedback extends Model
     use UsesUuid;
 
     protected $fillable = [
-        'username', 'email', 'reference', 'content', 'article_id'
+        'username', 'email', 'reference', 'content', 'article_id', 'type'
     ];
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo('App\Models\User', 'user_id');
     }
 
-    public function article() {
+    public function article()
+    {
         return $this->belongsTo('App\Models\Article', 'article_id');
     }
 }

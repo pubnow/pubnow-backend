@@ -55,7 +55,7 @@ class FeedbackTest extends TestCase
     public function test_get_a_feedback_unauthorize()
     {
         $feedback = factory(Feedback::class)->create();
-        $response = $this->json('GET', '/api/feedback/'. $feedback->id);
+        $response = $this->json('GET', '/api/feedback/' . $feedback->id);
 
         $response->assertStatus(401);
     }
@@ -64,7 +64,7 @@ class FeedbackTest extends TestCase
     public function test_get_a_feedback_not_admin()
     {
         $feedback = factory(Feedback::class)->create();
-        $response = $this->actingAs($this->user)->json('GET', '/api/feedback/'. $feedback->id);
+        $response = $this->actingAs($this->user)->json('GET', '/api/feedback/' . $feedback->id);
 
         $response->assertStatus(403);
     }
@@ -73,7 +73,7 @@ class FeedbackTest extends TestCase
     public function test_get_a_feedback_as_admin()
     {
         $feedback = factory(Feedback::class)->create();
-        $response = $this->actingAs($this->admin)->json('GET', '/api/feedback/'. $feedback->id);
+        $response = $this->actingAs($this->admin)->json('GET', '/api/feedback/' . $feedback->id);
 
         $response->assertStatus(200);
     }
@@ -113,8 +113,9 @@ class FeedbackTest extends TestCase
             'article_id' => $article->id,
             'reference' => $feedback->reference,
             'content' => $feedback->content,
+            'type' => 0,
         ]);
-        $response->assertStatus(500);
+        $response->assertStatus(422);
     }
 
     // test: create a feedback, chưa đăng nhập + truyền username || email valid
@@ -132,6 +133,7 @@ class FeedbackTest extends TestCase
             'email' => $this->user->email,
             'reference' => $feedback->reference,
             'content' => $feedback->content,
+            'type' => 0,
         ]);
 
         $response->assertStatus(201);
@@ -152,8 +154,11 @@ class FeedbackTest extends TestCase
         ]);
         $response = $this->actingAs($this->user)->json('POST', '/api/feedback', [
             'article_id' => $article->id,
+            'username' => $this->user->username,
+            'email' => $this->user->email,
             'reference' => $feedback->reference,
             'content' => $feedback->content,
+            'type' => 0,
         ]);
 
         $response->assertStatus(201);
@@ -168,7 +173,7 @@ class FeedbackTest extends TestCase
     {
         $feedback = factory(Feedback::class)->create();
         $editFeedback = factory(Feedback::class)->make();
-        $response = $this->json('PUT', '/api/feedback/'.$feedback->id, [
+        $response = $this->json('PUT', '/api/feedback/' . $feedback->id, [
             'reference' => $editFeedback->reference,
             'content' => $editFeedback->content,
         ]);
@@ -181,7 +186,7 @@ class FeedbackTest extends TestCase
     {
         $feedback = factory(Feedback::class)->create();
         $editFeedback = factory(Feedback::class)->make();
-        $response = $this->actingAs($this->user)->json('PUT', '/api/feedback/'.$feedback->id, [
+        $response = $this->actingAs($this->user)->json('PUT', '/api/feedback/' . $feedback->id, [
             'reference' => $editFeedback->reference,
             'content' => $editFeedback->content,
         ]);
@@ -194,7 +199,7 @@ class FeedbackTest extends TestCase
     {
         $feedback = factory(Feedback::class)->create();
         $editFeedback = factory(Feedback::class)->make();
-        $response = $this->actingAs($this->admin)->json('PUT', '/api/feedback/'.$feedback->id, [
+        $response = $this->actingAs($this->admin)->json('PUT', '/api/feedback/' . $feedback->id, [
             'reference' => $editFeedback->reference,
             'content' => $editFeedback->content,
         ]);
@@ -210,7 +215,7 @@ class FeedbackTest extends TestCase
     public function test_delete_a_feedback_authorize_as_admin()
     {
         $feedback = factory(Feedback::class)->create();
-        $response = $this->actingAs($this->admin)->json('DELETE', '/api/feedback/'.$feedback->id);
+        $response = $this->actingAs($this->admin)->json('DELETE', '/api/feedback/' . $feedback->id);
         $response->assertStatus(204);
     }
 
@@ -218,7 +223,7 @@ class FeedbackTest extends TestCase
     public function test_delete_a_feedback_authorize_not_admin()
     {
         $feedback = factory(Feedback::class)->create();
-        $response = $this->actingAs($this->user)->json('DELETE', '/api/feedback/'.$feedback->id);
+        $response = $this->actingAs($this->user)->json('DELETE', '/api/feedback/' . $feedback->id);
         $response->assertStatus(403);
     }
 
@@ -227,29 +232,7 @@ class FeedbackTest extends TestCase
     public function test_delete_a_feedback_unauthorize()
     {
         $feedback = factory(Feedback::class)->create();
-        $response = $this->json('DELETE', '/api/feedback/'.$feedback->id);
+        $response = $this->json('DELETE', '/api/feedback/' . $feedback->id);
         $response->assertStatus(401);
-    }
-
-    // test: create a feedback nhưng user và article đó đã tạo rồi
-    public function test_create_a_feedback_but_same_user_article()
-    {
-        $category = factory(Category::class)->create();
-        $article = factory(Article::class)->create([
-            'user_id' => $this->user->id,
-            'category_id' => $category->id,
-        ]);
-        $feedbackFake = factory(Feedback::class)->make();
-        $this->actingAs($this->user)->json('POST', '/api/feedback', [
-            'article_id' => $article->id,
-            'reference' => $feedbackFake->reference,
-            'content' => $feedbackFake->content,
-        ]);
-        $response = $this->actingAs($this->user)->json('POST', '/api/feedback', [
-            'article_id' => $article->id,
-            'reference' => $feedbackFake->reference,
-            'content' => $feedbackFake->content,
-        ]);
-        $response->assertStatus(500);
     }
 }

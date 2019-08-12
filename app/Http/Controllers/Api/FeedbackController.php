@@ -36,40 +36,12 @@ class FeedbackController extends Controller
     public function store(CreateFeedback $request)
     {
         $user = auth()->user();
-        $data = $request->only('reference', 'content', 'username', 'email', 'article_id');
-        // nếu mà chưa đăng nhập, thì bắt nó nhập tên và email
-        if (!$user) {
-            if ((!array_key_exists("username", $data) || !array_key_exists("email", $data))) {
-                return response()->json([
-                    "errors" => [
-                        "Username and email field must be filled."
-                    ]
-                ], 500);
-            } else {
-                $feedback = Feedback::create([
-                    'article_id' => $data['article_id'],
-                    'reference' => $data['reference'],
-                    'content' => $data['content'],
-                    'username' => $data['username'],
-                    'email' => $data['email']
-                ]);
-                return new FeedbackResource($feedback);
-            }
+        $data = $request->only('reference', 'content', 'username', 'email', 'article_id', 'type');
+        if ($user) {
+            $data['user_id'] = $user->id;
         }
-        $isExit = Feedback::where(['user_id' => $user->id, 'article_id' => $data['article_id']])->first();
-        if ($isExit) {
-            return response()->json('Bad request', 500);
-        }
-        if (!$isExit && $user) {
-            $feedback = $user->feedback()->create([
-                'article_id' => $data['article_id'],
-                'reference' => $data['reference'],
-                'content' => $data['content'],
-                'username' => $user->name,
-                'email' => $user->email
-            ]);
-            return new FeedbackResource($feedback);
-        }
+        $feedback = Feedback::create($data);
+        return new FeedbackResource($feedback);
     }
 
     /**
