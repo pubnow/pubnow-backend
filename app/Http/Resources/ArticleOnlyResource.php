@@ -39,6 +39,7 @@ class ArticleOnlyResource extends JsonResource
             'thumbnail' => thumbnail($this->content),
             'claps' => $this->claps()->sum('count'),
             'comments_count' => $this->comments()->count(),
+            'organization' => new OrganizationResource($this->organization),
             'clapped' => $clapped,
             'bookmarked' => $bookmarked,
             'publishedAt' => $this->created_at->diffForHumans(),
