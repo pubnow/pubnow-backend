@@ -745,15 +745,19 @@ class OrganizationTest extends TestCase
                 'members_count' => 1,
                 'articles_count' => 5,
                 'featured_member' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'username' => $user->username,
-                    'email' => $user->email,
+                    [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'username' => $user->username,
+                        'email' => $user->email,
+                    ]
                 ],
                 'featured_article' => [
-                    'id' => $articles[0]->id,
-                    'title' => $articles[0]->title,
-                    'slug' => $articles[0]->slug,
+                    [
+                        'id' => $articles[0]->id,
+                        'title' => $articles[0]->title,
+                        'slug' => $articles[0]->slug,
+                    ]
                 ],
                 'articles_by_category' => [
                     [
