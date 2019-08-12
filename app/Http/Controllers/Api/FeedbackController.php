@@ -23,7 +23,7 @@ class FeedbackController extends Controller
     public function index()
     {
         $this->authorize('index', Feedback::class);
-        $feedback = Feedback::orderByDesc('created_at')->paginate(10);
+        $feedback = Feedback::latest()->paginate(10);
         return FeedbackResource::collection($feedback);
     }
 

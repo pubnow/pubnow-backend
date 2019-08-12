@@ -184,13 +184,13 @@ class OrganizationController extends Controller
         }
         $this->authorize('statistic', $organization);
 
-        $featuredMember = $organization->members()->wherePivot('status', 'accepted')->get()->sortBy(function ($member) use ($organization) {
+        $featuredMember = $organization->members()->wherePivot('status', 'accepted')->get()->sortByDesc(function ($member) use ($organization) {
             return $member->articles->where('organization_id', $organization->id)->count();
-        })->reverse()->take(3);
+        })->take(3);
 
-        $featuredArticle = $organization->articles->sortBy(function ($article) use ($organization) {
+        $featuredArticle = $organization->articles->sortByDesc(function ($article) use ($organization) {
             return $article->claps->sum('count') + $article->comments->count();
-        })->reverse()->take(5);
+        })->take(5);
 
         $articlesByCategories = $organization->articles()
             ->select('category_id', DB::raw('count(*) as count'))
@@ -242,7 +242,53 @@ class OrganizationController extends Controller
                 $articles = $articles->union($organization->articles()->where('organization_private', true));
             }
         }
-        $articles = $articles->orderByDesc('created_at')->paginate(10);
+        $articles = $articles->latest()->paginate(10);
+        return ArticleOnlyResource::collection($articles);
+    }
+
+    public function featured(Request $request, Organization $organization)
+    {
+        if (!$organization->active) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Organization not activated',
+                ]
+            ], 422);
+        }
+        $articles = $organization->articles()->where('organization_private', false);
+        if ($request->user()) {
+            $user = $request->user();
+            if ($organization->members()->find($user->id)) {
+                $articles = $articles->union($organization->articles()->where('organization_private', true));
+            }
+        }
+        $articles = $articles->with('claps')->with('comments')->get()->sortByDesc(function ($article) {
+            return $article->claps->sum('count') + $article->comments->count();
+        })->take(5)->sortByDesc(function ($article) {
+            return $article->created_at;
+        });
+
+        return ArticleOnlyResource::collection($articles);
+    }
+
+    public function popular(Request $request, Organization $organization)
+    {
+        if (!$organization->active) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Organization not activated',
+                ]
+            ], 422);
+        }
+        $articles = $organization->articles()->where('organization_private', false);
+        if ($request->user()) {
+            $user = $request->user();
+            if ($organization->members()->find($user->id)) {
+                $articles = $articles->union($organization->articles()->where('organization_private', true));
+            }
+        }
+        $articles = $articles->orderBy('seen_count', 'desc')->take(5)->get();
+
         return ArticleOnlyResource::collection($articles);
     }
 }

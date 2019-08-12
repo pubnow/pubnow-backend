@@ -33,7 +33,7 @@ class ArticleController extends Controller
      */
     public function index()
     {
-        $articles = Article::withAuthor()->orderByDesc('created_at')->paginate(10);
+        $articles = Article::withAuthor()->latest()->paginate(10);
         return ArticleOnlyResource::collection($articles);
     }
 
@@ -193,9 +193,9 @@ class ArticleController extends Controller
 
     public function featured()
     {
-        $articles = Article::withAuthor()->with('claps')->with('comments')->get()->sortBy(function ($article) {
+        $articles = Article::withAuthor()->with('claps')->with('comments')->get()->sortByDesc(function ($article) {
             return $article->claps->sum('count') + $article->comments->count();
-        })->reverse()->take(5);
+        })->take(5);
         return ArticleOnlyResource::collection($articles);
     }
 

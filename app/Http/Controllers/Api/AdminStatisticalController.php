@@ -25,7 +25,7 @@ class AdminStatisticalController extends Controller
     {
         $this->authorize('showStatistic', User::class);
         $params = $request->only(['start_date', 'end_date']);
-        if(!$params || !array_key_exists("start_date", $params) || !array_key_exists("end_date", $params)) {
+        if (!$params || !array_key_exists("start_date", $params) || !array_key_exists("end_date", $params)) {
             return response()->json([
                 "errors" => "Internal Server Error"
             ], 500);
@@ -76,10 +76,12 @@ class AdminStatisticalController extends Controller
                     'total_comments' => $highlightArticle->comments->count(),
                     'data' => new ArticleOnlyResource($highlightArticle),
                 ],
-            ]]);
+            ]
+        ]);
     }
 
-    private function countUserRegisterScope($from, $to) {
+    private function countUserRegisterScope($from, $to)
+    {
         $usersCount = User::whereBetween('created_at', [$from, $to])->get()->count();
         return $usersCount;
     }
@@ -128,18 +130,18 @@ class AdminStatisticalController extends Controller
     private function getHighlightMember()
     {
         $users = User::all();
-        $highlight = $users->sortBy(function ($user) use ($users) {
+        $highlight = $users->sortByDesc(function ($user) use ($users) {
             return $user->articles->count();
-        })->reverse()->first();
+        })->first();
         return $highlight;
     }
 
     private function getHighlightArticle()
     {
         $articles = Article::all();
-        $highlight = $articles->sortBy(function ($article) use ($articles) {
+        $highlight = $articles->sortByDesc(function ($article) use ($articles) {
             return $article->claps->sum('count') + $article->comments->count();
-        })->reverse()->first();
+        })->first();
         return $highlight;
     }
 }

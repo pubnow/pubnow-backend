@@ -26,7 +26,7 @@ class SeriesController extends Controller
      */
     public function index()
     {
-        $series = Series::orderByDesc('created_at')->paginate(10);
+        $series = Series::latest()->paginate(10);
         return SeriesResource::collection($series);
     }
 
@@ -84,7 +84,7 @@ class SeriesController extends Controller
     public function update(Request $request, Series $series)
     {
         $data = $request->only('title', 'content');
-        if(array_key_exists("title", $data) && ($series->title !== $data['title'])) {
+        if (array_key_exists("title", $data) && ($series->title !== $data['title'])) {
             $slug = str_slug($data['title']) . '-' . base_convert(time(), 10, 36);
             $data['slug'] = $slug;
         }
@@ -116,7 +116,8 @@ class SeriesController extends Controller
         return response()->json(null, 204);
     }
 
-    public function articles(Series $series) {
+    public function articles(Series $series)
+    {
         $articles = $series->articles;
         return ArticleOnlyResource::collection($articles);
     }

@@ -251,18 +251,18 @@ class UserController extends Controller
     public function featuredAuthors()
     {
         $this->authorize('filterUsers', User::class);
-        $users = User::with('articles')->get()->sortBy(function ($user) {
+        $users = User::with('articles')->get()->sortByDesc(function ($user) {
             return $user->articles->count();
-        })->reverse()->take(5);
+        })->take(5);
         return UserResource::collection($users);
     }
 
     public function activeMembers()
     {
         $this->authorize('filterUsers', User::class);
-        $users = User::with('claps')->with('comments')->get()->sortBy(function ($user) {
+        $users = User::with('claps')->with('comments')->get()->sortByDesc(function ($user) {
             return $user->claps->sum('count') + $user->comments->count();
-        })->reverse()->take(5);
+        })->take(5);
         return UserResource::collection($users);
     }
 }
