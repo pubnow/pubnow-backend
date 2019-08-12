@@ -317,6 +317,31 @@ class OrganizationTest extends TestCase
     }
 
     // Test delete organization, logged in, owner
+    public function test_can_delete_organization_has_article_and_followers_and_members_if_logged_in_and_admin() {
+        $created = factory(Organization::class)->create([
+            'owner' => $this->user->id,
+        ]);
+
+        InviteRequest::create([
+            'user_id' => $this->user->id,
+            'status' => 'accepted',
+            'organization_id' => $created->id,
+        ]);
+        $created->followers()->attach($this->user);
+
+        $category = factory(Category::class)->create();
+        $article = factory(Article::class)->create([
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+            'organization_id' => $created->id,
+        ]);
+
+        $response = $this->actingAs($this->admin)->json('DELETE', '/api/organizations/'.$created->slug);
+
+        $response->assertStatus(204);
+    }
+
+    // Test delete organization, logged in, owner
     public function test_can_delete_organization_if_logged_in_and_owner() {
         $created = factory(Organization::class)->create([
             'owner' => $this->user->id,
@@ -720,15 +745,19 @@ class OrganizationTest extends TestCase
                 'members_count' => 1,
                 'articles_count' => 5,
                 'featured_member' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'username' => $user->username,
-                    'email' => $user->email,
+                    [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'username' => $user->username,
+                        'email' => $user->email,
+                    ]
                 ],
                 'featured_article' => [
-                    'id' => $articles[0]->id,
-                    'title' => $articles[0]->title,
-                    'slug' => $articles[0]->slug,
+                    [
+                        'id' => $articles[0]->id,
+                        'title' => $articles[0]->title,
+                        'slug' => $articles[0]->slug,
+                    ]
                 ],
                 'articles_by_category' => [
                     [
