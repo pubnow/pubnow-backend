@@ -8,6 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class Organization extends Model
 {
     use UsesUuid;
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($organization) {
+            // before delete() method call this
+            $organization->members()->detach();
+            $organization->followers()->detach();
+            $organization->articles()->delete();
+        });
+    }
     /**
      * The attributes that are mass assignable.
      *
