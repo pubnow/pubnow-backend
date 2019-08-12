@@ -16,7 +16,7 @@ $factory->define(Feedback::class, function (Faker $faker) {
         'category_id' => $category->id,
     ]);
     return [
-        'article_id' => $article->id,
+        'id_article' => $article->id,
         'email' => $faker->unique()->safeEmail,
         'username' => $faker->unique()->userName,
         'reference' => $faker->sentence,

@@ -37,7 +37,7 @@ class FeedbackController extends Controller
     public function store(CreateFeedback $request)
     {
         $user = auth()->user();
-        $data = $request->only('reference', 'title', 'content', 'username', 'email', 'article_id', 'type', 'resolve');
+        $data = $request->only('reference', 'title', 'content', 'username', 'email', 'id_article', 'type', 'resolve');
         if ($user) {
             $data['user_id'] = $user->id;
         }

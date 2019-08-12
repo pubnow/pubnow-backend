@@ -14,7 +14,7 @@ class CreateFeedback extends ApiRequest
     public function rules()
     {
         return [
-            'article_id' => 'sometimes|uuid|exists:articles,id',
+            'id_article' => 'sometimes|uuid|exists:articles,id',
             'username' => 'required|string|min:3',
             'reference' => 'required|string',
             'title' => 'required|string',

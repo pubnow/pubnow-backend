@@ -10,7 +10,7 @@ class Feedback extends Model
     use UsesUuid;
 
     protected $fillable = [
-        'username', 'email', 'reference', 'title', 'content', 'article_id', 'type', 'user_id', 'resolve'
+        'username', 'email', 'reference', 'title', 'content', 'id_article', 'type', 'user_id', 'resolve'
     ];
 
     public function user()
@@ -20,6 +20,6 @@ class Feedback extends Model
 
     public function article()
     {
-        return $this->belongsTo('App\Models\Article', 'article_id');
+        return $this->belongsTo('App\Models\Article', 'id_article');
     }
 }

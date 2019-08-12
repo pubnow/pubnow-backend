@@ -88,7 +88,7 @@ class FeedbackTest extends TestCase
         ]);
         $feedbackFake = factory(Feedback::class)->make();
         $feedback = factory(Feedback::class, 3)->create([
-            'article_id' => $article->id,
+            'id_article' => $article->id,
             'username' => $this->user->username,
             'email' => $this->user->email,
             'reference' => $feedbackFake->reference,
@@ -110,7 +110,7 @@ class FeedbackTest extends TestCase
         ]);
         $feedback = factory(Feedback::class)->make();
         $response = $this->json('POST', '/api/feedback', [
-            'article_id' => $article->id,
+            'id_article' => $article->id,
             'reference' => $feedback->reference,
             'content' => $feedback->content,
             'type' => 0,
@@ -128,7 +128,7 @@ class FeedbackTest extends TestCase
             'category_id' => $category->id,
         ]);
         $response = $this->json('POST', '/api/feedback', [
-            'article_id' => $article->id,
+            'id_article' => $article->id,
             'username' => $this->user->username,
             'email' => $this->user->email,
             'title' => $feedback->title,
