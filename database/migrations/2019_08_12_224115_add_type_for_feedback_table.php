@@ -14,7 +14,7 @@ class AddTypeForFeedbackTable extends Migration
     public function up()
     {
         Schema::table('feedback', function (Blueprint $table) {
-            $table->tinyInteger('type');
+            $table->tinyInteger('type')->default(2);
         });
     }
 
