@@ -24,7 +24,9 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Notifications\UserFollow;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
@@ -174,6 +176,7 @@ class UserController extends Controller
             ], 422);
         }
         $follower->followingUsers()->attach($user);
+        Notification::send($user, new UserFollow($follower));
         return new UserWithFollowingUsersResource($follower);
     }
 
