@@ -123,4 +123,8 @@ Route::group(['namespace' => 'Api'], function () {
 
     // admin statistical
     Route::get('admin/statistic', 'AdminStatisticalController@statisticalUserRegister');
+
+    // Notification
+    Route::get('notifications', 'NotificationController@user');
+    Route::get('admin/notifications', 'NotificationController@admin');
 });
