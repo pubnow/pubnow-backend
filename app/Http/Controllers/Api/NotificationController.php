@@ -19,10 +19,19 @@ class NotificationController extends Controller
     public function user()
     {
         $user = auth()->user();
-        $notifications = $user->unreadNotifications->filter(function ($notification) {
+        $notifications = $user->notifications->filter(function ($notification) {
             return $notification->data['type'] != 'admin';
         });
         return $notifications;
+    }
+
+    public function userRead()
+    {
+        $notifications = $this->user();
+        foreach ($notifications as $notification) {
+            $notification->markAsRead();
+        }
+        return response()->json(null, 204);
     }
 
     public function admin()
@@ -35,9 +44,18 @@ class NotificationController extends Controller
                 ]
             ], 403);
         }
-        $notifications = $user->unreadNotifications->filter(function ($notification) {
+        $notifications = $user->notifications->filter(function ($notification) {
             return $notification->data['type'] == 'admin';
         });
         return $notifications;
+    }
+
+    public function adminRead()
+    {
+        $notifications = $this->admin();
+        foreach ($notifications as $notification) {
+            $notification->markAsRead();
+        }
+        return response()->json(null, 204);
     }
 }
