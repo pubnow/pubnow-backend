@@ -9,12 +9,11 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class UserRegistered extends Notification
+class UserFollow extends Notification
 {
     use Queueable;
 
     private $user;
-
     /**
      * Create a new notification instance.
      *
@@ -59,8 +58,8 @@ class UserRegistered extends Notification
     public function toArray($notifiable)
     {
         return [
-            'type' => 'admin',
-            'createdUser' => new UserResource($this->user),
+            'type' => 'user',
+            'user' => new UserResource($this->user),
         ];
     }
 }

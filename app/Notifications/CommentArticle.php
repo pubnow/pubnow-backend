@@ -2,27 +2,26 @@
 
 namespace App\Notifications;
 
-use App\Http\Resources\UserResource;
-use App\Models\User;
+use App\Http\Resources\CommentResource;
+use App\Models\Comment;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class UserRegistered extends Notification
+class CommentArticle extends Notification
 {
     use Queueable;
-
-    private $user;
+    private $comment;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct(User $user)
+    public function __construct(Comment $comment)
     {
-        $this->user = $user;
+        $this->comment = $comment;
     }
 
     /**
@@ -59,8 +58,8 @@ class UserRegistered extends Notification
     public function toArray($notifiable)
     {
         return [
-            'type' => 'admin',
-            'createdUser' => new UserResource($this->user),
+            'type' => 'user',
+            'comment' => new CommentResource($this->comment),
         ];
     }
 }

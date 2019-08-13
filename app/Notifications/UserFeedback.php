@@ -2,27 +2,26 @@
 
 namespace App\Notifications;
 
-use App\Http\Resources\UserResource;
-use App\Models\User;
+use App\Http\Resources\FeedbackResource;
+use App\Models\Feedback;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class UserRegistered extends Notification
+class UserFeedback extends Notification
 {
     use Queueable;
 
-    private $user;
-
+    private $feedback;
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct(User $user)
+    public function __construct(Feedback $feedback)
     {
-        $this->user = $user;
+        $this->feedback = $feedback;
     }
 
     /**
@@ -60,7 +59,7 @@ class UserRegistered extends Notification
     {
         return [
             'type' => 'admin',
-            'createdUser' => new UserResource($this->user),
+            'feedback' => new FeedbackResource($this->feedback),
         ];
     }
 }

@@ -2,27 +2,26 @@
 
 namespace App\Notifications;
 
-use App\Http\Resources\UserResource;
-use App\Models\User;
+use App\Http\Resources\OrganizationResource;
+use App\Models\Organization;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class UserRegistered extends Notification
+class OrganizationCreate extends Notification
 {
     use Queueable;
 
-    private $user;
-
+    private $organiztion;
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct(User $user)
+    public function __construct(Organization $organization)
     {
-        $this->user = $user;
+        $this->organiztion = $organization;
     }
 
     /**
@@ -60,7 +59,7 @@ class UserRegistered extends Notification
     {
         return [
             'type' => 'admin',
-            'createdUser' => new UserResource($this->user),
+            'organization' => new OrganizationResource($this->organiztion),
         ];
     }
 }
