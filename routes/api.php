@@ -126,5 +126,7 @@ Route::group(['namespace' => 'Api'], function () {
 
     // Notification
     Route::get('notifications', 'NotificationController@user');
+    Route::post('notifications/read', 'NotificationController@userRead');
     Route::get('admin/notifications', 'NotificationController@admin');
+    Route::post('admin/notifications/read', 'NotificationController@adminRead');
 });
