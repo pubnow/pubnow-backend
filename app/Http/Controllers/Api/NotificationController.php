@@ -21,7 +21,8 @@ class NotificationController extends Controller
         $user = auth()->user();
         $notifications = $user->notifications->filter(function ($notification) {
             return $notification->data['type'] != 'admin';
-        });
+        })->flatten();
+        // dd($notifications);
         return $notifications;
     }
 
@@ -46,7 +47,7 @@ class NotificationController extends Controller
         }
         $notifications = $user->notifications->filter(function ($notification) {
             return $notification->data['type'] == 'admin';
-        });
+        })->flatten();
         return $notifications;
     }
 
