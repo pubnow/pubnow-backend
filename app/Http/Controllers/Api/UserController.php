@@ -143,7 +143,7 @@ class UserController extends Controller
 
     public function articles(Request $request, User $user)
     {
-        $articles = $user->articles()->withAuthor()->paginate(10);
+        $articles = $user->articles()->withoutPrivate()->paginate(10);
         return ArticleOnlyResource::collection($articles);
     }
 

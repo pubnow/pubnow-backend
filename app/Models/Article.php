@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Traits\WithAuthor;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Concerns\UsesUuid;
+use App\Models\Traits\WithoutPrivate;
 use Laravel\Scout\Searchable;
 
 class Article extends Model
@@ -12,6 +13,7 @@ class Article extends Model
     use UsesUuid;
     use Searchable;
     use WithAuthor;
+    use WithoutPrivate;
 
     public static function boot()
     {
