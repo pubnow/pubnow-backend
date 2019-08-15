@@ -7,6 +7,7 @@ use App\Models\Feedback;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 
 class UserFeedback extends Notification
@@ -32,7 +33,7 @@ class UserFeedback extends Notification
      */
     public function via($notifiable)
     {
-        return ['database'];
+        return ['database', 'broadcast'];
     }
 
     /**
@@ -61,5 +62,12 @@ class UserFeedback extends Notification
             'type' => 'admin',
             'feedback' => new FeedbackResource($this->feedback),
         ];
+    }
+
+    public function toBroadcast($notifiable)
+    {
+        return new BroadcastMessage([
+            'notification' => $notifiable->notifications()->latest()->first()
+        ]);
     }
 }

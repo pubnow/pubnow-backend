@@ -7,6 +7,7 @@ use App\Models\Comment;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 
 class CommentArticle extends Notification
@@ -32,7 +33,7 @@ class CommentArticle extends Notification
      */
     public function via($notifiable)
     {
-        return ['database'];
+        return ['database', 'broadcast'];
     }
 
     /**
@@ -61,5 +62,12 @@ class CommentArticle extends Notification
             'type' => 'user',
             'comment' => new CommentResource($this->comment),
         ];
+    }
+
+    public function toBroadcast($notifiable)
+    {
+        return new BroadcastMessage([
+            'notification' => $notifiable->notifications()->latest()->first()
+        ]);
     }
 }
