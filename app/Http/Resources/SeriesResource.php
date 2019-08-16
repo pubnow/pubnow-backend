@@ -18,6 +18,7 @@ class SeriesResource extends JsonResource
             'id' => $this->id,
             'slug' => $this->slug,
             'title' => $this->title,
+            'excerpt' => excerpt($this->content, 200),
             'content' => $this->content,
             'articles' => ArticleOnlyResource::collection($this->articles),
             'author' => new UserResource($this->author),
