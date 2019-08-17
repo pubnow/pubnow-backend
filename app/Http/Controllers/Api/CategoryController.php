@@ -67,7 +67,7 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategory $request, Category $category)
     {
-        $data = $request->only(['name', 'description']);
+        $data = $request->only(['name', 'description', 'image_id']);
         if ($request->has('name') && !empty($data['name'])) {
             $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
         }
@@ -87,12 +87,14 @@ class CategoryController extends Controller
         return response()->json(null, 204);
     }
 
-    public function articles(Category $category) {
+    public function articles(Category $category)
+    {
         $articles = $category->articles()->withAuthor()->paginate(10);
         return ArticleOnlyResource::collection($articles);
     }
 
-    public function follow(Request $request, Category $category) {
+    public function follow(Request $request, Category $category)
+    {
         $user = $request->user();
         if ($user->followingCategories()->find($category->id)) {
             return response()->json([
@@ -105,7 +107,8 @@ class CategoryController extends Controller
         return new UserWithFollowingCategoriesResource($user);
     }
 
-    public function unfollow(Request $request, Category $category) {
+    public function unfollow(Request $request, Category $category)
+    {
         $user = $request->user();
         if (!$user->followingCategories()->find($category->id)) {
             return response()->json([
@@ -118,7 +121,8 @@ class CategoryController extends Controller
         return new UserWithFollowingCategoriesResource($user);
     }
 
-    public function followers(Category $category) {
+    public function followers(Category $category)
+    {
         return UserResource::collection($category->followers);
     }
 }
