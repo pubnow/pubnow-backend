@@ -38,7 +38,8 @@ class OrganizationController extends Controller
      */
     public function index()
     {
-        return OrganizationResource::collection(Organization::all()->sortBy('created_at'));
+        $orgs = Organization::latest()->paginate(10);
+        return OrganizationResource::collection($orgs);
     }
     /**
      * Store a newly created resource in storage.
