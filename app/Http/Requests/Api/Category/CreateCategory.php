@@ -18,4 +18,11 @@ class CreateCategory extends ApiRequest
             'image_id'   => 'sometimes|uuid|exists:images,id',
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'name.unique' => 'Tên chuyên mục đã tồn tại',
+        ];
+    }
 }

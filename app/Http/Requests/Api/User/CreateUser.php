@@ -33,4 +33,12 @@ class CreateUser extends FormRequest
             'role_id'     => 'sometimes|uuid|exists:roles,id',
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'username.unique' => 'Tên tài khoản đã tồn tại',
+            'email.unique' => 'Email đã tồn tại',
+        ];
+    }
 }
