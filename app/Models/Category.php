@@ -30,7 +30,7 @@ class Category extends Model
 
     public function articles()
     {
-        return $this->hasMany('App\Models\Article', 'category_id', 'id')->withAuthor();
+        return $this->hasMany('App\Models\Article', 'category_id', 'id')->latest()->withAuthor();
     }
 
     public function followers()
