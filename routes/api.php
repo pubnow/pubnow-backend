@@ -45,7 +45,6 @@ Route::group(['namespace' => 'Api'], function () {
     Route::get('users/admin-members', 'UserController@adminMembers');
     Route::get('users/new-members', 'UserController@newMembers');
     Route::get('users/featured-authors', 'UserController@featuredAuthors');
-    Route::get('users/active-members', 'UserController@activeMembers');
 
     Route::resource('users', 'UserController')->except(['create', 'edit']);
 

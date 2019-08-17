@@ -44,7 +44,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        return UserResource::collection(User::all());
+        $users = User::paginate(10);
+        return UserResource::collection($users);
     }
 
     /**
@@ -240,32 +241,21 @@ class UserController extends Controller
     {
         $this->authorize('filterUsers', User::class);
         $role_admin = Role::where('name', 'admin')->first();
-        $users = User::where('role_id', $role_admin->id)->get();
+        $users = User::where('role_id', $role_admin->id)->paginate(10);
         return UserResource::collection($users);
     }
 
     public function newMembers()
     {
         $this->authorize('filterUsers', User::class);
-        $users = User::where('created_at', '>', Carbon::now()->subDays(7))->get();
+        $users = User::latest()->paginate(10);
         return UserResource::collection($users);
     }
 
     public function featuredAuthors()
     {
         $this->authorize('filterUsers', User::class);
-        $users = User::with('articles')->get()->sortByDesc(function ($user) {
-            return $user->articles->count();
-        })->take(5);
-        return UserResource::collection($users);
-    }
-
-    public function activeMembers()
-    {
-        $this->authorize('filterUsers', User::class);
-        $users = User::with('claps')->with('comments')->get()->sortByDesc(function ($user) {
-            return $user->claps->sum('count') + $user->comments->count();
-        })->take(5);
+        $users = User::withCount('articles')->orderBy('articles_count', 'desc')->paginate(10);
         return UserResource::collection($users);
     }
 }
