@@ -18,6 +18,9 @@ use App\Models\Article;
 use App\Models\Category;
 use App\Models\InviteRequest;
 use App\Models\Organization;
+use DatePeriod;
+use DateTime;
+use DateInterval;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -217,6 +220,26 @@ class OrganizationController extends Controller
             ->groupBy('date')
             ->orderBy('date')
             ->get();
+        $articlesByDay = collect($articlesByDay)->keyBy('date')->map(function ($item) {
+            $item->date = \Carbon\Carbon::parse($item->date);
+            return $item;
+        });
+        $s = new \Carbon\Carbon($request->input('start'));
+        $e = new \Carbon\Carbon($request->input('end'));
+        $e->addDay();
+        $periods = new DatePeriod(
+            $s,
+            \Carbon\CarbonInterval::day(),
+            $e
+        );
+        $temp = array_map(function ($period) use ($articlesByDay) {
+            $day = $period->format('Y-m-d');
+            return (object) [
+                'date' => $day,
+                'count' => $articlesByDay->has($day) ? $articlesByDay->get($day)->count : 0,
+            ];
+        }, iterator_to_array($periods));
+        $articlesByDay = $temp;
         return response()->json([
             'data' => [
                 'members_count' => $organization->members->count(),
