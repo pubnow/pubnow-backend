@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Clap;
 use App\Models\Comment;
 use App\Models\Feedback;
+use App\Models\InviteRequest;
 use App\Models\Organization;
 use Illuminate\Support\ServiceProvider;
 use App\Models\User;
@@ -12,6 +13,7 @@ use App\Observers\AccountObserver;
 use App\Observers\ClapObserver;
 use App\Observers\CommentObserver;
 use App\Observers\FeedbackObserver;
+use App\Observers\InviteRequestObserver;
 use App\Observers\OrganizationObserver;
 
 class AppServiceProvider extends ServiceProvider
@@ -38,5 +40,6 @@ class AppServiceProvider extends ServiceProvider
         Organization::observe(OrganizationObserver::class);
         Clap::observe(ClapObserver::class);
         Comment::observe(CommentObserver::class);
+        InviteRequest::observe(InviteRequestObserver::class);
     }
 }
