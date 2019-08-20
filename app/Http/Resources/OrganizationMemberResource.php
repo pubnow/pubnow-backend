@@ -21,6 +21,7 @@ class OrganizationMemberResource extends JsonResource
             'email' => $this->email,
             'isAdmin' => $this->isAdmin(),
             'status' => $this->pivot->status,
+            'invite_id' => $this->pivot->id,
             'bio' => $this->bio,
             'avatar' => $this->avatarUrl,
             'role' => new RoleResource($this->role),

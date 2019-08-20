@@ -63,7 +63,7 @@ class Organization extends Model
     public function members()
     {
         return $this->belongsToMany(User::class, 'invite_requests')
-            ->withPivot(['status'])
+            ->withPivot(['status', 'id'])
             ->wherePivot('status', '<>', 'denied');
     }
 
