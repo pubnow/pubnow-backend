@@ -29,6 +29,8 @@ class UserResource extends JsonResource
             'following' => $following,
             'avatar' => $this->avatar_url,
             'role' => new RoleResource($this->role),
+            'articles' => $this->articles()->count(),
+            'followers' => $this->followers()->count(),
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
         ];
