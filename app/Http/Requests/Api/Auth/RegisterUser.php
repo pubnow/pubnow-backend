@@ -20,4 +20,12 @@ class RegisterUser extends ApiRequest
             'name' => 'required'
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'username.unique' => 'Tên tài khoản đã tồn tại',
+            'email.unique' => 'Email đã tồn tại',
+        ];
+    }
 }
