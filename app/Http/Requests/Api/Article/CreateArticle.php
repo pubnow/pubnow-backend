@@ -22,4 +22,14 @@ class CreateArticle extends ApiRequest
             'tags' => 'sometimes|array'
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'title.required' => 'Bài viết chưa có tiêu đề.',
+            'title.min' => 'Tiêu đề bài viết quá ngắn. Độ dài tối thiểu 10 kí tự.',
+            'content.required' => 'Bạn cần nhập nội dung bài viết.',
+            'category_id.required' => 'Bạn chưa chọn danh mục cho bài viết.'
+        ];
+    }
 }
