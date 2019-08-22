@@ -17,7 +17,10 @@ class InviteRequestObserver
     public function created(InviteRequest $inviteRequest)
     {
         $user = $inviteRequest->user;
-        Notification::send($user, new InviteUserToOrganization($inviteRequest));
+        $organization = $inviteRequest->organization;
+        if ($organization->user->id != $user->id) {
+            Notification::send($user, new InviteUserToOrganization($inviteRequest));
+        }
     }
 
     /**
