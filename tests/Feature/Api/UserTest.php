@@ -58,7 +58,7 @@ class UserTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $response = $this->json('GET', '/api/users/'.$user->username);
+        $response = $this->json('GET', '/api/users/' . $user->username);
 
         $response->assertStatus(200);
 
@@ -77,7 +77,7 @@ class UserTest extends TestCase
         $user = factory(User::class)->create();
         $user->followers()->attach($this->user);
 
-        $response = $this->actingAs($this->user)->json('GET', '/api/users/'.$user->username);
+        $response = $this->actingAs($this->user)->json('GET', '/api/users/' . $user->username);
 
         $response->assertStatus(200);
 
@@ -92,13 +92,14 @@ class UserTest extends TestCase
     // ---
     // Update user
     // Test user can update his/she profile
-    public function test_user_can_update_own_profile() {
+    public function test_user_can_update_own_profile()
+    {
         $user = factory(User::class)->create();
         $updateUser = factory(User::class)->make();
 
         $avatar = UploadedFile::fake()->create('tuan_avatar.png');
 
-        $response = $this->actingAs($user)->json('PUT', '/api/users/'.$user->username, [
+        $response = $this->actingAs($user)->json('PUT', '/api/users/' . $user->username, [
             'name' => $updateUser->name,
             'avatar' => $avatar,
         ]);
@@ -112,11 +113,12 @@ class UserTest extends TestCase
     }
 
     // Test update user, dang nhap bang admin
-    public function test_update_user_profile_if_logged_in_as_admin() {
+    public function test_update_user_profile_if_logged_in_as_admin()
+    {
         $user = factory(User::class)->create();
         $updateUser = factory(User::class)->make();
 
-        $response = $this->actingAs($this->admin)->json('PUT', '/api/users/'.$user->username, [
+        $response = $this->actingAs($this->admin)->json('PUT', '/api/users/' . $user->username, [
             'name' => $updateUser->name,
             'password' => 'password'
         ]);
@@ -130,11 +132,12 @@ class UserTest extends TestCase
     }
 
     // Test update user, dang nhap bang user khac khong phai admin
-    public function test_cannot_update_other_user_profile() {
+    public function test_cannot_update_other_user_profile()
+    {
         $user = factory(User::class)->create();
         $updateUser = factory(User::class)->make();
 
-        $response = $this->actingAs($user)->json('PUT', '/api/users/'.$this->user->username, [
+        $response = $this->actingAs($user)->json('PUT', '/api/users/' . $this->user->username, [
             'name' => $updateUser->name,
             'password' => 'password'
         ]);
@@ -143,12 +146,13 @@ class UserTest extends TestCase
     }
 
     // Test cannot update user if update email or username
-    public function test_cannot_update_user_profile_if_logged_in_as_admin_but_update_email() {
+    public function test_cannot_update_user_profile_if_logged_in_as_admin_but_update_email()
+    {
 
         $user = factory(User::class)->create();
         $updateUser = factory(User::class)->make();
 
-        $response = $this->actingAs($this->admin)->json('PUT', '/api/users/'.$user->username, [
+        $response = $this->actingAs($this->admin)->json('PUT', '/api/users/' . $user->username, [
             'name' => $updateUser->name,
             'email' => $updateUser->email,
             'password' => 'password'
@@ -158,10 +162,11 @@ class UserTest extends TestCase
     }
 
     // Test update user if not logged in
-    public function test_cannot_update_user_profile_if_not_logged_in() {
+    public function test_cannot_update_user_profile_if_not_logged_in()
+    {
         $updateUser = factory(User::class)->make();
 
-        $response = $this->json('PUT', '/api/users/'.$this->user->username, [
+        $response = $this->json('PUT', '/api/users/' . $this->user->username, [
             'name' => $updateUser->name,
             'password' => 'password',
         ]);
@@ -171,44 +176,49 @@ class UserTest extends TestCase
 
     // --- Delete
     // Test delete user, dang nhap bang admin
-    public function test_can_delete_user_profile_if_logged_in_as_admin() {
+    public function test_can_delete_user_profile_if_logged_in_as_admin()
+    {
         $user = factory(User::class)->create();
 
-        $response = $this->actingAs($this->admin)->json('DELETE', '/api/users/'.$user->username);
+        $response = $this->actingAs($this->admin)->json('DELETE', '/api/users/' . $user->username);
 
         $response->assertStatus(204);
     }
 
     // Test delete user, dang nhap bang owner
-    public function test_can_delete_user_profile_if_logged_in_as_owner() {
+    public function test_can_delete_user_profile_if_logged_in_as_owner()
+    {
         $user = factory(User::class)->create();
 
-        $response = $this->actingAs($user)->json('DELETE', '/api/users/'.$user->username);
+        $response = $this->actingAs($user)->json('DELETE', '/api/users/' . $user->username);
 
         $response->assertStatus(204);
     }
 
     // Test delete user, chua dang nhap
-    public function test_cannot_delete_user_profile_if_not_logged_in() {
+    public function test_cannot_delete_user_profile_if_not_logged_in()
+    {
         $user = factory(User::class)->create();
 
-        $response = $this->json('DELETE', '/api/users/'.$user->username);
+        $response = $this->json('DELETE', '/api/users/' . $user->username);
 
         $response->assertStatus(401);
     }
 
     // Test delete user, dang nhap bang admin, khong ton tai
-    public function test_admin_cannot_delete_user_profile_if_not_exist() {
+    public function test_admin_cannot_delete_user_profile_if_not_exist()
+    {
         $user = factory(User::class)->make();
 
-        $response = $this->actingAs($this->admin)->json('DELETE', '/api/users/'.$user->username);
+        $response = $this->actingAs($this->admin)->json('DELETE', '/api/users/' . $user->username);
 
         $response->assertStatus(404);
     }
 
     // --- Change password
     // Test user can update own password
-    public function test_can_update_own_password_if_logged_in() {
+    public function test_can_update_own_password_if_logged_in()
+    {
         $this->user->update([
             'password' => '111111'
         ]);
@@ -222,7 +232,8 @@ class UserTest extends TestCase
     }
 
     // Test user cannot update password if not logged in
-    public function test_cannot_update_password_if_not_logged_in() {
+    public function test_cannot_update_password_if_not_logged_in()
+    {
         $this->user->update([
             'password' => '111111'
         ]);
@@ -236,7 +247,8 @@ class UserTest extends TestCase
     }
 
     // Test user cannot update password if wrong password
-    public function test_cannot_update_password_if_logged_in_but_wrong_password() {
+    public function test_cannot_update_password_if_logged_in_but_wrong_password()
+    {
         $this->user->update([
             'password' => '111111'
         ]);
@@ -250,7 +262,8 @@ class UserTest extends TestCase
     }
 
     // Test user cannot update password if new password length < 6
-    public function test_cannot_update_password_if_logged_in_but_new_password_too_short() {
+    public function test_cannot_update_password_if_logged_in_but_new_password_too_short()
+    {
         $this->user->update([
             'password' => '111111'
         ]);
@@ -265,7 +278,8 @@ class UserTest extends TestCase
 
     // --- Get joined organizations
     // Test get joined organizations, logged in
-    public function test_can_get_list_joined_organizations() {
+    public function test_can_get_list_joined_organizations()
+    {
         $organizations = factory(Organization::class, 5)->create([
             'owner' => $this->user->id
         ]);
@@ -306,7 +320,8 @@ class UserTest extends TestCase
 
     // --- Get invite requests
     // Test can get list invite requests, logged in
-    public function test_can_get_list_invite_requests() {
+    public function test_can_get_list_invite_requests()
+    {
         $organizations = factory(Organization::class, 5)->create([
             'owner' => $this->user->id
         ]);
@@ -327,7 +342,8 @@ class UserTest extends TestCase
     }
 
     // Test can get list invite requests, not logged in
-    public function test_cannot_get_list_invite_requests_if_not_logged_in() {
+    public function test_cannot_get_list_invite_requests_if_not_logged_in()
+    {
         $organizations = factory(Organization::class, 5)->create([
             'owner' => $this->user->id
         ]);
@@ -347,10 +363,11 @@ class UserTest extends TestCase
 
     // --- Follow User
     // Test follow user, logged in, user exists
-    public function test_user_can_follow_an_exists_user() {
+    public function test_user_can_follow_an_exists_user()
+    {
         $user = factory(User::class)->create();
 
-        $response = $this->actingAs($this->user)->json('POST', 'api/users/'.$user->username.'/follow');
+        $response = $this->actingAs($this->user)->json('POST', 'api/users/' . $user->username . '/follow');
 
         $response->assertStatus(200);
 
@@ -370,40 +387,44 @@ class UserTest extends TestCase
     }
 
     // Test follow user, not logged in, user exists
-    public function test_guest_cannot_follow_an_exists_user() {
+    public function test_guest_cannot_follow_an_exists_user()
+    {
         $user = factory(User::class)->create();
 
-        $response = $this->json('POST', 'api/users/'.$user->username.'/follow');
+        $response = $this->json('POST', 'api/users/' . $user->username . '/follow');
 
         $response->assertStatus(401);
     }
 
     // Test follow user, logged in, not user exists
-    public function test_user_cannot_follow_a_not_exists_user() {
+    public function test_user_cannot_follow_a_not_exists_user()
+    {
         $user = factory(User::class)->make();
 
-        $response = $this->actingAs($this->user)->json('POST', 'api/users/'.$user->username.'/follow');
+        $response = $this->actingAs($this->user)->json('POST', 'api/users/' . $user->username . '/follow');
 
         $response->assertStatus(404);
     }
 
     // Test follow user, logged in, user exists, followed
-    public function test_user_can_follow_an_followed_user() {
+    public function test_user_can_follow_an_followed_user()
+    {
         $user = factory(User::class)->create();
         $this->user->followingUsers()->attach($user);
 
-        $response = $this->actingAs($this->user)->json('POST', 'api/users/'.$user->username.'/follow');
+        $response = $this->actingAs($this->user)->json('POST', 'api/users/' . $user->username . '/follow');
 
         $response->assertStatus(422);
     }
 
     // --- Unfollow User
     // Test unfollow user, logged in, user exists, followed
-    public function test_user_can_unfollow_a_followed_user() {
+    public function test_user_can_unfollow_a_followed_user()
+    {
         $user = factory(User::class)->create();
         $this->user->followingUsers()->attach($user);
 
-        $response = $this->actingAs($this->user)->json('DELETE', 'api/users/'.$user->username.'/follow');
+        $response = $this->actingAs($this->user)->json('DELETE', 'api/users/' . $user->username . '/follow');
 
         $response->assertStatus(200);
 
@@ -423,44 +444,48 @@ class UserTest extends TestCase
     }
 
     // Test unfollow user, not logged in, user exists
-    public function test_guest_cannot_unfollow_an_user() {
+    public function test_guest_cannot_unfollow_an_user()
+    {
         $user = factory(User::class)->create();
         $this->user->followingUsers()->attach($user);
 
-        $response = $this->json('DELETE', 'api/users/'.$user->username.'/follow');
+        $response = $this->json('DELETE', 'api/users/' . $user->username . '/follow');
 
 
         $response->assertStatus(401);
     }
 
     // Test unfollow user, logged in, not user exists
-    public function test_user_cannot_unfollow_a_not_exists_user() {
+    public function test_user_cannot_unfollow_a_not_exists_user()
+    {
         $user = factory(User::class)->make();
 
-        $response = $this->actingAs($this->user)->json('DELETE', 'api/users/'.$user->username.'/follow');
+        $response = $this->actingAs($this->user)->json('DELETE', 'api/users/' . $user->username . '/follow');
 
         $response->assertStatus(404);
     }
 
     // Test unfollow user, logged in, user exists, followed
-    public function test_user_can_unfollow_a_not_followed_user() {
+    public function test_user_can_unfollow_a_not_followed_user()
+    {
         $user = factory(User::class)->create();
 
-        $response = $this->actingAs($this->user)->json('DELETE', 'api/users/'.$user->username.'/follow');
+        $response = $this->actingAs($this->user)->json('DELETE', 'api/users/' . $user->username . '/follow');
 
         $response->assertStatus(422);
     }
 
     // --- Following Users
     // Test get list followers
-    public function test_can_get_list_following_users() {
+    public function test_can_get_list_following_users()
+    {
         $users = factory(User::class, 5)->create();
 
         $users->each(function ($following) {
             $this->user->followingUsers()->attach($following);
         });
 
-        $response = $this->json('GET', 'api/users/'.$this->user->username.'/following-users');
+        $response = $this->json('GET', 'api/users/' . $this->user->username . '/following-users');
 
         $response->assertStatus(200);
         $response->assertJsonCount(count($users), 'data');
@@ -476,14 +501,15 @@ class UserTest extends TestCase
 
     // --- Followers
     // Test get list followers
-    public function test_can_get_list_followers() {
+    public function test_can_get_list_followers()
+    {
         $users = factory(User::class, 5)->create();
 
         $users->each(function ($follower) {
             $this->user->followers()->attach($follower);
         });
 
-        $response = $this->json('GET', 'api/users/'.$this->user->username.'/followers');
+        $response = $this->json('GET', 'api/users/' . $this->user->username . '/followers');
 
         $response->assertStatus(200);
         $response->assertJsonCount(count($users), 'data');
@@ -499,7 +525,8 @@ class UserTest extends TestCase
 
     // --- Following Organizations
     // Test get list following organizations
-    public function test_can_get_list_following_organizations() {
+    public function test_can_get_list_following_organizations()
+    {
         $user = factory(User::class)->create();
         $organizations = factory(Organization::class, 5)->create([
             'owner' => $user->id
@@ -509,7 +536,7 @@ class UserTest extends TestCase
             $this->user->followingOrganizations()->attach($organization);
         });
 
-        $response = $this->json('GET', 'api/users/'.$this->user->username.'/following-organizations');
+        $response = $this->json('GET', 'api/users/' . $this->user->username . '/following-organizations');
 
         $response->assertStatus(200);
 
@@ -526,14 +553,15 @@ class UserTest extends TestCase
 
     // --- Following Categories
     // Test get list following categories
-    public function test_can_get_list_following_categories() {
+    public function test_can_get_list_following_categories()
+    {
         $categories = factory(Category::class, 5)->create();
 
         $categories->each(function ($category) {
             $this->user->followingCategories()->attach($category);
         });
 
-        $response = $this->json('GET', 'api/users/'.$this->user->username.'/following-categories');
+        $response = $this->json('GET', 'api/users/' . $this->user->username . '/following-categories');
 
         $response->assertStatus(200);
 
@@ -550,14 +578,15 @@ class UserTest extends TestCase
 
     // --- Following Tags
     // Test get list following tags
-    public function test_can_get_list_following_tags() {
+    public function test_can_get_list_following_tags()
+    {
         $tags = factory(Tag::class, 5)->create();
 
         $tags->each(function ($tag) {
             $this->user->followingTags()->attach($tag);
         });
 
-        $response = $this->json('GET', 'api/users/'.$this->user->username.'/following-tags');
+        $response = $this->json('GET', 'api/users/' . $this->user->username . '/following-tags');
 
         $response->assertStatus(200);
 
@@ -575,7 +604,8 @@ class UserTest extends TestCase
     // --- Filter user
     // -- Get admin members
     // Test get admin members, admin -> ok
-    public function test_can_get_admin_members_admin_logged_in() {
+    public function test_can_get_admin_members_admin_logged_in()
+    {
         $users = factory(User::class, 5)->create();
 
         $response = $this->actingAs($this->admin)->json('GET', 'api/users/admin-members');
@@ -590,7 +620,8 @@ class UserTest extends TestCase
     }
 
     // Test get admin members, not logged in -> 401
-    public function test_cannot_get_admin_members_not_logged_in() {
+    public function test_cannot_get_admin_members_not_logged_in()
+    {
         $users = factory(User::class, 5)->create();
 
         $response = $this->json('GET', 'api/users/admin-members');
@@ -599,7 +630,8 @@ class UserTest extends TestCase
     }
 
     // Test get admin members, user -> 403
-    public function test_cannot_get_admin_members_not_admin_logged_in() {
+    public function test_cannot_get_admin_members_not_admin_logged_in()
+    {
         $users = factory(User::class, 5)->create();
 
         $response = $this->actingAs($this->user)->json('GET', 'api/users/admin-members');
@@ -609,7 +641,8 @@ class UserTest extends TestCase
 
     // -- Get new members
     // Test get new members, admin -> ok
-    public function test_can_get_new_members_admin_logged_in() {
+    public function test_can_get_new_members_admin_logged_in()
+    {
         $users = factory(User::class, 5)->create();
 
         $response = $this->actingAs($this->admin)->json('GET', 'api/users/new-members');
@@ -624,7 +657,8 @@ class UserTest extends TestCase
     }
 
     // Test get new members, not logged in -> 401
-    public function test_cannot_get_new_members_not_logged_in() {
+    public function test_cannot_get_new_members_not_logged_in()
+    {
         $users = factory(User::class, 5)->create();
 
         $response = $this->json('GET', 'api/users/new-members');
@@ -633,7 +667,8 @@ class UserTest extends TestCase
     }
 
     // Test get new members, not admin -> 403
-    public function test_cannot_get_new_members_not_admin_logged_in() {
+    public function test_cannot_get_new_members_not_admin_logged_in()
+    {
         $users = factory(User::class, 5)->create();
 
         $response = $this->actingAs($this->user)->json('GET', 'api/users/new-members');
@@ -641,127 +676,9 @@ class UserTest extends TestCase
         $response->assertStatus(403);
     }
 
-    // -- Get featured authors
-    // Test get featured authors, admin -> ok
-    public function test_can_get_featured_members_admin_logged_in() {
-        $users = factory(User::class, 5)->create();
-
-        $category = factory(Category::class)->create();
-        factory(Article::class, 2)->create([
-            'user_id' => $this->user->id,
-            'category_id' => $category->id
-        ]);
-
-        $response = $this->actingAs($this->admin)->json('GET', 'api/users/featured-authors');
-
-        $response->assertStatus(200);
-        $response->assertJsonCount(5, 'data');
-        $response->assertJsonFragment([
-            'name' => $this->user->name,
-            'username' => $this->user->username,
-            'bio' => $this->user->bio,
-        ]);
-    }
-
-    // Test get featured authors, not logged in -> 401
-    public function test_cannot_get_featured_members_not_logged_in() {
-        $users = factory(User::class, 5)->create();
-
-        $category = factory(Category::class)->create();
-        factory(Article::class, 2)->create([
-            'user_id' => $this->user->id,
-            'category_id' => $category->id
-        ]);
-
-        $response = $this->json('GET', 'api/users/featured-authors');
-
-        $response->assertStatus(401);
-    }
-
-    // Test get featured authors, admin -> ok
-    public function test_cannot_get_featured_members_not_admin_logged_in() {
-        $users = factory(User::class, 5)->create();
-
-        $category = factory(Category::class)->create();
-        factory(Article::class, 2)->create([
-            'user_id' => $this->user->id,
-            'category_id' => $category->id
-        ]);
-
-        $response = $this->actingAs($this->user)->json('GET', 'api/users/featured-authors');
-
-        $response->assertStatus(403);
-    }
-
-    // -- Get active members
-    // Test get active members, admin -> ok
-    public function test_can_get_active_members_admin_logged_in() {
-        $users = factory(User::class, 5)->create();
-
-        $category = factory(Category::class)->create();
-        $article = factory(Article::class)->create([
-            'user_id' => $this->user->id,
-            'category_id' => $category->id
-        ]);
-        Clap::create([
-            'user_id' => $this->user->id,
-            'article_id' => $article->id,
-            'count' => 3
-        ]);
-
-        $response = $this->actingAs($this->admin)->json('GET', 'api/users/active-members');
-
-        $response->assertStatus(200);
-        $response->assertJsonCount(5, 'data');
-        $response->assertJsonFragment([
-            'name' => $this->user->name,
-            'username' => $this->user->username,
-            'bio' => $this->user->bio,
-        ]);
-    }
-
-    // Test get active members, not logged in -> 401
-    public function test_cannot_get_active_members_not_logged_in() {
-        $users = factory(User::class, 5)->create();
-
-        $category = factory(Category::class)->create();
-        $article = factory(Article::class)->create([
-            'user_id' => $this->user->id,
-            'category_id' => $category->id
-        ]);
-        Clap::create([
-            'user_id' => $this->user->id,
-            'article_id' => $article->id,
-            'count' => 3
-        ]);
-
-        $response = $this->json('GET', 'api/users/active-members');
-
-        $response->assertStatus(401);
-    }
-
-    // Test get active members, not admin -> 403
-    public function test_cannot_get_active_members_not_admin_logged_in() {
-        $users = factory(User::class, 5)->create();
-
-        $category = factory(Category::class)->create();
-        $article = factory(Article::class)->create([
-            'user_id' => $this->user->id,
-            'category_id' => $category->id
-        ]);
-        Clap::create([
-            'user_id' => $this->user->id,
-            'article_id' => $article->id,
-            'count' => 3
-        ]);
-
-        $response = $this->actingAs($this->user)->json('GET', 'api/users/active-members');
-
-        $response->assertStatus(403);
-    }
-
     // Test get user series => 200
-    public function test_get_user_series_logged_in() {
+    public function test_get_user_series_logged_in()
+    {
         $user = factory(User::class)->create();
         $otherUser = factory(User::class)->create();
         $series = factory(Series::class)->make();
@@ -781,7 +698,8 @@ class UserTest extends TestCase
     }
 
     // Test get user series, not log in => 401
-    public function test_get_user_series_not_creator() {
+    public function test_get_user_series_not_creator()
+    {
         $user = factory(User::class)->create();
         $series = factory(Series::class)->make();
         factory(Series::class, 4)->create([
@@ -794,7 +712,8 @@ class UserTest extends TestCase
     }
 
     // Test get user all articles with draft, private => 200
-    public function test_get_user_all_articles() {
+    public function test_get_user_all_articles()
+    {
         $category = factory(Category::class)->create();
         factory(Article::class, 3)->create([
             'user_id' => $this->user->id,
@@ -822,7 +741,8 @@ class UserTest extends TestCase
     }
 
     // Test get user all articles with draft, private => 200
-    public function test_get_user_all_articles_unauthorize() {
+    public function test_get_user_all_articles_unauthorize()
+    {
         $category = factory(Category::class)->create();
         factory(Article::class, 3)->create([
             'user_id' => $this->user->id,
