@@ -199,7 +199,7 @@ class ArticleController extends Controller
 
     public function home()
     {
-        $categories = Category::latest()->all();
+        $categories = Category::all();
         return HomeResource::collection($categories);
     }
 
