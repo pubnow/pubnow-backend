@@ -66,11 +66,13 @@ Route::group(['namespace' => 'Api'], function () {
     Route::get('articles/{article}/comments', 'ArticleController@comments');
     Route::get('articles/popular', 'ArticleController@popular');
     Route::get('articles/featured', 'ArticleController@featured');
+    Route::get('articles/home', 'ArticleController@home');
     Route::post('articles/{article}/bookmark', 'BookmarkController@store');
     Route::delete('articles/{article}/bookmark', 'BookmarkController@destroy');
     Route::post('articles/{article}/clap', 'ArticleController@clap');
     Route::delete('articles/{article}/clap', 'ArticleController@unclap');
     Route::resource('articles', 'ArticleController')->except(['create', 'edit']);
+
 
     // Role
     Route::resource('roles', 'RoleController')->except(['show', 'create', 'edit']);

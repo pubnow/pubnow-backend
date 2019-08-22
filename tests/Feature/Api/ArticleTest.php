@@ -31,7 +31,8 @@ class ArticleTest extends TestCase
 
     // ---- Create
     // TODO: Tao article, neu da login, -> ok
-    public function test_can_create_article_if_logged_in() {
+    public function test_can_create_article_if_logged_in()
+    {
         $category = factory(Category::class)->create();
         $organization = factory(Organization::class)->create([
             'owner' => $this->user->id,
@@ -56,7 +57,8 @@ class ArticleTest extends TestCase
         ]);
     }
     // TODO: Tao article, neu da login, organization khong ton tai -> 422
-    public function test_can_create_article_if_logged_in_organization_not_exists() {
+    public function test_can_create_article_if_logged_in_organization_not_exists()
+    {
         $category = factory(Category::class)->create();
         $organization = factory(Organization::class)->create([
             'owner' => $this->user->id
@@ -74,7 +76,8 @@ class ArticleTest extends TestCase
         $response->assertStatus(422);
     }
     // TODO: Tao article, neu da login, organization ton tai, khong phai thanh vien cua organization -> 403
-    public function test_can_create_article_if_logged_in_not_organization_member() {
+    public function test_can_create_article_if_logged_in_not_organization_member()
+    {
         $category = factory(Category::class)->create();
         $organization = factory(Organization::class)->create([
             'owner' => $this->user->id,
@@ -91,7 +94,8 @@ class ArticleTest extends TestCase
         $response->assertStatus(403);
     }
     // TODO: Tao article, neu da login, organization ton tai, organization chua active -> 422
-    public function test_can_create_article_if_organization_not_active() {
+    public function test_can_create_article_if_organization_not_active()
+    {
         $category = factory(Category::class)->create();
         $organization = factory(Organization::class)->create([
             'owner' => $this->user->id,
@@ -111,7 +115,8 @@ class ArticleTest extends TestCase
         $response->assertStatus(422);
     }
     // TODO: Tag article, chua login -> 403
-    public function test_cannot_create_article_if_not_logged_in() {
+    public function test_cannot_create_article_if_not_logged_in()
+    {
         $category = factory(Category::class)->create();
         $article = factory(Article::class)->make();
         $response = $this->json('POST', '/api/articles', [
@@ -123,7 +128,8 @@ class ArticleTest extends TestCase
         $response->assertStatus(401);
     }
     // TODO: Tao article, da login, nhung truyen thieu data required (name || content || category) => 422
-    public function test_cannot_create_article_if_logged_in_but_missing_title() {
+    public function test_cannot_create_article_if_logged_in_but_missing_title()
+    {
         $category = factory(Category::class)->create();
         $article = factory(Article::class)->make();
         $response = $this->actingAs($this->user)->json('POST', '/api/articles', [
@@ -134,7 +140,8 @@ class ArticleTest extends TestCase
         $response->assertStatus(422);
     }
     // TODO: Tao article, da login, nhung truyen sai data (category != uuid, hoac category k ton tai) => 422
-    public function test_cannot_create_article_if_logged_in_but_category_not_exists() {
+    public function test_cannot_create_article_if_logged_in_but_category_not_exists()
+    {
         $category = factory(Category::class)->make();
         $article = factory(Article::class)->make();
         $response = $this->actingAs($this->user)->json('POST', '/api/articles', [
@@ -147,9 +154,10 @@ class ArticleTest extends TestCase
 
     // ---- Get one
     // TODO: Xem 1 article, ton tai -> ok
-    public function test_can_view_an_exists_article() {
+    public function test_can_view_an_exists_article()
+    {
         $category = factory(Category::class)->create();
-        $organization = factory(Organization::class) ->create([
+        $organization = factory(Organization::class)->create([
             'owner' => $this->user,
         ]);
         $article = factory(Article::class)->create([
@@ -157,7 +165,7 @@ class ArticleTest extends TestCase
             'category_id' => $category->id,
             'organization_id' => $organization->id,
         ]);
-        $response = $this->json('GET', '/api/articles/'.$article->slug);
+        $response = $this->json('GET', '/api/articles/' . $article->slug);
 
         $response->assertOk();
         $response->assertJsonFragment([
@@ -169,7 +177,8 @@ class ArticleTest extends TestCase
     }
 
     // TODO: Xem 1 article, clapped, bookmarked
-    public function test_can_view_an_exists_article_clapped_bookmarked() {
+    public function test_can_view_an_exists_article_clapped_bookmarked()
+    {
         $category = factory(Category::class)->create();
         $article = factory(Article::class)->create([
             'user_id' => $this->user->id,
@@ -184,7 +193,7 @@ class ArticleTest extends TestCase
             'user_id' => $this->user->id,
             'article_id' => $article->id,
         ]);
-        $response = $this->actingAs($this->user)->json('GET', '/api/articles/'.$article->slug);
+        $response = $this->actingAs($this->user)->json('GET', '/api/articles/' . $article->slug);
 
         $response->assertOk();
         $response->assertJsonFragment([
@@ -197,9 +206,10 @@ class ArticleTest extends TestCase
     }
 
     // TODO: Xem 1 article, ton tai, organization private, owner logged in -> ok
-    public function test_can_view_an_exists_article_organization_private_owner() {
+    public function test_can_view_an_exists_article_organization_private_owner()
+    {
         $category = factory(Category::class)->create();
-        $organization = factory(Organization::class) ->create([
+        $organization = factory(Organization::class)->create([
             'owner' => $this->user,
         ]);
         InviteRequest::create([
@@ -213,7 +223,7 @@ class ArticleTest extends TestCase
             'organization_id' => $organization->id,
             'organization_private' => true
         ]);
-        $response = $this->actingAs($this->user)->json('GET', '/api/articles/'.$article->slug);
+        $response = $this->actingAs($this->user)->json('GET', '/api/articles/' . $article->slug);
 
         $response->assertOk();
         $response->assertJsonFragment([
@@ -225,9 +235,10 @@ class ArticleTest extends TestCase
     }
 
     // TODO: Xem 1 article, ton tai, organization private, admin logged in -> ok
-    public function test_can_view_an_exists_article_organization_private_admin() {
+    public function test_can_view_an_exists_article_organization_private_admin()
+    {
         $category = factory(Category::class)->create();
-        $organization = factory(Organization::class) ->create([
+        $organization = factory(Organization::class)->create([
             'owner' => $this->user,
         ]);
         InviteRequest::create([
@@ -241,7 +252,7 @@ class ArticleTest extends TestCase
             'organization_id' => $organization->id,
             'organization_private' => true
         ]);
-        $response = $this->actingAs($this->admin)->json('GET', '/api/articles/'.$article->slug);
+        $response = $this->actingAs($this->admin)->json('GET', '/api/articles/' . $article->slug);
 
         $response->assertOk();
         $response->assertJsonFragment([
@@ -253,9 +264,10 @@ class ArticleTest extends TestCase
     }
 
     // TODO: Xem 1 article, ton tai, organization private, not logged in -> 401
-    public function test_can_view_an_exists_article_organization_private_not_logged_in() {
+    public function test_can_view_an_exists_article_organization_private_not_logged_in()
+    {
         $category = factory(Category::class)->create();
-        $organization = factory(Organization::class) ->create([
+        $organization = factory(Organization::class)->create([
             'owner' => $this->user,
         ]);
         InviteRequest::create([
@@ -269,16 +281,17 @@ class ArticleTest extends TestCase
             'organization_id' => $organization->id,
             'organization_private' => true
         ]);
-        $response = $this->json('GET', '/api/articles/'.$article->slug);
+        $response = $this->json('GET', '/api/articles/' . $article->slug);
 
         $response->assertStatus(401);
     }
 
     // TODO: Xem 1 article, ton tai, organization private, not owner logged in -> 403
-    public function test_cannot_view_an_exists_article_organization_private_not_owner_or_admin() {
+    public function test_cannot_view_an_exists_article_organization_private_not_owner_or_admin()
+    {
         $category = factory(Category::class)->create();
         $user = factory(User::class)->create();
-        $organization = factory(Organization::class) ->create([
+        $organization = factory(Organization::class)->create([
             'owner' => $this->user,
         ]);
         InviteRequest::create([
@@ -292,19 +305,20 @@ class ArticleTest extends TestCase
             'organization_id' => $organization->id,
             'organization_private' => true
         ]);
-        $response = $this->actingAs($user)->json('GET', '/api/articles/'.$article->slug);
+        $response = $this->actingAs($user)->json('GET', '/api/articles/' . $article->slug);
 
         $response->assertStatus(403);
     }
 
     // TODO: Xem 1 article, khong ton tai -> 404 not found
-    public function test_cannot_view_a_not_exists_article() {
+    public function test_cannot_view_a_not_exists_article()
+    {
         $category = factory(Category::class)->create();
         $article = factory(Article::class)->make([
             'user_id' => $this->user->id,
             'category_id' => $category->id,
         ]);
-        $response = $this->json('GET', '/api/articles/'.$article->slug);
+        $response = $this->json('GET', '/api/articles/' . $article->slug);
 
         $response->assertStatus(404);
     }
@@ -319,7 +333,7 @@ class ArticleTest extends TestCase
             'category_id' => $category->id,
         ]);
         $updateArticle = factory(Article::class)->make();
-        $response = $this->actingAs($this->admin)->json('PUT', '/api/articles/'.$article->slug, [
+        $response = $this->actingAs($this->admin)->json('PUT', '/api/articles/' . $article->slug, [
             'title' => $updateArticle->title,
             'content' => $updateArticle->content,
         ]);
@@ -339,7 +353,7 @@ class ArticleTest extends TestCase
             'category_id' => $category->id,
         ]);
         $updateArticle = factory(Article::class)->make();
-        $response = $this->actingAs($this->user)->json('PUT', '/api/articles/'.$article->slug, [
+        $response = $this->actingAs($this->user)->json('PUT', '/api/articles/' . $article->slug, [
             'title' => $updateArticle->title,
             'content' => $updateArticle->content,
         ]);
@@ -360,7 +374,7 @@ class ArticleTest extends TestCase
             'category_id' => $category->id,
         ]);
         $updateArticle = factory(Article::class)->make();
-        $response = $this->actingAs($updater)->json('PUT', '/api/articles/'.$article->slug, [
+        $response = $this->actingAs($updater)->json('PUT', '/api/articles/' . $article->slug, [
             'title' => $updateArticle->title,
             'content' => $updateArticle->content,
         ]);
@@ -376,7 +390,7 @@ class ArticleTest extends TestCase
             'category_id' => $category->id,
         ]);
         $updateCategory = factory(Category::class)->make();
-        $response = $this->actingAs($this->admin)->json('PUT', '/api/articles/'.$article->slug, [
+        $response = $this->actingAs($this->admin)->json('PUT', '/api/articles/' . $article->slug, [
             'category_id' => $updateCategory->id
         ]);
 
@@ -387,7 +401,7 @@ class ArticleTest extends TestCase
     {
         $article = factory(Article::class)->make();
         $updateArticle = factory(Article::class)->make();
-        $response = $this->actingAs($this->admin)->json('PUT', '/api/articles/'.$article->slug, [
+        $response = $this->actingAs($this->admin)->json('PUT', '/api/articles/' . $article->slug, [
             'title' => $updateArticle->title,
             'content' => $updateArticle->content,
         ]);
@@ -403,7 +417,7 @@ class ArticleTest extends TestCase
             'user_id' => $this->user->id,
             'category_id' => $category->id,
         ]);
-        $response = $this->actingAs($this->admin)->json('DELETE', '/api/articles/'.$article->slug);
+        $response = $this->actingAs($this->admin)->json('DELETE', '/api/articles/' . $article->slug);
 
         $response->assertStatus(204);
     }
@@ -415,7 +429,7 @@ class ArticleTest extends TestCase
             'user_id' => $this->user->id,
             'category_id' => $category->id,
         ]);
-        $response = $this->actingAs($this->user)->json('DELETE', '/api/articles/'.$article->slug);
+        $response = $this->actingAs($this->user)->json('DELETE', '/api/articles/' . $article->slug);
 
         $response->assertStatus(204);
     }
@@ -428,7 +442,7 @@ class ArticleTest extends TestCase
             'category_id' => $category->id,
         ]);
         $deleter = factory(User::class)->create();
-        $response = $this->actingAs($deleter)->json('DELETE', '/api/articles/'.$article->slug);
+        $response = $this->actingAs($deleter)->json('DELETE', '/api/articles/' . $article->slug);
 
         $response->assertStatus(403);
     }
@@ -437,14 +451,15 @@ class ArticleTest extends TestCase
     public function test_cannot_delete_a_not_exists_article()
     {
         $article = factory(Article::class)->make();
-        $response = $this->actingAs($this->admin)->json('DELETE', '/api/articles/'.$article->slug);
+        $response = $this->actingAs($this->admin)->json('DELETE', '/api/articles/' . $article->slug);
 
         $response->assertStatus(404);
     }
 
     // --- popular, featured articles
     //TODO: lay list popular articles, guest -> 200
-    public function test_can_get_list_popular_articles() {
+    public function test_can_get_list_popular_articles()
+    {
         $category = factory(Category::class)->create();
         $article = factory(Article::class, 10)->create([
             'user_id' => $this->user->id,
@@ -454,7 +469,7 @@ class ArticleTest extends TestCase
         $response = $this->json('GET', '/api/articles/popular');
 
         $response->assertStatus(200);
-        $response->assertJsonCount(5, 'data');
+        $response->assertJsonCount(10, 'data');
         $response->assertJsonStructure([
             'data' => [
                 '*' => [
@@ -665,7 +680,7 @@ class ArticleTest extends TestCase
             'draft' => false,
             'private' => true
         ]);
-        $response = $this->json('GET', '/api/articles/'.$article->slug);
+        $response = $this->json('GET', '/api/articles/' . $article->slug);
 
         $response->assertStatus(401);
     }
@@ -700,7 +715,7 @@ class ArticleTest extends TestCase
             'draft' => false,
             'private' => true
         ]);
-        $response = $this->json('GET', '/api/users/' .$this->user->username. '/articles');
+        $response = $this->json('GET', '/api/users/' . $this->user->username . '/articles');
 
         $response->assertStatus(200);
         $response->assertJsonCount(3, 'data');
@@ -789,14 +804,15 @@ class ArticleTest extends TestCase
 
     // --- Clap
     // Test clap a exists article, logged in -> 201
-    public function test_can_clap_a_exists_article() {
+    public function test_can_clap_a_exists_article()
+    {
         $category = factory(Category::class)->create();
         $article = factory(Article::class)->create([
             'user_id' => $this->user->id,
             'category_id' => $category->id,
         ]);
 
-        $response = $this->actingAs($this->user)->json('POST', 'api/articles/'.$article->slug.'/clap');
+        $response = $this->actingAs($this->user)->json('POST', 'api/articles/' . $article->slug . '/clap');
 
         $response->assertStatus(201);
 
@@ -819,7 +835,8 @@ class ArticleTest extends TestCase
     }
 
     // Test clap a exists article, logged in, clapped -> 200
-    public function test_can_clap_a_exists_article_clapped() {
+    public function test_can_clap_a_exists_article_clapped()
+    {
         $category = factory(Category::class)->create();
         $article = factory(Article::class)->create([
             'user_id' => $this->user->id,
@@ -832,7 +849,7 @@ class ArticleTest extends TestCase
             'count' => 1
         ]);
 
-        $response = $this->actingAs($this->user)->json('POST', 'api/articles/'.$article->slug.'/clap');
+        $response = $this->actingAs($this->user)->json('POST', 'api/articles/' . $article->slug . '/clap');
 
         $response->assertStatus(200);
 
@@ -855,7 +872,8 @@ class ArticleTest extends TestCase
     }
 
     // Test clap a exists article, not logged in -> 401
-    public function test_cannot_clap_a_exists_article_if_not_logged_in() {
+    public function test_cannot_clap_a_exists_article_if_not_logged_in()
+    {
         $category = factory(Category::class)->create();
         $article = factory(Article::class)->create([
             'user_id' => $this->user->id,
@@ -868,27 +886,29 @@ class ArticleTest extends TestCase
             'count' => 1
         ]);
 
-        $response = $this->json('POST', 'api/articles/'.$article->slug.'/clap');
+        $response = $this->json('POST', 'api/articles/' . $article->slug . '/clap');
 
         $response->assertStatus(401);
     }
 
     // Test clap a not exists article, logged in -> 404
-    public function test_cannot_clap_a_not_exists_article() {
+    public function test_cannot_clap_a_not_exists_article()
+    {
         $category = factory(Category::class)->create();
         $article = factory(Article::class)->make([
             'user_id' => $this->user->id,
             'category_id' => $category->id,
         ]);
 
-        $response = $this->actingAs($this->user)->json('POST', 'api/articles/'.$article->slug.'/clap');
+        $response = $this->actingAs($this->user)->json('POST', 'api/articles/' . $article->slug . '/clap');
 
         $response->assertStatus(404);
     }
 
     // --- Unclap
     // Test unclap a exists article, clapped -> 204
-    public function test_can_unclap_a_exists_article_clapped() {
+    public function test_can_unclap_a_exists_article_clapped()
+    {
         $category = factory(Category::class)->create();
         $article = factory(Article::class)->create([
             'user_id' => $this->user->id,
@@ -901,26 +921,28 @@ class ArticleTest extends TestCase
             'count' => 1
         ]);
 
-        $response = $this->actingAs($this->user)->json('DELETE', 'api/articles/'.$article->slug.'/clap');
+        $response = $this->actingAs($this->user)->json('DELETE', 'api/articles/' . $article->slug . '/clap');
 
         $response->assertStatus(204);
     }
 
     // Test unclap a exists article, not clapped -> 404
-    public function test_can_unclap_a_exists_article_not_clapped() {
+    public function test_can_unclap_a_exists_article_not_clapped()
+    {
         $category = factory(Category::class)->create();
         $article = factory(Article::class)->create([
             'user_id' => $this->user->id,
             'category_id' => $category->id,
         ]);
 
-        $response = $this->actingAs($this->user)->json('DELETE', 'api/articles/'.$article->slug.'/clap');
+        $response = $this->actingAs($this->user)->json('DELETE', 'api/articles/' . $article->slug . '/clap');
 
         $response->assertStatus(404);
     }
 
     // Test upclap a exists article, not logged in
-    public function test_can_unclap_a_exists_article_clapped_but_not_logged_in() {
+    public function test_can_unclap_a_exists_article_clapped_but_not_logged_in()
+    {
         $category = factory(Category::class)->create();
         $article = factory(Article::class)->create([
             'user_id' => $this->user->id,
@@ -933,26 +955,28 @@ class ArticleTest extends TestCase
             'count' => 1
         ]);
 
-        $response = $this->json('DELETE', 'api/articles/'.$article->slug.'/clap');
+        $response = $this->json('DELETE', 'api/articles/' . $article->slug . '/clap');
 
         $response->assertStatus(401);
     }
 
     // Test upclap a not exists article
-    public function test_cannot_unclap_a_not_exists_article() {
+    public function test_cannot_unclap_a_not_exists_article()
+    {
         $category = factory(Category::class)->create();
         $article = factory(Article::class)->make([
             'user_id' => $this->user->id,
             'category_id' => $category->id,
         ]);
 
-        $response = $this->actingAs($this->user)->json('DELETE', 'api/articles/'.$article->slug.'/clap');
+        $response = $this->actingAs($this->user)->json('DELETE', 'api/articles/' . $article->slug . '/clap');
 
         $response->assertStatus(404);
     }
 
     // TODO: Xem 1 private article nhưng đ phải thằng tạo
-    public function test_view_an_private_article_not_author() {
+    public function test_view_an_private_article_not_author()
+    {
         $category = factory(Category::class)->create();
         $article = factory(Article::class)->create([
             'user_id' => $this->user->id,
@@ -960,33 +984,35 @@ class ArticleTest extends TestCase
             'private' => true
         ]);
         $fakeUser = factory(User::class)->create();
-        $response = $this->actingAs($fakeUser)->json('GET', '/api/articles/'.$article->slug);
+        $response = $this->actingAs($fakeUser)->json('GET', '/api/articles/' . $article->slug);
 
         $response->assertStatus(401);
     }
 
     // TODO: Xem 1 private article đúng là thằng tạo
-    public function test_view_an_private_article_right_author() {
+    public function test_view_an_private_article_right_author()
+    {
         $category = factory(Category::class)->create();
         $article = factory(Article::class)->create([
             'user_id' => $this->user->id,
             'category_id' => $category->id,
             'private' => true
         ]);
-        $response = $this->actingAs($this->user)->json('GET', '/api/articles/'.$article->slug);
+        $response = $this->actingAs($this->user)->json('GET', '/api/articles/' . $article->slug);
 
         $response->assertStatus(200);
     }
 
     // TODO: Xem 1 private article là thằng admin
-    public function test_view_an_private_article_admin() {
+    public function test_view_an_private_article_admin()
+    {
         $category = factory(Category::class)->create();
         $article = factory(Article::class)->create([
             'user_id' => $this->user->id,
             'category_id' => $category->id,
             'private' => true
         ]);
-        $response = $this->actingAs($this->admin)->json('GET', '/api/articles/'.$article->slug);
+        $response = $this->actingAs($this->admin)->json('GET', '/api/articles/' . $article->slug);
 
         $response->assertStatus(200);
     }

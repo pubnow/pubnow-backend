@@ -3,21 +3,19 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\Article\UpdateArticle;
-use App\Http\Requests\Api\Bookmark\CreateBookmark;
 use App\Http\Resources\ArticleOnlyResource;
-use App\Http\Resources\BookmarkResource;
 use App\Http\Resources\ClapResource;
 use App\Http\Resources\CommentResource;
 use App\Models\Article;
-use App\Models\Bookmark;
 use App\Models\Organization;
 use App\Models\Clap;
+use App\Models\Category;
 use App\Models\Tag;
-use http\Client\Curl\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticleResource;
 use App\Http\Requests\Api\Article\CreateArticle;
+use App\Http\Resources\HomeResource;
 
 class ArticleController extends Controller
 {
@@ -187,7 +185,7 @@ class ArticleController extends Controller
 
     public function popular()
     {
-        $articles = Article::withAuthor()->orderBy('seen_count', 'desc')->take(5)->get();
+        $articles = Article::withAuthor()->orderBy('seen_count', 'desc')->take(10)->get();
         return ArticleOnlyResource::collection($articles);
     }
 
@@ -197,6 +195,12 @@ class ArticleController extends Controller
             return $article->claps->sum('count') + $article->comments->count();
         })->take(5);
         return ArticleOnlyResource::collection($articles);
+    }
+
+    public function home()
+    {
+        $categories = Category::all();
+        return HomeResource::collection($categories);
     }
 
     public function comments(Article $article)
