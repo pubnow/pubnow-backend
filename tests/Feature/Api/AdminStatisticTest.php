@@ -56,8 +56,8 @@ class AdminStatisticTest extends TestCase
         // tạo tags
         factory(Tag::class, 3)->create();
         $response = $this->actingAs($this->admin)->json('GET', 'api/admin/statistic', [
-            'start_date' => $from,
-	        'end_date' => $to
+            'start' => $from,
+            'end' => $to
         ]);
         $response->assertStatus(200);
         $response->assertJson([
@@ -80,13 +80,6 @@ class AdminStatisticTest extends TestCase
                     'new' => 0,
                     'total' => 1
                 ],
-                'featuredMember' => [
-                    'total_articles' => 5
-                ],
-                'featuredArticle' => [
-                    'total_claps' => $featureArticle->claps->sum('count'),
-                    'total_comments' => $featureArticle->comments->count()
-                ]
             ]
         ]);
     }
