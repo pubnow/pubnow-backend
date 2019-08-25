@@ -17,6 +17,8 @@ trait WithAuthor
         return $query->where('draft', false)
             ->where('private', false)
             ->where('organization_private', false)
-            ->union($query->where('user_id', $user->id)->where('private', true));
+            ->orWhere(function ($query) use ($user) {
+                $query->where('user_id', $user->id)->where('private', true);
+            });
     }
 }
