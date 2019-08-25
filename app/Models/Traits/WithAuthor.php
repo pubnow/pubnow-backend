@@ -14,16 +14,9 @@ trait WithAuthor
                 ->where('private', false)
                 ->where('organization_private', false);
         }
-        $userPrivateArticles = $user->articles()
-            ->where('organization_id', null)
-            ->where('private', true);
-        $organizations = $user->organizations;
-        $organizations->each(function ($organization) use ($userPrivateArticles) {
-            $userPrivateArticles->union($organization->articles()->where('organization_private', true));
-        });
         return $query->where('draft', false)
             ->where('private', false)
             ->where('organization_private', false)
-            ->union($userPrivateArticles);
+            ->union($query->where('user_id', $user->id)->where('private', true));
     }
 }
