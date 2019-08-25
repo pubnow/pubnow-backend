@@ -14,7 +14,7 @@ trait WithAuthor
                 ->where('private', false)
                 ->where('organization_private', false);
         }
-        $userPrivateArticles = $user->articles()
+        $userPrivateArticles = $query->where('user_id', $user->id)
             ->where('organization_id', null)
             ->where('private', true);
         $organizations = $user->organizations;
