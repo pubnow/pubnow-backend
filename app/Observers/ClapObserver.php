@@ -16,8 +16,11 @@ class ClapObserver
      */
     public function created(Clap $clap)
     {
-        $user = $clap->article->author;
-        Notification::send($user, new ClapArticle($clap));
+        $author = $clap->article->author;
+        $user = $clap->user;
+        if ($author->id != $user->id) {
+            Notification::send($user, new ClapArticle($clap));
+        }
     }
 
     /**
