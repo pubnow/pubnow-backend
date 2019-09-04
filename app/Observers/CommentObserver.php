@@ -16,8 +16,11 @@ class CommentObserver
      */
     public function created(Comment $comment)
     {
-        $user = $comment->article->author;
-        Notification::send($user, new CommentArticle($comment));
+        $author = $comment->article->author;
+        $user = $comment->user;
+        if ($author->id != $user->id) {
+            Notification::send($author, new CommentArticle($comment));
+        }
     }
 
     /**
