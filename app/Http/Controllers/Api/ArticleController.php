@@ -93,7 +93,7 @@ class ArticleController extends Controller
      */
     public function show(Article $article)
     {
-        if ($article->private) {
+        if ($article->private || $article->draft) {
             $can = true;
             if (!auth()->user()) {
                 $can = false;
