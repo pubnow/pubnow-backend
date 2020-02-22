@@ -15,7 +15,7 @@ class Category extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'slug', 'description', 'image',
+        'name', 'slug', 'description', 'image_id',
     ];
 
     /**
@@ -26,5 +26,20 @@ class Category extends Model
     public function getRouteKeyName()
     {
         return 'slug';
+    }
+
+    public function articles()
+    {
+        return $this->hasMany('App\Models\Article', 'category_id', 'id')->latest()->withAuthor();
+    }
+
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'user_follow_categories');
+    }
+
+    public function photo()
+    {
+        return $this->hasOne(Image::class, 'id', 'image_id');
     }
 }

@@ -2,17 +2,24 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\Api\Category\UpdateCategory;
+use App\Http\Resources\ArticleOnlyResource;
+use App\Http\Resources\ArticleResource;
+use App\Http\Resources\CategoryOnlyResource;
+use App\Http\Resources\UserResource;
+use App\Http\Resources\UserWithFollowingCategoriesResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CategoryResource;
 use App\Http\Requests\Api\Category\CreateCategory;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show']);
+        $this->middleware(['auth'])->except(['index', 'show', 'articles', 'followers']);
         $this->authorizeResource(Category::class);
     }
     /**
@@ -23,7 +30,7 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::all();
-        return CategoryResource::collection($categories);
+        return CategoryOnlyResource::collection($categories);
     }
 
     /**
@@ -34,8 +41,8 @@ class CategoryController extends Controller
      */
     public function store(CreateCategory $request)
     {
-        $data = $request->only('category.name', 'category.slug', 'category.description', 'category.image');
-        $data = $data['category'];
+        $data = $request->all();
+        $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
         $newCategory = Category::create($data);
         return new CategoryResource($newCategory);
     }
@@ -58,13 +65,13 @@ class CategoryController extends Controller
      * @param  \App\Models\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Category $category)
+    public function update(UpdateCategory $request, Category $category)
     {
-        $data = $request->only('category.name', 'category.slug', 'category.description', 'category.image');
-        if (array_key_exists('category', $data)) {
-            $data = $data['category'];
-            $category->update($data);
+        $data = $request->only(['name', 'description', 'image_id']);
+        if ($request->has('name') && !empty($data['name'])) {
+            $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
         }
+        $category->update($data);
         return new CategoryResource($category);
     }
 
@@ -78,5 +85,44 @@ class CategoryController extends Controller
     {
         $category->delete();
         return response()->json(null, 204);
+    }
+
+    public function articles(Category $category)
+    {
+        $articles = $category->articles()->withAuthor()->paginate(10);
+        return ArticleOnlyResource::collection($articles);
+    }
+
+    public function follow(Request $request, Category $category)
+    {
+        $user = $request->user();
+        if ($user->followingCategories()->find($category->id)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Already follow this category'
+                ]
+            ], 422);
+        }
+        $user->followingCategories()->attach($category);
+        return new UserWithFollowingCategoriesResource($user);
+    }
+
+    public function unfollow(Request $request, Category $category)
+    {
+        $user = $request->user();
+        if (!$user->followingCategories()->find($category->id)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Has not followed this category yet'
+                ]
+            ], 422);
+        }
+        $user->followingCategories()->detach($category);
+        return new UserWithFollowingCategoriesResource($user);
+    }
+
+    public function followers(Category $category)
+    {
+        return UserResource::collection($category->followers);
     }
 }

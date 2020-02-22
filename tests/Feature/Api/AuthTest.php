@@ -9,17 +9,26 @@ use App\Models\User;
 
 class AuthTest extends TestCase
 {
+    protected $admin;
+    protected $user;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->artisan('db:seed');
+        $this->admin = User::where(['username' => 'admin'])->first();
+        $this->user = factory(User::class)->create();
+    }
+    // Dang ki
     public function test_can_register_new_user()
     {
         $user = factory(User::class)->make();
 
         $response = $this->json('POST', '/api/auth/register', [
-            'user' => [
-                'email' => $user->email,
-                'name' => $user->name,
-                'username' => $user->username,
-                'password' => 'password',
-            ],
+            'email' => $user->email,
+            'name' => $user->name,
+            'username' => $user->username,
+            'password' => 'password',
         ]);
 
         $response->assertStatus(201);
@@ -30,15 +39,42 @@ class AuthTest extends TestCase
         ]);
     }
 
+    // Dang ki user moi, truyen thieu 1 trong cac truong username | name | password | email
+    public function test_cannot_register_new_user_if_missing_field_email() {
+        $user = factory(User::class)->make();
+
+        $response = $this->json('POST', '/api/auth/register', [
+            'name' => $user->name,
+            'username' => $user->username,
+            'password' => 'password',
+        ]);
+
+        $response->assertStatus(422);
+    }
+
+    // Dang ki user moi, truyen du cac truong, user name da ton tai
+    public function test_cannot_register_new_user_if_username_exists() {
+        $newUser = factory(User::class)->make();
+
+        $response = $this->json('POST', '/api/auth/register', [
+            'email' => $newUser->email,
+            'name' => $newUser->name,
+            'username' => $this->user->username,
+            'password' => 'password',
+        ]);
+
+        $response->assertStatus(422);
+    }
+
+    // ----
+    // Dang nhap
     public function test_can_login()
     {
         $user = factory(User::class)->create();
 
         $response = $this->json('POST', '/api/auth/login', [
-            'user' => [
-                'username' => $user->username,
-                'password' => 'password',
-            ],
+            'username' => $user->username,
+            'password' => 'password',
         ]);
 
         $response->assertStatus(200);
@@ -49,6 +85,8 @@ class AuthTest extends TestCase
         ]);
     }
 
+    // ---
+    // Get user profile
     public function test_can_get_user_profile()
     {
         $user = factory(User::class)->create();

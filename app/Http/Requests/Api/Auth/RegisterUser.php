@@ -7,16 +7,6 @@ use App\Http\Requests\Api\ApiRequest;
 class RegisterUser extends ApiRequest
 {
     /**
-     * Get data to be validated from the request.
-     *
-     * @return array
-     */
-    protected function validationData()
-    {
-        return $this->get('user') ?: [];
-    }
-
-    /**
      * Get the validation rules that apply to the request.
      *
      * @return array
@@ -28,6 +18,14 @@ class RegisterUser extends ApiRequest
             'email' => 'required|email|max:255|unique:users,email',
             'password' => 'required|min:6',
             'name' => 'required'
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'username.unique' => 'Tên tài khoản đã tồn tại',
+            'email.unique' => 'Email đã tồn tại',
         ];
     }
 }

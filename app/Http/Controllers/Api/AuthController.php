@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Auth\LoginUser;
 use App\Http\Requests\Api\Auth\RegisterUser;
+use App\Http\Requests\Api\Auth\UpdateUser;
 use App\Models\User;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
@@ -13,11 +14,10 @@ class AuthController extends Controller
 {
     public function login(LoginUser $request)
     {
-        $credentials = $request->only('user.username', 'user.password');
-        $credentials = $credentials['user'];
+        $credentials = $request->only('username', 'password');
 
         if (!$token = auth()->attempt($credentials)) {
-            return $this->response()->json([
+            return response()->json([
                 'errors' => [
                     'email or password' => 'is invalid',
                 ]
@@ -31,14 +31,13 @@ class AuthController extends Controller
 
     public function register(RegisterUser $request)
     {
-        $user = User::create([
-            'username' => $request->input('user.username'),
-            'email' => $request->input('user.email'),
-            'password' => $request->input('user.password'),
-            'name' => $request->input('user.name')
-        ]);
+        $user = User::create($request->all());
 
-        return new UserResource($user);
+        $token = auth()->login($user);
+
+        return (new UserResource(auth()->user()))->additional([
+            'token' => $token,
+        ]);
     }
 
     public function me(Request $request)

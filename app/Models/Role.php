@@ -8,8 +8,18 @@ use App\Models\Concerns\UsesUuid;
 class Role extends Model
 {
     use UsesUuid;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name', 'description',
+    ];
+
     public function users()
     {
-        return $this->hasMany('App\Models\User');
+        return $this->hasMany(User::class);
     }
 }

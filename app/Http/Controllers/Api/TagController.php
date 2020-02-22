@@ -2,17 +2,26 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\Api\Tag\UpdateTag;
+use App\Http\Resources\ArticleOnlyResource;
+use App\Http\Resources\ArticleResource;
+use App\Http\Resources\TagOnlyResource;
+use App\Http\Resources\UserResource;
+use App\Http\Resources\UserWithFollowingTagsResource;
 use App\Models\Tag;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TagResource;
 use App\Http\Requests\Api\Tag\CreateTag;
+use Illuminate\Support\Facades\Storage;
 
 class TagController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth'])->except(['index', 'show']);
+        $this->middleware(['auth'])->except(['index', 'show', 'articles', 'followers']);
+        $this->authorizeResource(Tag::class);
     }
     /**
      * Display a listing of the resource.
@@ -21,8 +30,8 @@ class TagController extends Controller
      */
     public function index()
     {
-        $tags = Tag::all();
-        return TagResource::collection($tags);
+        $tags = Tag::orderBy('created_at', 'desc')->withCount('articles')->paginate(10);
+        return TagOnlyResource::collection($tags);
     }
 
 
@@ -34,8 +43,8 @@ class TagController extends Controller
      */
     public function store(CreateTag $request)
     {
-        $data = $request->only('tag.name', 'tag.slug', 'tag.description', 'tag.image');
-        $data = $data['tag'];
+        $data = $request->all();
+        $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
         $newTag = Tag::create($data);
         return new TagResource($newTag);
     }
@@ -58,13 +67,13 @@ class TagController extends Controller
      * @param  \App\Models\Tag  $tag
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Tag $tag)
+    public function update(UpdateTag $request, Tag $tag)
     {
-        $data = $request->only('tag.name', 'tag.slug', 'tag.description', 'tag.image');
-        if (array_key_exists('category', $data)) {
-            $data = $data['tag'];
-            $tag->update($data);
+        $data = $request->only(['name', 'description']);
+        if ($request->has('name') && !empty($data['name'])) {
+            $data['slug'] = str_slug($data['name']) . '-' . base_convert(time(), 10, 36);
         }
+        $tag->update($data);
         return new TagResource($tag);
     }
 
@@ -78,5 +87,41 @@ class TagController extends Controller
     {
         $tag->delete();
         return response()->json(null, 204);
+    }
+
+    public function articles(Tag $tag) {
+        $articles = $tag->articles()->withAuthor()->paginate(10);
+        return ArticleOnlyResource::collection($articles);
+    }
+
+    public function follow(Request $request, Tag $tag) {
+
+        $user = $request->user();
+        if ($user->followingTags()->find($tag->id)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Already follow this tag'
+                ]
+            ], 422);
+        }
+        $user->followingTags()->attach($tag);
+        return new UserWithFollowingTagsResource($user);
+    }
+
+    public function unfollow(Request $request, Tag $tag) {
+        $user = $request->user();
+        if (!$user->followingTags()->find($tag->id)) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Has not followed this tag yet'
+                ]
+            ], 422);
+        }
+        $user->followingTags()->detach($tag);
+        return new UserWithFollowingTagsResource($user);
+    }
+
+    public function followers(Tag $tag) {
+        return UserResource::collection($tag->followers);
     }
 }

@@ -7,15 +7,6 @@ use App\Http\Requests\Api\ApiRequest;
 class CreateCategory extends ApiRequest
 {
     /**
-     * Get data to be validated from the request.
-     *
-     * @return array
-     */
-    protected function validationData()
-    {
-        return $this->get('category') ?: [];
-    }
-    /**
      * Get the validation rules that apply to the request.
      *
      * @return array
@@ -24,7 +15,14 @@ class CreateCategory extends ApiRequest
     {
         return [
             'name' => 'required|max:60|unique:categories,name',
-            'slug' => 'required|max:60|unique:categories,slug',
+            'image_id'   => 'sometimes|uuid|exists:images,id',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'name.unique' => 'Tên chuyên mục đã tồn tại',
         ];
     }
 }
